@@ -6,9 +6,11 @@ const server = http.createServer(app)
 const { Server } = require("socket.io")
 const io = new Server(server)
 const mongoose = require("mongoose")
+const cors = require("cors")
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
+app.use(cors())
 
 // connect to db
 const mongoDb = process.env.MONGODB_URL
