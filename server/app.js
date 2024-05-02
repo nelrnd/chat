@@ -21,5 +21,8 @@ io.on("connection", (socket) => {
 
 app.get("/", (req, res) => res.send("Hello"))
 
+const userRouter = require("./routes/user")
+app.use("/api/user", userRouter)
+
 const PORT = process.env.PORT || 3000
 server.listen(PORT, () => console.log(`Server started at http://localhost:${PORT}`))
