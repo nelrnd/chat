@@ -18,6 +18,8 @@ exports.message_create = [
 
     await message.save()
 
+    await message.populate({ path: "sender", select: "-password" })
+
     res.json(message)
   }),
 ]
