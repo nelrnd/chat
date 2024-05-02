@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react"
 
 type ContextContent = {
   token: string | null
-  setToken: (newToken: string) => void
+  setToken: (newToken: string | null) => void
   authUser: { name: string; email: string } | null
 }
 
@@ -21,7 +21,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const [token, setToken_] = useState(localStorage.getItem("token"))
   const [authUser, setAuthUser] = useState(null)
 
-  const setToken = (newToken: string) => {
+  const setToken = (newToken: string | null) => {
     setToken_(newToken)
   }
 

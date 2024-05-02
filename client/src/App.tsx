@@ -6,30 +6,36 @@ import Chat from "./routes/Chat"
 import Profile from "./routes/Profile"
 import AuthProvider from "./providers/AuthProvider"
 import AuthRoot from "./routes/AuthRoot"
+import Root from "./routes/Root"
 
 const router = createBrowserRouter([
   {
-    index: true,
-    element: <Home />,
-  },
-  {
-    path: "/register",
-    element: <Register />,
-  },
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    element: <AuthRoot />,
+    element: <Root />,
     children: [
       {
-        path: "/chat",
-        element: <Chat />,
+        index: true,
+        element: <Home />,
       },
       {
-        path: "/profile",
-        element: <Profile />,
+        path: "/register",
+        element: <Register />,
+      },
+      {
+        path: "/login",
+        element: <Login />,
+      },
+      {
+        element: <AuthRoot />,
+        children: [
+          {
+            path: "/chat",
+            element: <Chat />,
+          },
+          {
+            path: "/profile",
+            element: <Profile />,
+          },
+        ],
       },
     ],
   },
