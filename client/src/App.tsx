@@ -5,6 +5,7 @@ import Register from "./routes/Register"
 import Chat from "./routes/Chat"
 import Profile from "./routes/Profile"
 import AuthProvider from "./providers/AuthProvider"
+import AuthRoot from "./routes/AuthRoot"
 
 const router = createBrowserRouter([
   {
@@ -20,12 +21,17 @@ const router = createBrowserRouter([
     element: <Login />,
   },
   {
-    path: "/chat",
-    element: <Chat />,
-  },
-  {
-    path: "/profile",
-    element: <Profile />,
+    element: <AuthRoot />,
+    children: [
+      {
+        path: "/chat",
+        element: <Chat />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
+      },
+    ],
   },
 ])
 
