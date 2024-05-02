@@ -1,5 +1,8 @@
 import { SubmitHandler, useForm } from "react-hook-form"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import { useAuth } from "../providers/AuthProvider"
+import axios from "axios"
+import { useEffect, useState } from "react"
 
 type Inputs = {
   email: string
@@ -8,10 +11,32 @@ type Inputs = {
 
 export default function Login() {
   const { register, handleSubmit } = useForm<Inputs>()
+  const { token, setToken } = useAuth()
+  const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
-    console.log(data)
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    setLoading(true)
+    setError(null)
+    await axios
+      .post("/user/login", data)
+      .then((res) => setToken(res.data.token))
+      .catch((err) => {
+        if (err.response && err.response.data.message) {
+          setError(err.response.data.message)
+        } else {
+          setError(err.message)
+        }
+      })
+    setLoading(false)
   }
+
+  useEffect(() => {
+    if (token) {
+      navigate("/chat")
+    }
+  }, [token, navigate])
 
   return (
     <div>
@@ -28,7 +53,9 @@ export default function Login() {
           <input id="password" type="password" {...register("password")} required />
         </div>
 
-        <button>Login</button>
+        {error && <p>{error}</p>}
+
+        <button disabled={loading}>{loading ? "Loading..." : "Login"}</button>
       </form>
 
       <p>

@@ -1,5 +1,8 @@
+import axios from "axios"
+import { useEffect, useState } from "react"
 import { SubmitHandler, useForm } from "react-hook-form"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import { useAuth } from "../providers/AuthProvider"
 
 type Inputs = {
   name: string
@@ -9,10 +12,32 @@ type Inputs = {
 
 export default function Register() {
   const { register, handleSubmit } = useForm<Inputs>()
+  const { token } = useAuth()
+  const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
-    console.log(data)
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    setLoading(true)
+    setError(null)
+    await axios
+      .post("/user/register", data)
+      .then(() => navigate("/login"))
+      .catch((err) => {
+        if (err.response && err.response.data.message) {
+          setError(err.response.data.message)
+        } else {
+          setError(err.message)
+        }
+      })
+    setLoading(false)
   }
+
+  useEffect(() => {
+    if (token) {
+      navigate("/chat")
+    }
+  }, [token, navigate])
 
   return (
     <div>
@@ -34,7 +59,9 @@ export default function Register() {
           <input id="password" type="password" {...register("password")} required />
         </div>
 
-        <button>Register</button>
+        {error && <p>{error}</p>}
+
+        <button disabled={loading}>{loading ? "Loading..." : "Register"}</button>
       </form>
 
       <p>

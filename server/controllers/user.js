@@ -30,7 +30,7 @@ exports.user_register = [
     const result = validationResult(req)
 
     if (!result.isEmpty()) {
-      return res.status(400).json({ errors: result.array() })
+      return res.status(400).json({ message: result.array()[0].msg })
     }
 
     const hashedPassword = bcrypt.hashSync(req.body.password, 12)
@@ -54,7 +54,7 @@ exports.user_login = [
     const results = validationResult(req)
 
     if (!results.isEmpty()) {
-      return res.status(400).json({ errors: results.array() })
+      return res.status(400).json({ errors: results.array()[0].msg })
     }
 
     const user = await User.findOne({ email: req.body.email })
