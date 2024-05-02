@@ -4,6 +4,7 @@ import Login from "./routes/Login"
 import Register from "./routes/Register"
 import Chat from "./routes/Chat"
 import Profile from "./routes/Profile"
+import AuthProvider from "./providers/AuthProvider"
 
 const router = createBrowserRouter([
   {
@@ -29,5 +30,9 @@ const router = createBrowserRouter([
 ])
 
 export default function App() {
-  return <RouterProvider router={router} />
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  )
 }
