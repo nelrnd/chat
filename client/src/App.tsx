@@ -1,3 +1,33 @@
+import { RouterProvider, createBrowserRouter } from "react-router-dom"
+import Home from "./routes/Home"
+import Login from "./routes/Login"
+import Register from "./routes/Register"
+import Chat from "./routes/Chat"
+import Profile from "./routes/Profile"
+
+const router = createBrowserRouter([
+  {
+    index: true,
+    element: <Home />,
+  },
+  {
+    path: "/register",
+    element: <Register />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/chat",
+    element: <Chat />,
+  },
+  {
+    path: "/profile",
+    element: <Profile />,
+  },
+])
+
 export default function App() {
-  return <h1>Hello</h1>
+  return <RouterProvider router={router} />
 }
