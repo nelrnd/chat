@@ -1,11 +1,14 @@
 const User = require("../models/user")
 const asyncHandler = require("express-async-handler")
+const bcrypt = require("bcryptjs")
 
 exports.user_register = asyncHandler(async (req, res, next) => {
+  const hashedPassword = bcrypt.hashSync(req.body.password, 12)
+
   const user = new User({
     name: req.body.name,
     email: req.body.email,
-    password: req.body.password,
+    password: hashedPassword,
   })
 
   await user.save()
@@ -18,7 +21,7 @@ exports.user_login = asyncHandler(async (req, res, next) => {
   if (!user) {
     return res.status(401).json({ message: "Invalid email or password" })
   }
-  const match = user.password === req.body.password
+  const match = bcrypt.compareSync(req.body.password, user.password)
   if (!match) {
     return res.status(401).json({ message: "Invalid email or password" })
   }
