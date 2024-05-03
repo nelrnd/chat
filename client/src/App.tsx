@@ -7,6 +7,7 @@ import Profile from "./routes/Profile"
 import AuthProvider from "./providers/AuthProvider"
 import AuthRoot from "./routes/AuthRoot"
 import Root from "./routes/Root"
+import ChatProvider from "./providers/ChatProvider"
 
 const router = createBrowserRouter([
   {
@@ -44,7 +45,9 @@ const router = createBrowserRouter([
 export default function App() {
   return (
     <AuthProvider>
-      <RouterProvider router={router} />
+      <ChatProvider>
+        <RouterProvider router={router} />
+      </ChatProvider>
     </AuthProvider>
   )
 }

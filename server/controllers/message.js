@@ -1,6 +1,7 @@
 const Message = require("../models/message")
 const asyncHandler = require("express-async-handler")
 const { body, validationResult } = require("express-validator")
+const he = require("he")
 
 exports.message_create = [
   body("content").notEmpty().withMessage("Message is required").escape(),
@@ -11,7 +12,7 @@ exports.message_create = [
       return res.status(400).json({ message: result.array()[0].msg })
     }
 
-    const message = new Message({
+    let message = new Message({
       content: req.body.content,
       sender: req.user._id,
     })
@@ -20,12 +21,16 @@ exports.message_create = [
 
     await message.populate({ path: "sender", select: "-password" })
 
+    message = JSON.parse(he.decode(JSON.stringify(message)))
+
     res.json(message)
   }),
 ]
 
 exports.message_get_list = asyncHandler(async (req, res, next) => {
-  const messages = await Message.find().sort({ timestamp: 1 }).populate({ path: "sender", select: "-password" })
+  let messages = await Message.find().sort({ timestamp: 1 }).populate({ path: "sender", select: "-password" })
+
+  messages = JSON.parse(he.decode(JSON.stringify(messages)))
 
   res.json(messages)
 })

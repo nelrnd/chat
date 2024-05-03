@@ -23,6 +23,10 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("a user disconnected")
   })
+
+  socket.on("new message", (msg) => {
+    socket.broadcast.emit("new message", msg)
+  })
 })
 
 app.get("/", (req, res) => res.send("Hello"))
