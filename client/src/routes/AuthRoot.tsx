@@ -1,5 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom"
 import { useAuth } from "../providers/AuthProvider"
+import { useEffect } from "react"
+import { socket } from "../socket"
 
 export default function AuthRoot() {
   const { token, authUser } = useAuth()
@@ -12,5 +14,25 @@ export default function AuthRoot() {
     return <p>Loading...</p>
   }
 
-  return <Outlet />
+  return (
+    <SocketConnector>
+      <Outlet />
+    </SocketConnector>
+  )
+}
+
+interface SocketConnectorProps {
+  children: React.ReactNode
+}
+
+function SocketConnector({ children }: SocketConnectorProps) {
+  useEffect(() => {
+    socket.connect()
+
+    return () => {
+      socket.disconnect()
+    }
+  }, [])
+
+  return children
 }
