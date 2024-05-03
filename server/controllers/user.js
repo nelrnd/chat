@@ -97,3 +97,24 @@ exports.user_get_me = asyncHandler(async (req, res, next) => {
 
   res.json(user)
 })
+
+exports.user_search = asyncHandler(async (req, res, next) => {
+  const term = req.query.term.toLowerCase()
+
+  if (!term) {
+    return res.json([])
+  }
+
+  const results = await User.aggregate([
+    {
+      $match: {
+        $or: [{ name: { $regex: "^" + term, $options: "i" } }, { email: { $regex: "^" + term, $options: "i" } }],
+      },
+    },
+    {
+      $unset: "password",
+    },
+  ]).limit(5)
+
+  res.json(results)
+})
