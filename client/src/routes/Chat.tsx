@@ -2,6 +2,7 @@ import moment from "moment"
 import { useState } from "react"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { useChat } from "../providers/ChatProvider"
+import UserSearch from "../components/UserSearch"
 
 interface Inputs {
   content: string
@@ -22,6 +23,8 @@ export default function Chat() {
   return (
     <div>
       <h1>Chat</h1>
+
+      <UserSearch />
 
       {messages.length && (
         <ul>

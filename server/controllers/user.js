@@ -99,11 +99,16 @@ exports.user_get_me = asyncHandler(async (req, res, next) => {
 })
 
 exports.user_search = asyncHandler(async (req, res, next) => {
-  const term = req.query.term.toLowerCase()
+  let term = req.query.term.toLowerCase()
 
   if (!term) {
     return res.json([])
   }
+
+  term = term
+    .split("")
+    .map((char) => ("^!@#$%^&*()-_=+[\\]{};:'\",.<>?/\\|`~".includes(char) ? "\\" + char : char))
+    .join("")
 
   const results = await User.aggregate([
     {
