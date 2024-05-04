@@ -2,7 +2,7 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom"
 import Home from "./routes/Home"
 import Login from "./routes/Login"
 import Register from "./routes/Register"
-import Chat from "./routes/Chat"
+import Chats from "./routes/Chats"
 import Profile from "./routes/Profile"
 import AuthProvider from "./providers/AuthProvider"
 import AuthRoot from "./routes/AuthRoot"
@@ -30,7 +30,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: "/chat",
-            element: <Chat />,
+            element: <Chats />,
           },
           {
             path: "/profile",

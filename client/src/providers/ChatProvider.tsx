@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import { useAuth } from "./AuthProvider"
 import axios from "axios"
-import { Message } from "../types"
+import { Chat, Message } from "../types"
 import { socket } from "../socket"
 
 type ContextContent = {
@@ -23,6 +23,7 @@ interface ChatProviderProps {
 export default function ChatProvider({ children }: ChatProviderProps) {
   const { authUser } = useAuth()
   const [messages, setMessages] = useState<Message[]>([])
+  const [chats, setChats] = useState<Chat[]>([])
   const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set())
 
   const createMessage = async (data: { content: string }) => {
@@ -85,7 +86,18 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     }
   }, [authUser])
 
-  const contextValue = { messages, createMessage, typingUsers }
+  useEffect(() => {
+    if (authUser) {
+      axios
+        .get("/chat")
+        .then((res) => setChats(res.data))
+        .catch((err) => console.log(err))
+    } else {
+      setChats([])
+    }
+  }, [authUser])
+
+  const contextValue = { messages, chats, createMessage, typingUsers }
 
   return <ChatContext.Provider value={contextValue}>{children}</ChatContext.Provider>
 }
