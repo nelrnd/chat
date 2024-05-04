@@ -28,12 +28,12 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("new message", msg)
   })
 
-  socket.on("started typing", (userId) => {
-    socket.broadcast.emit("started typing", userId)
+  socket.on("started typing", (userName) => {
+    socket.broadcast.emit("started typing", userName)
   })
 
-  socket.on("stopped typing", (userId) => {
-    socket.broadcast.emit("stopped typing", userId)
+  socket.on("stopped typing", (userName) => {
+    socket.broadcast.emit("stopped typing", userName)
   })
 })
 
