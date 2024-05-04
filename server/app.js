@@ -41,8 +41,10 @@ app.get("/", (req, res) => res.send("Hello"))
 
 const userRouter = require("./routes/user")
 const messageRouter = require("./routes/message")
+const chatRouter = require("./routes/chat")
 app.use("/api/user", userRouter)
 app.use("/api/message", messageRouter)
+app.use("/api/chat", chatRouter)
 
 const PORT = process.env.PORT || 3000
 server.listen(PORT, () => console.log(`Server started at http://localhost:${PORT}`))
