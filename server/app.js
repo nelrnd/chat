@@ -27,6 +27,14 @@ io.on("connection", (socket) => {
   socket.on("new message", (msg) => {
     socket.broadcast.emit("new message", msg)
   })
+
+  socket.on("started typing", (userId) => {
+    socket.broadcast.emit("started typing", userId)
+  })
+
+  socket.on("stopped typing", (userId) => {
+    socket.broadcast.emit("stopped typing", userId)
+  })
 })
 
 app.get("/", (req, res) => res.send("Hello"))

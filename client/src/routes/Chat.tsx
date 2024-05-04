@@ -1,24 +1,11 @@
 import moment from "moment"
-import { useState } from "react"
-import { SubmitHandler, useForm } from "react-hook-form"
 import { useChat } from "../providers/ChatProvider"
 import UserSearch from "../components/UserSearch"
-
-interface Inputs {
-  content: string
-}
+import MessageForm from "../components/MessageInput"
+import IsTypingFeedback from "../components/IsTypingFeedback"
 
 export default function Chat() {
-  const { messages, createMessage } = useChat()
-  const { register, handleSubmit, reset } = useForm<Inputs>()
-  const [loading, setLoading] = useState(false)
-
-  const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    setLoading(true)
-    await createMessage(data)
-    reset()
-    setLoading(false)
-  }
+  const { messages } = useChat()
 
   return (
     <div>
@@ -37,10 +24,9 @@ export default function Chat() {
         </ul>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <textarea placeholder="Type something" {...register("content")} required spellCheck="false"></textarea>
-        <button disabled={loading}>{loading ? "Loading..." : "Submit"}</button>
-      </form>
+      <IsTypingFeedback />
+
+      <MessageForm />
     </div>
   )
 }

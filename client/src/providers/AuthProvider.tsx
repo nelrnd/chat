@@ -1,10 +1,11 @@
 import axios from "axios"
 import { createContext, useContext, useEffect, useMemo, useState } from "react"
+import { User } from "../types"
 
 type ContextContent = {
   token: string | null
   setToken: (newToken: string | null) => void
-  authUser: { name: string; email: string } | null
+  authUser: User | null
 }
 
 const AuthContext = createContext<ContextContent>({
