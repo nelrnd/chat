@@ -26,9 +26,31 @@ exports.chat_create = asyncHandler(async (req, res, next) => {
 exports.chat_get_list = asyncHandler(async (req, res, next) => {
   const chats = await Chat.find({ members: req.user._id }).populate({ path: "members", select: "-password" }).lean()
 
-  const messages = await Promise.all(chats.map(async (currChat) => await Message.find({ chat: currChat._id }).lean()))
+  const messages = await Promise.all(
+    chats.map(
+      async (currChat) =>
+        await Message.find({ chat: currChat._id })
+          .populate({ path: "sender", select: "-password" })
+          .populate("chat")
+          .lean()
+    )
+  )
 
   const chatsWithMessages = chats.map((chat, id) => ({ ...chat, messages: messages[id] }))
 
   res.json(chatsWithMessages)
+})
+
+exports.chat_check_auth = asyncHandler(async (req, res, next) => {
+  const chat = await Chat.findById(req.body.chatId)
+
+  if (!chat) {
+    return res.status(404).json({ message: "Chat not found" })
+  }
+
+  if (!chat.members.includes(req.user._id)) {
+    return res.status(401).json({ message: "Not authorized: user not in chat" })
+  }
+
+  next()
 })

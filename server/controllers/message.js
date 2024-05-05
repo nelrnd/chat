@@ -14,12 +14,15 @@ exports.message_create = [
 
     let message = new Message({
       content: req.body.content,
+      chat: req.body.chatId,
       sender: req.user._id,
     })
 
     await message.save()
 
     await message.populate({ path: "sender", select: "-password" })
+
+    await message.populate("chat")
 
     message = JSON.parse(he.decode(JSON.stringify(message)))
 

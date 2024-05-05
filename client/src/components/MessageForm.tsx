@@ -3,12 +3,15 @@ import { useChat } from "../providers/ChatProvider"
 import { useEffect, useRef, useState } from "react"
 import { socket } from "../socket"
 import { useAuth } from "../providers/AuthProvider"
+import { useParams } from "react-router-dom"
 
 interface Inputs {
   content: string
+  chatId: string
 }
 
 export default function MessageForm() {
+  const { chatId } = useParams()
   const { authUser } = useAuth()
   const { createMessage } = useChat()
   const { register, handleSubmit, reset } = useForm<Inputs>()
@@ -52,6 +55,7 @@ export default function MessageForm() {
         spellCheck="false"
         onKeyDown={onKeyDown}
       ></textarea>
+      <input type="hidden" {...register("chatId")} value={chatId} required />
       <button disabled={loading}>{loading ? "Loading..." : "Submit"}</button>
     </form>
   )

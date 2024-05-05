@@ -8,6 +8,7 @@ export type Message = {
   _id: string
   content: string
   sender: User
+  chat: Chat
   timestamp: string
 }
 

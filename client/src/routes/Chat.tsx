@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom"
 import { useChat } from "../providers/ChatProvider"
 import { useAuth } from "../providers/AuthProvider"
 import { User } from "../types"
-import MessageForm from "../components/MessageInput"
+import MessageForm from "../components/MessageForm"
 import IsTypingFeedback from "../components/IsTypingFeedback"
 import moment from "moment"
 

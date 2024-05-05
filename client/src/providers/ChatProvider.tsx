@@ -64,11 +64,22 @@ export default function ChatProvider({ children }: ChatProviderProps) {
   }
 
   const addMessage = (newMessage: Message) => {
-    setMessages((prev) => [...prev, newMessage])
+    setChats((prev) =>
+      prev.map((chat) =>
+        chat._id === newMessage.chat._id ? { ...chat, messages: [...chat.messages, newMessage] } : chat
+      )
+    )
   }
 
   useEffect(() => {
+    if (authUser) {
+      socket.emit("login", authUser._id)
+    }
+  }, [authUser])
+
+  useEffect(() => {
     function onNewMessage(msg: Message) {
+      console.log("new message")
       addMessage(msg)
     }
 
