@@ -1,4 +1,6 @@
+const chat = require("../models/chat")
 const Chat = require("../models/chat")
+const Message = require("../models/message")
 const asyncHandler = require("express-async-handler")
 
 exports.chat_create = asyncHandler(async (req, res, next) => {
@@ -8,17 +10,25 @@ exports.chat_create = asyncHandler(async (req, res, next) => {
     return res.status(400).json({ message: "Chat must contains at least 2 members" })
   }
 
-  const chat = new Chat({ members })
+  let chat = new Chat({ members })
 
   await chat.save()
 
   await chat.populate({ path: "members", select: "-password" })
 
-  res.json(chat)
+  chat = chat.toObject()
+
+  chat.members = []
+
+  res.json(JSON.to)
 })
 
 exports.chat_get_list = asyncHandler(async (req, res, next) => {
-  const chats = await Chat.find({ members: req.user._id }).populate({ path: "members", select: "-password" })
+  const chats = await Chat.find({ members: req.user._id }).populate({ path: "members", select: "-password" }).lean()
 
-  res.json(chats)
+  const messages = await Promise.all(chats.map(async (currChat) => await Message.find({ chat: currChat._id }).lean()))
+
+  const chatsWithMessages = chats.map((chat, id) => ({ ...chat, messages: messages[id] }))
+
+  res.json(chatsWithMessages)
 })
