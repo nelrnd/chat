@@ -6,14 +6,18 @@ import { socket } from "../socket"
 
 type ContextContent = {
   messages: Message[]
+  chats: Chat[]
   createMessage: (data: { content: string }) => Promise<void>
   typingUsers: Set<string>
+  loading: boolean
 }
 
 const ChatContext = createContext<ContextContent>({
   messages: [],
+  chats: [],
   createMessage: () => Promise.resolve(),
   typingUsers: new Set(),
+  loading: true,
 })
 
 interface ChatProviderProps {
@@ -25,6 +29,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [chats, setChats] = useState<Chat[]>([])
   const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set())
+  const [loading, setLoading] = useState(true)
 
   const createMessage = async (data: { content: string }) => {
     try {
@@ -90,18 +95,28 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     if (authUser) {
       axios
         .get("/chat")
-        .then((res) => setChats(res.data))
+        .then((res) => {
+          setChats(res.data)
+          setLoading(false)
+        })
         .catch((err) => console.log(err))
     } else {
       setChats([])
     }
   }, [authUser])
 
-  const contextValue = { messages, chats, createMessage, typingUsers }
+  const contextValue = { messages, chats, createMessage, typingUsers, loading }
 
   return <ChatContext.Provider value={contextValue}>{children}</ChatContext.Provider>
 }
 
-export function useChat() {
-  return useContext(ChatContext)
+export function useChat(chatId?: string) {
+  const data = useContext<ContextContent>(ChatContext)
+
+  if (chatId) {
+    const chat = data.chats.find((chat) => chat._id === chatId)
+    return { chat: chat, loading: data.loading }
+  }
+
+  return data
 }
