@@ -18,9 +18,9 @@ exports.chat_create = asyncHandler(async (req, res, next) => {
 
   chat = chat.toObject()
 
-  chat.members = []
+  chat.messages = []
 
-  res.json(JSON.to)
+  res.json(chat)
 })
 
 exports.chat_get_list = asyncHandler(async (req, res, next) => {

@@ -56,26 +56,21 @@ interface UserTabProps {
 
 function UserTab({ user }: UserTabProps) {
   const navigate = useNavigate()
-  const { chats, loading } = useChat()
+  const { findChat, createChat } = useChat()
 
-  const onClick = () => {
-    if (!loading) {
-      // check if chat already exists
-      const chat = chats.find(
-        (chat: Chat) => chat.members.length === 2 && chat.members.find((member: User) => member._id === user._id)
-      )
-      if (chat) {
-        console.log("chat exists")
-        navigate(`/chat/${chat._id}`)
-      } else {
-        console.log("chat don't exists")
-      }
+  const handleClick = async () => {
+    let chat = findChat(user._id)
+
+    if (!chat) {
+      chat = await createChat(user._id)
     }
+
+    navigate(`/chat/${chat._id}`)
   }
 
   return (
     <li>
-      <button onClick={onClick}>
+      <button onClick={handleClick}>
         {user.name} - {user.email}
       </button>
     </li>

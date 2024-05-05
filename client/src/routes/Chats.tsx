@@ -6,7 +6,9 @@ import { Chat } from "../types"
 
 export default function Chats() {
   const { authUser } = useAuth()
-  const { chats } = useChat()
+  const { chats, loading } = useChat()
+
+  if (loading) return <p>Loading...</p>
 
   return (
     <div>

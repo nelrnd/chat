@@ -10,6 +10,8 @@ type ContextContent = {
   createMessage: (data: { content: string }) => Promise<void>
   typingUsers: Set<string>
   loading: boolean
+  findChat: (userId: string) => Chat | undefined
+  createChat: (userId: string) => Promise<Chat> | undefined
 }
 
 const ChatContext = createContext<ContextContent>({
@@ -18,6 +20,8 @@ const ChatContext = createContext<ContextContent>({
   createMessage: () => Promise.resolve(),
   typingUsers: new Set(),
   loading: true,
+  findChat: () => undefined,
+  createChat: () => undefined,
 })
 
 interface ChatProviderProps {
@@ -41,6 +45,21 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     } catch (err) {
       console.log(err)
       return Promise.reject()
+    }
+  }
+
+  const findChat = (userId: string) => {
+    return chats.find((chat) => chat.members.length === 2 && chat.members.find((user) => user._id === userId))
+  }
+
+  const createChat = async (userId: string) => {
+    try {
+      const res = await axios.post("/chat", { userId })
+      const chat = res.data
+      setChats((prev) => [chat, ...prev])
+      return chat
+    } catch (err) {
+      console.log(err)
     }
   }
 
@@ -105,7 +124,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     }
   }, [authUser])
 
-  const contextValue = { messages, chats, createMessage, typingUsers, loading }
+  const contextValue = { messages, chats, createMessage, typingUsers, loading, findChat, createChat }
 
   return <ChatContext.Provider value={contextValue}>{children}</ChatContext.Provider>
 }
