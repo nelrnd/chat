@@ -1,14 +1,12 @@
-import moment from "moment"
 import { useChat } from "../providers/ChatProvider"
 import UserSearch from "../components/UserSearch"
-import MessageForm from "../components/MessageInput"
-import IsTypingFeedback from "../components/IsTypingFeedback"
 import { useAuth } from "../providers/AuthProvider"
 import { Link } from "react-router-dom"
+import { Chat } from "../types"
 
 export default function Chats() {
   const { authUser } = useAuth()
-  const { messages, chats } = useChat()
+  const { chats } = useChat()
 
   return (
     <div>
@@ -18,28 +16,13 @@ export default function Chats() {
 
       {chats.length > 0 && (
         <ul>
-          {chats.map((chat) => (
+          {chats.map((chat: Chat) => (
             <li key={chat._id}>
-              <Link to={`/chat/${chat._id}`}>{chat.members.find((user) => user._id !== authUser._id).name}</Link>
+              <Link to={`/chat/${chat._id}`}>{chat.members.find((user) => user._id !== authUser?._id)?.name}</Link>
             </li>
           ))}
         </ul>
       )}
-
-      {messages.length && (
-        <ul>
-          {messages.map((msg) => (
-            <li key={msg._id}>
-              <strong>{msg.sender.name}: </strong>
-              {msg.content} - {moment(msg.timestamp).format("LT")}
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <IsTypingFeedback />
-
-      <MessageForm />
     </div>
   )
 }

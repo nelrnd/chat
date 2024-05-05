@@ -111,7 +111,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
 }
 
 export function useChat(chatId?: string) {
-  const data = useContext<ContextContent>(ChatContext)
+  const data = useContext(ChatContext)
 
   if (chatId) {
     const chat = data.chats.find((chat) => chat._id === chatId)
