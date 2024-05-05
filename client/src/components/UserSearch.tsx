@@ -1,9 +1,11 @@
 import axios from "axios"
 import { useEffect, useState } from "react"
+import { User } from "../types"
+import { useNavigate } from "react-router-dom"
 
 export default function UserSearch() {
   const [value, setValue] = useState("")
-  const [results, setResults] = useState([])
+  const [results, setResults] = useState<User[]>([])
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -32,12 +34,30 @@ export default function UserSearch() {
       {results.length > 0 && (
         <ul>
           {results.map((user) => (
-            <li key={user._id}>
-              {user.name} - {user.email}
-            </li>
+            <UserTab key={user._id} user={user} />
           ))}
         </ul>
       )}
     </div>
+  )
+}
+
+interface UserTabProps {
+  user: User
+}
+
+function UserTab({ user }: UserTabProps) {
+  const navigate = useNavigate()
+
+  const onClick = () => {
+    console.log("go to this chat")
+  }
+
+  return (
+    <li>
+      <button onClick={onClick}>
+        {user.name} - {user.email}
+      </button>
+    </li>
   )
 }

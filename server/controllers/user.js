@@ -113,7 +113,15 @@ exports.user_search = asyncHandler(async (req, res, next) => {
   const results = await User.aggregate([
     {
       $match: {
-        $or: [{ name: { $regex: "^" + term, $options: "i" } }, { email: { $regex: "^" + term, $options: "i" } }],
+        $and: [
+          {
+            $or: [{ name: { $regex: "^" + term, $options: "i" } }, { email: { $regex: "^" + term, $options: "i" } }],
+          },
+          {
+            // remove authUser from search results
+            _id: { $ne: req.user._id },
+          },
+        ],
       },
     },
     {
