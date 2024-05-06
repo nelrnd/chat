@@ -79,6 +79,24 @@ export default function ChatProvider({ children }: ChatProviderProps) {
       addMessage(msg)
     }
 
+    function onUserConnected(userId: string) {
+      setChats((prev) =>
+        prev.map((chat) => ({
+          ...chat,
+          members: chat.members.map((user) => (user._id === userId ? { ...user, isOnline: true } : user)),
+        }))
+      )
+    }
+
+    function onUserDisconnected(userId: string) {
+      setChats((prev) =>
+        prev.map((chat) => ({
+          ...chat,
+          members: chat.members.map((user) => (user._id === userId ? { ...user, isOnline: false } : user)),
+        }))
+      )
+    }
+
     function onStartedTyping(userId: string, chatId: string) {
       setChats((prev) =>
         prev.map((chat) =>
@@ -101,11 +119,15 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     }
 
     socket.on("new message", onNewMessage)
+    socket.on("user connected", onUserConnected)
+    socket.on("user disconnected", onUserDisconnected)
     socket.on("started typing", onStartedTyping)
     socket.on("stopped typing", onStoppedTyping)
 
     return () => {
       socket.off("new message", onNewMessage)
+      socket.off("user connected", onUserConnected)
+      socket.off("user disconnected", onUserDisconnected)
       socket.off("started typing", onStartedTyping)
       socket.off("stopped typing", onStoppedTyping)
     }

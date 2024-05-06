@@ -17,6 +17,7 @@ const mongoDb = process.env.MONGODB_URL
 const main = async () => mongoose.connect(mongoDb)
 main().catch((err) => console.log(err))
 
+const User = require("./models/user")
 const Chat = require("./models/chat")
 
 io.on("connection", (socket) => {
@@ -24,16 +25,26 @@ io.on("connection", (socket) => {
 
   socket.on("login", async (newUserId) => {
     userId = newUserId
-    // connect to all chat rooms user is in
+
+    await User.findByIdAndUpdate(userId, { isOnline: true })
+
     const chats = await Chat.find({ members: userId })
     chats.forEach((chat) => {
       socket.join(chat._id.toString())
-      console.log("socket joined room ", chat._id.toString())
+      socket.to(chat._id.toString()).emit("user connected", userId)
     })
   })
 
-  socket.on("disconnect", () => {
-    console.log("a user disconnected")
+  socket.on("disconnect", async () => {
+    if (userId) {
+      await User.findByIdAndUpdate(userId, { isOnline: false })
+
+      const chats = await Chat.find({ members: userId })
+      chats.forEach((chat) => {
+        socket.leave(chat._id.toString())
+        socket.to(chat._id.toString()).emit("user disconnected", userId)
+      })
+    }
   })
 
   socket.on("new message", (msg) => {

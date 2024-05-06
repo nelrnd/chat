@@ -5,7 +5,6 @@ import { Link } from "react-router-dom"
 import { Chat } from "../types"
 
 export default function Chats() {
-  const { authUser } = useAuth()
   const { chats, loading } = useChat()
 
   if (loading) return <p>Loading...</p>
@@ -19,12 +18,27 @@ export default function Chats() {
       {chats.length > 0 && (
         <ul>
           {chats.map((chat: Chat) => (
-            <li key={chat._id}>
-              <Link to={`/chat/${chat._id}`}>{chat.members.find((user) => user._id !== authUser?._id)?.name}</Link>
-            </li>
+            <ChatLink key={chat._id} chat={chat} />
           ))}
         </ul>
       )}
     </div>
+  )
+}
+
+interface ChatLinkProps {
+  chat: Chat
+}
+
+function ChatLink({ chat }: ChatLinkProps) {
+  const { authUser } = useAuth()
+  const otherUser = chat.members.find((user) => user._id !== authUser?._id)
+
+  return (
+    <li>
+      <Link to={`/chat/${chat._id}`}>
+        {otherUser?.name} {otherUser?.isOnline && <em>(online)</em>}
+      </Link>
+    </li>
   )
 }
