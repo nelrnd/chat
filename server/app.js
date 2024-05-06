@@ -37,16 +37,15 @@ io.on("connection", (socket) => {
   })
 
   socket.on("new message", (msg) => {
-    console.log(msg.chat._id)
     socket.to(msg.chat._id).emit("new message", msg)
   })
 
-  socket.on("started typing", (userName) => {
-    socket.broadcast.emit("started typing", userName)
+  socket.on("started typing", (userName, chatId) => {
+    socket.to(chatId).emit("started typing", userName, chatId)
   })
 
-  socket.on("stopped typing", (userName) => {
-    socket.broadcast.emit("stopped typing", userName)
+  socket.on("stopped typing", (userName, chatId) => {
+    socket.to(chatId).emit("stopped typing", userName, chatId)
   })
 })
 

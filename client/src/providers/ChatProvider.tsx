@@ -8,7 +8,6 @@ type ContextContent = {
   messages: Message[]
   chats: Chat[]
   createMessage: (data: { content: string }) => Promise<void>
-  typingUsers: Set<string>
   loading: boolean
   findChat: (userId: string) => Chat | undefined
   createChat: (userId: string) => Promise<Chat> | undefined
@@ -18,7 +17,6 @@ const ChatContext = createContext<ContextContent>({
   messages: [],
   chats: [],
   createMessage: () => Promise.resolve(),
-  typingUsers: new Set(),
   loading: true,
   findChat: () => undefined,
   createChat: () => undefined,
@@ -32,7 +30,6 @@ export default function ChatProvider({ children }: ChatProviderProps) {
   const { authUser } = useAuth()
   const [messages, setMessages] = useState<Message[]>([])
   const [chats, setChats] = useState<Chat[]>([])
-  const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
 
   const createMessage = async (data: { content: string }) => {
@@ -79,24 +76,28 @@ export default function ChatProvider({ children }: ChatProviderProps) {
 
   useEffect(() => {
     function onNewMessage(msg: Message) {
-      console.log("new message")
       addMessage(msg)
     }
 
-    function onStartedTyping(userId: string) {
-      setTypingUsers((prev) => {
-        const updated = new Set(prev)
-        updated.add(userId)
-        return updated
-      })
+    function onStartedTyping(userId: string, chatId: string) {
+      setChats((prev) =>
+        prev.map((chat) =>
+          chat._id === chatId
+            ? {
+                ...chat,
+                typingUsers: chat.typingUsers.includes(userId) ? chat.typingUsers : [...chat.typingUsers, userId],
+              }
+            : chat
+        )
+      )
     }
 
-    function onStoppedTyping(userId: string) {
-      setTypingUsers((prev) => {
-        const updated = new Set(prev)
-        updated.delete(userId)
-        return updated
-      })
+    function onStoppedTyping(userId: string, chatId: string) {
+      setChats((prev) =>
+        prev.map((chat) =>
+          chat._id === chatId ? { ...chat, typingUsers: chat.typingUsers.filter((user) => user !== userId) } : chat
+        )
+      )
     }
 
     socket.on("new message", onNewMessage)
@@ -135,7 +136,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     }
   }, [authUser])
 
-  const contextValue = { messages, chats, createMessage, typingUsers, loading, findChat, createChat }
+  const contextValue = { messages, chats, createMessage, loading, findChat, createChat }
 
   return <ChatContext.Provider value={contextValue}>{children}</ChatContext.Provider>
 }

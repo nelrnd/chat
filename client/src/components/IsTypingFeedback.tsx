@@ -1,9 +1,9 @@
+import { useParams } from "react-router-dom"
 import { useChat } from "../providers/ChatProvider"
 
 export default function IsTypingFeedback() {
-  const { typingUsers } = useChat()
-
-  const typingArray = Array.from(typingUsers)
+  const { chatId } = useParams()
+  const { chat } = useChat(chatId)
 
   const formatIsTyping = (arr: string[]) => {
     return (
@@ -12,7 +12,7 @@ export default function IsTypingFeedback() {
     )
   }
 
-  if (typingArray.length === 0) return null
+  if (chat.typingUsers.length === 0) return null
 
-  return <p>{formatIsTyping(typingArray)}</p>
+  return <p>{formatIsTyping(chat.typingUsers)}</p>
 }

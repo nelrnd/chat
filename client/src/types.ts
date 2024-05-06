@@ -16,4 +16,5 @@ export type Chat = {
   _id: string
   members: User[]
   messages: Message[]
+  typingUsers: string[]
 }

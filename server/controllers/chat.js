@@ -20,11 +20,13 @@ exports.chat_create = asyncHandler(async (req, res, next) => {
 
   chat.messages = []
 
+  chat.typingUsers = []
+
   res.json(chat)
 })
 
 exports.chat_get_list = asyncHandler(async (req, res, next) => {
-  const chats = await Chat.find({ members: req.user._id }).populate({ path: "members", select: "-password" }).lean()
+  let chats = await Chat.find({ members: req.user._id }).populate({ path: "members", select: "-password" }).lean()
 
   const messages = await Promise.all(
     chats.map(
@@ -36,9 +38,13 @@ exports.chat_get_list = asyncHandler(async (req, res, next) => {
     )
   )
 
-  const chatsWithMessages = chats.map((chat, id) => ({ ...chat, messages: messages[id] }))
+  // add messages field to chats
+  chats = chats.map((chat, id) => ({ ...chat, messages: messages[id] }))
 
-  res.json(chatsWithMessages)
+  // add typing users field to chats
+  chats = chats.map((chat) => ({ ...chat, typingUsers: [] }))
+
+  res.json(chats)
 })
 
 exports.chat_check_auth = asyncHandler(async (req, res, next) => {
