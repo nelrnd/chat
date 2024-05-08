@@ -1,13 +1,24 @@
 import { useChat } from "../providers/ChatProvider"
 import UserSearch from "../components/UserSearch"
 import { useAuth } from "../providers/AuthProvider"
-import { Link } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 import { Chat } from "../types"
 
 export default function Chats() {
+  const { chatId } = useParams()
   const { chats, loading } = useChat()
 
   if (loading) return <p>Loading...</p>
+
+  const sortedAndFilteredChats = chats
+    .filter((chat: Chat) => chat.messages.length > 0 || chat._id === chatId)
+    .sort(
+      (a: Chat, b: Chat) =>
+        new Date(b.messages[b.messages.length - 1].timestamp).getTime() -
+        new Date(a.messages[a.messages.length - 1].timestamp).getTime()
+    )
+
+  console.log(sortedAndFilteredChats)
 
   return (
     <div>
@@ -15,9 +26,9 @@ export default function Chats() {
 
       <UserSearch />
 
-      {chats.length > 0 && (
+      {sortedAndFilteredChats.length > 0 && (
         <ul>
-          {chats.map((chat: Chat) => (
+          {sortedAndFilteredChats.map((chat: Chat) => (
             <ChatLink key={chat._id} chat={chat} />
           ))}
         </ul>
