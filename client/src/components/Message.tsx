@@ -8,7 +8,7 @@ interface MessageProps {
 export default function Message({ message }: MessageProps) {
   return (
     <li>
-      <strong>{message.sender.name}: </strong>
+      <strong>{message.sender?.name || "deleted user"}: </strong>
       {message.content} - {moment(message.timestamp).format("LT")}
     </li>
   )

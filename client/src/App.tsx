@@ -9,6 +9,7 @@ import AuthRoot from "./routes/AuthRoot"
 import Root from "./routes/Root"
 import ChatProvider from "./providers/ChatProvider"
 import Chat from "./routes/Chat"
+import Settings from "./routes/Settings"
 
 const router = createBrowserRouter([
   {
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
           {
             path: "/profile",
             element: <Profile />,
+          },
+          {
+            path: "/settings",
+            element: <Settings />,
           },
         ],
       },

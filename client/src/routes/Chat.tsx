@@ -20,7 +20,7 @@ export default function Chat() {
 
   return (
     <div>
-      <h1>Chat with {otherMember?.name}</h1>
+      <h1>Chat with {otherMember?.name || "deleted user"}</h1>
       <MessageList messages={chat.messages} />
       <IsTypingFeedback />
       <MessageForm />

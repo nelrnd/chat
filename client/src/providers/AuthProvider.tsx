@@ -6,12 +6,14 @@ type ContextContent = {
   token: string | null
   setToken: (newToken: string | null) => void
   authUser: User | null
+  setAuthUser: (user: User) => void
 }
 
 const AuthContext = createContext<ContextContent>({
   token: null,
   setToken: () => {},
   authUser: null,
+  setAuthUser: () => {},
 })
 
 interface AuthProviderProps {
@@ -20,10 +22,14 @@ interface AuthProviderProps {
 
 export default function AuthProvider({ children }: AuthProviderProps) {
   const [token, setToken_] = useState(localStorage.getItem("token"))
-  const [authUser, setAuthUser] = useState(null)
+  const [authUser, setAuthUser_] = useState<User | null>(null)
 
   const setToken = (newToken: string | null) => {
     setToken_(newToken)
+  }
+
+  const setAuthUser = (user: User | null) => {
+    setAuthUser_(user)
   }
 
   useEffect(() => {
@@ -43,6 +49,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       token,
       setToken,
       authUser,
+      setAuthUser,
     }),
     [token, authUser]
   )

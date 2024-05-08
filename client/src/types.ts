@@ -3,6 +3,7 @@ export type User = {
   name: string
   email: string
   isOnline: boolean
+  bio?: string
 }
 
 export type Message = {

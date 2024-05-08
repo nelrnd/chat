@@ -16,6 +16,9 @@ export default function NavBar() {
               <Link to="/profile">Profile</Link>
             </li>
             <li>
+              <Link to="/settings">Settings</Link>
+            </li>
+            <li>
               <button onClick={() => setToken(null)}>Logout</button>
             </li>
           </>

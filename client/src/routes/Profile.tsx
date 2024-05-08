@@ -9,6 +9,7 @@ export default function Profile() {
       <p>
         {authUser?.name} | {authUser?.email}
       </p>
+      <p>{authUser?.bio}</p>
     </div>
   )
 }
