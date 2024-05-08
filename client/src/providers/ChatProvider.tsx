@@ -54,6 +54,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
       const res = await axios.post("/chat", { userId })
       const chat = res.data
       setChats((prev) => [chat, ...prev])
+      socket.emit("new chat", chat)
       return chat
     } catch (err) {
       console.log(err)
@@ -97,6 +98,11 @@ export default function ChatProvider({ children }: ChatProviderProps) {
       )
     }
 
+    function onNewChat(chat: Chat) {
+      setChats((prev) => [chat, ...prev])
+      socket.emit("join chat", chat)
+    }
+
     function onStartedTyping(userId: string, chatId: string) {
       setChats((prev) =>
         prev.map((chat) =>
@@ -121,6 +127,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     socket.on("new message", onNewMessage)
     socket.on("user connected", onUserConnected)
     socket.on("user disconnected", onUserDisconnected)
+    socket.on("new chat", onNewChat)
     socket.on("started typing", onStartedTyping)
     socket.on("stopped typing", onStoppedTyping)
 
@@ -128,6 +135,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
       socket.off("new message", onNewMessage)
       socket.off("user connected", onUserConnected)
       socket.off("user disconnected", onUserDisconnected)
+      socket.off("new chat", onNewChat)
       socket.off("started typing", onStartedTyping)
       socket.off("stopped typing", onStoppedTyping)
     }

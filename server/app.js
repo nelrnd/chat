@@ -25,6 +25,8 @@ io.on("connection", (socket) => {
 
   socket.on("login", async (newUserId) => {
     userId = newUserId
+    socket.join(userId)
+    socket.userId = userId
 
     await User.findByIdAndUpdate(userId, { isOnline: true })
 
@@ -45,6 +47,19 @@ io.on("connection", (socket) => {
         socket.to(chat._id.toString()).emit("user disconnected", userId)
       })
     }
+  })
+
+  socket.on("new chat", (chat) => {
+    socket.join(chat._id)
+    chat.members.forEach((user) => {
+      if (user._id !== userId) {
+        socket.to(user._id).emit("new chat", chat)
+      }
+    })
+  })
+
+  socket.on("join chat", (chat) => {
+    socket.join(chat._id)
   })
 
   socket.on("new message", (msg) => {
