@@ -3,6 +3,7 @@ const asyncHandler = require("express-async-handler")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const { body, validationResult } = require("express-validator")
+const user = require("../models/user")
 
 exports.user_register = [
   body("name").trim().notEmpty().withMessage("Name is required").escape(),
@@ -130,4 +131,45 @@ exports.user_search = asyncHandler(async (req, res, next) => {
   ]).limit(5)
 
   res.json(results)
+})
+
+exports.user_update = [
+  body("name").trim().notEmpty().withMessage("Name is required").escape(),
+  body("bio").trim().optional().escape(),
+  asyncHandler(async (req, res) => {
+    const result = validationResult(req)
+
+    if (!result.isEmpty()) {
+      return res.status(400).json({ message: result.array()[0].msg })
+    }
+
+    const userId = req.user._id
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        name: req.body.name,
+        bio: req.body.bio,
+      },
+      { new: true }
+    )
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" })
+    }
+
+    res.json(updatedUser)
+  }),
+]
+
+exports.user_delete = asyncHandler(async (req, res) => {
+  const userId = req.user._id
+
+  const deletedUser = await User.findByIdAndDelete(userId)
+
+  if (!deletedUser) {
+    return res.status(404).json({ message: "User not found" })
+  }
+
+  res.json(deletedUser)
 })
