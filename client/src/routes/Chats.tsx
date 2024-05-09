@@ -18,8 +18,6 @@ export default function Chats() {
         new Date(a.messages[a.messages.length - 1].timestamp).getTime()
     )
 
-  console.log(sortedAndFilteredChats)
-
   return (
     <div>
       <h1>Chats</h1>

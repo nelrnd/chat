@@ -10,6 +10,8 @@ export default function Profile() {
         {authUser?.name} | {authUser?.email}
       </p>
       <p>{authUser?.bio}</p>
+      <p>{authUser?.avatar}</p>
+      <img src={import.meta.env.VITE_BASE_API + authUser?.avatar} alt="" />
     </div>
   )
 }

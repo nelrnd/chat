@@ -12,6 +12,8 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cors())
 
+app.use("/media/avatars", express.static("media/avatars"))
+
 // connect to db
 const mongoDb = process.env.MONGODB_URL
 const main = async () => mongoose.connect(mongoDb)

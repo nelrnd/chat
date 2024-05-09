@@ -3,7 +3,19 @@ const asyncHandler = require("express-async-handler")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const { body, validationResult } = require("express-validator")
-const user = require("../models/user")
+const multer = require("multer")
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "media/avatars/")
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9)
+    cb(null, uniqueSuffix + "-" + file.originalname)
+  },
+})
+
+const upload = multer({ storage: storage })
 
 exports.user_register = [
   body("name").trim().notEmpty().withMessage("Name is required").escape(),
@@ -134,6 +146,7 @@ exports.user_search = asyncHandler(async (req, res, next) => {
 })
 
 exports.user_update = [
+  upload.single("avatar"),
   body("name").trim().notEmpty().withMessage("Name is required").escape(),
   body("bio").trim().optional().escape(),
   asyncHandler(async (req, res) => {
@@ -150,9 +163,10 @@ exports.user_update = [
       {
         name: req.body.name,
         bio: req.body.bio,
+        avatar: (req.file && req.file.path) || req.body.avatar,
       },
       { new: true }
-    )
+    ).select("-password")
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" })
@@ -165,7 +179,7 @@ exports.user_update = [
 exports.user_delete = asyncHandler(async (req, res) => {
   const userId = req.user._id
 
-  const deletedUser = await User.findByIdAndDelete(userId)
+  const deletedUser = await User.findByIdAndDelete(userId).select("-password")
 
   if (!deletedUser) {
     return res.status(404).json({ message: "User not found" })

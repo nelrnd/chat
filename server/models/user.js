@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   isOnline: { type: Boolean, required: true, default: false },
   bio: { type: String, default: "" },
+  avatar: { type: String, default: "" },
 })
 
 module.exports = mongoose.model("User", userSchema)
