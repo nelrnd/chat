@@ -2,8 +2,22 @@ const Message = require("../models/message")
 const asyncHandler = require("express-async-handler")
 const { body, validationResult } = require("express-validator")
 const he = require("he")
+const multer = require("multer")
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "media/images")
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9)
+    cb(null, uniqueSuffix + "-" + file.originalname)
+  },
+})
+
+const upload = multer({ storage })
 
 exports.message_create = [
+  upload.array("images", 10),
   body("content").notEmpty().withMessage("Message is required").escape(),
   asyncHandler(async (req, res, next) => {
     const result = validationResult(req)
@@ -12,8 +26,11 @@ exports.message_create = [
       return res.status(400).json({ message: result.array()[0].msg })
     }
 
+    const images = req.files.length ? req.files.map((img) => img.path) : []
+
     let message = new Message({
       content: req.body.content,
+      images,
       chat: req.body.chatId,
       sender: req.user._id,
     })

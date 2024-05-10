@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
   },
 })
 
-const upload = multer({ storage: storage })
+const upload = multer({ storage })
 
 exports.user_register = [
   body("name").trim().notEmpty().withMessage("Name is required").escape(),

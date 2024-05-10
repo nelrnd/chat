@@ -25,8 +25,6 @@ function formatDay(timestamp: string): string {
   const today = new Date()
   const yesterday = new Date()
   yesterday.setDate(yesterday.getDate() - 1)
-  console.log(date)
-  console.log(today)
   if (date.toLocaleDateString("sv") === today.toLocaleDateString("sv")) {
     return "Today"
   } else if (date.toLocaleDateString("sv") === yesterday.toLocaleDateString("sv")) {

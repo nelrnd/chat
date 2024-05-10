@@ -10,6 +10,7 @@ export type User = {
 export type Message = {
   _id: string
   content: string
+  images?: string[]
   sender: User
   chat: Chat
   timestamp: string

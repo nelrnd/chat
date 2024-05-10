@@ -21,6 +21,7 @@ app.use(
 app.use(passport.initialize())
 
 app.use("/media/avatars", express.static("media/avatars"))
+app.use("/media/images", express.static("media/images"))
 
 // connect to db
 const mongoDb = process.env.MONGODB_URL

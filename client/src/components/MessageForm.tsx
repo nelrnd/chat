@@ -8,6 +8,7 @@ import { useParams } from "react-router-dom"
 interface Inputs {
   content: string
   chatId: string
+  images: FileList
 }
 
 export default function MessageForm() {
@@ -23,7 +24,13 @@ export default function MessageForm() {
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     setIsTyping(false)
     setLoading(true)
-    await createMessage(data)
+    const formData = new FormData()
+    formData.append("content", data.content)
+    formData.append("chatId", data.chatId)
+    for (const image of data.images) {
+      formData.append("images", image)
+    }
+    await createMessage(formData)
     reset()
     setLoading(false)
   }
@@ -55,6 +62,7 @@ export default function MessageForm() {
         spellCheck="false"
         onKeyDown={onKeyDown}
       ></textarea>
+      <input type="file" accept="image/*" {...register("images")} multiple />
       <input type="hidden" {...register("chatId")} value={chatId} required />
       <button disabled={loading}>{loading ? "Loading..." : "Submit"}</button>
     </form>
