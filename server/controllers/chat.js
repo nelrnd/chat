@@ -2,6 +2,7 @@ const chat = require("../models/chat")
 const Chat = require("../models/chat")
 const Message = require("../models/message")
 const asyncHandler = require("express-async-handler")
+const he = require("he")
 
 exports.chat_create = asyncHandler(async (req, res, next) => {
   const members = [req.body.userId, req.user._id]
@@ -43,6 +44,8 @@ exports.chat_get_list = asyncHandler(async (req, res, next) => {
 
   // add typing users field to chats
   chats = chats.map((chat) => ({ ...chat, typingUsers: [] }))
+
+  chats = JSON.parse(he.decode(JSON.stringify(chats)))
 
   res.json(chats)
 })
