@@ -4,6 +4,10 @@ const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const { body, validationResult } = require("express-validator")
 const multer = require("multer")
+const passport = require("passport")
+require("../strategies/jwtStrategy")
+require("../strategies/googleStrategy")
+require("../strategies/githubStrategy")
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -83,22 +87,29 @@ exports.user_login = [
   }),
 ]
 
-exports.user_check_auth = asyncHandler(async (req, res, next) => {
-  const authHeader = req.headers.authorization
-  const token = authHeader && authHeader.split(" ")[1]
-  if (!token) {
-    return res.status(401).json({ message: "Not authorized, token not found" })
-  }
+exports.user_check_auth = passport.authenticate("jwt", { session: false })
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    const user = await User.findById(decoded.id).select("-password")
-    req.user = user
-    next()
-  } catch (err) {
-    return res.status(401).json({ message: "Not authorized: invalid token" })
-  }
-})
+exports.user_google_start = passport.authenticate("google", { session: false })
+
+exports.user_google_redirect = [
+  passport.authenticate("google", { session: false, failureRedirect: "http://localhost:5173/login" }),
+  (req, res) => {
+    const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET)
+    res.cookie("token", token)
+    res.redirect(process.env.CLIENT_BASE_URL)
+  },
+]
+
+exports.user_github_start = passport.authenticate("github", { session: false })
+
+exports.user_github_redirect = [
+  passport.authenticate("github", { session: false, failureRedirect: process.env.CLIENT_BASE_URL + "/login" }),
+  (req, res) => {
+    const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET)
+    res.cookie("token", token)
+    res.redirect(process.env.CLIENT_BASE_URL)
+  },
+]
 
 exports.user_get_me = asyncHandler(async (req, res, next) => {
   // user is from user_check_auth

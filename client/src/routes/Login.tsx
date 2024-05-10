@@ -58,6 +58,17 @@ export default function Login() {
         <button disabled={loading}>{loading ? "Loading..." : "Login"}</button>
       </form>
 
+      <hr />
+
+      <div>
+        <p>
+          <a href={import.meta.env.VITE_SERVER_BASE_URL + "/api/user/google/start"}>Login with Google</a>
+        </p>
+        <p>
+          <a href={import.meta.env.VITE_SERVER_BASE_URL + "/api/user/github/start"}>Login with GitHub</a>
+        </p>
+      </div>
+
       <p>
         Don't have an account yet? <Link to="/register">Register</Link>
       </p>
