@@ -60,17 +60,41 @@ export default function ChatProvider({ children }: ChatProviderProps) {
 
   const addMessage = (newMessage) => {
     setChats((prev) =>
-      prev.map((chat) =>
-        chat._id === newMessage.message.chat._id
-          ? {
-              ...chat,
-              messages: [...chat.messages, newMessage.message],
-              sharedImages: [...chat.sharedImages, ...newMessage.images],
-              sharedLinks: [...chat.sharedLinks, ...newMessage.links],
+      prev.map((chat) => {
+        if (chat._id === newMessage.message.chat._id) {
+          const unreadCount = { ...chat.unreadCount }
+          chat.members.forEach((user) => {
+            if (user._id !== newMessage.message.sender._id) {
+              unreadCount[user._id]++
             }
-          : chat
-      )
+          })
+          return {
+            ...chat,
+            messages: [...chat.messages, newMessage.message],
+            sharedImages: [...chat.sharedImages, ...newMessage.images],
+            sharedLinks: [...chat.sharedLinks, ...newMessage.links],
+            unreadCount,
+          }
+        } else {
+          return chat
+        }
+      })
     )
+  }
+
+  const readMessages = (chatId: string) => {
+    setChats((prev) =>
+      prev.map((chat) => {
+        if (chat._id === chatId) {
+          const unreadCount = { ...chat.unreadCount }
+          unreadCount[authUser._id] = 0
+          return { ...chat, unreadCount }
+        } else {
+          return chat
+        }
+      })
+    )
+    axios.post(`/chat/${chatId}/read`)
   }
 
   useEffect(() => {
@@ -159,7 +183,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     }
   }, [authUser])
 
-  const contextValue = { chats, createMessage, loading, findChat, createChat }
+  const contextValue = { chats, createMessage, loading, findChat, createChat, readMessages }
 
   return <ChatContext.Provider value={contextValue}>{children}</ChatContext.Provider>
 }
@@ -169,7 +193,7 @@ export function useChat(chatId?: string) {
 
   if (chatId) {
     const chat = data.chats.find((chat) => chat._id === chatId)
-    return { chat: chat, loading: data.loading }
+    return { chat: chat, loading: data.loading, readMessages: data.readMessages }
   }
 
   return data

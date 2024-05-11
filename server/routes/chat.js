@@ -7,4 +7,6 @@ router.post("/", userController.user_check_auth, chatController.chat_create)
 
 router.get("/", userController.user_check_auth, chatController.chat_get_list)
 
+router.post("/:chatId/read", userController.user_check_auth, chatController.chat_read)
+
 module.exports = router

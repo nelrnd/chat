@@ -46,7 +46,7 @@ function ChatLink({ chat }: ChatLinkProps) {
   return (
     <li>
       <Link to={`/chat/${chat._id}`}>
-        {otherUser?.name || "Deleted user"} {otherUser?.isOnline && <em>(online)</em>}
+        {otherUser?.name || "Deleted user"} {otherUser?.isOnline && <em>(online)</em>} {chat.unreadCount[authUser._id]}
       </Link>
     </li>
   )

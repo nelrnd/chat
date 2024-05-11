@@ -33,4 +33,5 @@ export type Chat = {
   typingUsers: string[]
   sharedImages: Image[]
   sharedLinks: Link[]
+  unreadCount: Record<string, number>
 }

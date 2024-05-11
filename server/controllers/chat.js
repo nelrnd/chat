@@ -12,7 +12,13 @@ exports.chat_create = asyncHandler(async (req, res, next) => {
     return res.status(400).json({ message: "Chat must contains at least 2 members" })
   }
 
-  let chat = new Chat({ members })
+  const unreadCount = members.reduce((acc, curr) => {
+    const accCopy = { ...acc }
+    accCopy[curr] = 0
+    return accCopy
+  }, {})
+
+  let chat = new Chat({ members, unreadCount })
 
   await chat.save()
 
@@ -85,4 +91,11 @@ exports.chat_check_auth = asyncHandler(async (req, res, next) => {
   }
 
   next()
+})
+
+exports.chat_read = asyncHandler(async (req, res, next) => {
+  const { chatId } = req.params
+  const { unreadCount } = await Chat.findById(chatId)
+  unreadCount[req.user._id] = 0
+  await Chat.findByIdAndUpdate(chatId, { unreadCount })
 })

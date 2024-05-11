@@ -1,4 +1,5 @@
 const Message = require("../models/message")
+const Chat = require("../models/chat")
 const Image = require("../models/image")
 const Link = require("../models/link")
 const asyncHandler = require("express-async-handler")
@@ -76,6 +77,14 @@ exports.message_create = [
     await message.populate("chat")
 
     message = JSON.parse(he.decode(JSON.stringify(message)))
+
+    const chat = await Chat.findById(req.body.chatId)
+    chat.members.forEach((user) => {
+      if (user.toString() !== req.user._id.toString()) {
+        chat.unreadCount[user.toString()] += 1
+      }
+    })
+    await Chat.findByIdAndUpdate(req.body.chatId, { unreadCount: chat.unreadCount })
 
     res.json({ message, links, images })
   }),
