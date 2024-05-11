@@ -1,6 +1,7 @@
-const chat = require("../models/chat")
 const Chat = require("../models/chat")
 const Message = require("../models/message")
+const Image = require("../models/image")
+const Link = require("../models/link")
 const asyncHandler = require("express-async-handler")
 const he = require("he")
 
@@ -18,10 +19,10 @@ exports.chat_create = asyncHandler(async (req, res, next) => {
   await chat.populate({ path: "members", select: "-password" })
 
   chat = chat.toObject()
-
   chat.messages = []
-
   chat.typingUsers = []
+  chat.sharedImages = []
+  chat.sharedLinks = []
 
   res.json(chat)
 })
@@ -29,23 +30,45 @@ exports.chat_create = asyncHandler(async (req, res, next) => {
 exports.chat_get_list = asyncHandler(async (req, res, next) => {
   let chats = await Chat.find({ members: req.user._id }).populate({ path: "members", select: "-password" }).lean()
 
-  const messages = await Promise.all(
-    chats.map(
-      async (currChat) =>
-        await Message.find({ chat: currChat._id })
-          .populate({ path: "sender", select: "-password" })
-          .populate("chat")
-          .lean()
-    )
-  )
+  const chatIds = chats.map((chat) => chat._id)
 
-  // add messages field to chats
-  chats = chats.map((chat, id) => ({ ...chat, messages: messages[id] }))
+  const [messages, images, links] = await Promise.all([
+    Message.find({ chat: { $in: chatIds } })
+      .populate({ path: "sender", select: "-password" })
+      .lean(),
+    Image.find({ chat: { $in: chatIds } })
+      .populate({ path: "sender", select: "-password" })
+      .lean(),
+    Link.find({ chat: { $in: chatIds } })
+      .populate({ path: "sender", select: "-password" })
+      .lean(),
+  ])
 
-  // add typing users field to chats
-  chats = chats.map((chat) => ({ ...chat, typingUsers: [] }))
+  const messagesMap = messages.reduce((map, message) => {
+    map[message.chat.toString()] = map[message.chat.toString()] || []
+    map[message.chat.toString()].push(message)
+    return map
+  }, {})
 
-  chats = JSON.parse(he.decode(JSON.stringify(chats)))
+  const imagesMap = images.reduce((map, image) => {
+    map[image.chat.toString()] = map[image.chat.toString()] || []
+    map[image.chat.toString()].push(image)
+    return map
+  }, {})
+
+  const linksMap = links.reduce((map, link) => {
+    map[link.chat.toString()] = map[link.chat.toString()] || []
+    map[link.chat.toString()].push(link)
+    return map
+  }, {})
+
+  chats = chats.map((chat) => ({
+    ...chat,
+    messages: messagesMap[chat._id.toString()] || [],
+    typingUsers: [],
+    sharedImages: imagesMap[chat._id.toString()] || [],
+    sharedLinks: linksMap[chat._id.toString()] || [],
+  }))
 
   res.json(chats)
 })

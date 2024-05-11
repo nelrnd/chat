@@ -1,6 +1,7 @@
 const Message = require("../models/message")
+const Image = require("../models/image")
+const Link = require("../models/link")
 const asyncHandler = require("express-async-handler")
-const { body, validationResult } = require("express-validator")
 const he = require("he")
 const multer = require("multer")
 
@@ -33,11 +34,37 @@ exports.message_create = [
       return res.status(400).json({ message: "Message cannot be empty" })
     }
 
-    const images = req.files.length ? req.files.map((img) => img.path) : []
+    const imagesUrl = req.files.length ? req.files.map((img) => img.path) : []
+    const urlRegex = /(https?:\/\/[^\s]+)/g
+    const linksUrl = req.body.content ? req.body.content.split(urlRegex).filter((part) => part.match(urlRegex)) : []
+
+    const images = await Promise.all(
+      imagesUrl.map(async (url) => {
+        const image = new Image({
+          url: url,
+          sender: req.user._id,
+          chat: req.body.chatId,
+        })
+        await image.save()
+        return image
+      })
+    )
+
+    const links = await Promise.all(
+      linksUrl.map(async (url) => {
+        const link = new Link({
+          url: url,
+          sender: req.user._id,
+          chat: req.body.chatId,
+        })
+        await link.save()
+        return link
+      })
+    )
 
     let message = new Message({
       content: req.body.content,
-      images,
+      images: imagesUrl,
       chat: req.body.chatId,
       sender: req.user._id,
     })
@@ -50,14 +77,6 @@ exports.message_create = [
 
     message = JSON.parse(he.decode(JSON.stringify(message)))
 
-    res.json(message)
+    res.json({ message, links, images })
   }),
 ]
-
-exports.message_get_list = asyncHandler(async (req, res, next) => {
-  let messages = await Message.find().sort({ timestamp: 1 }).populate({ path: "sender", select: "-password" })
-
-  messages = JSON.parse(he.decode(JSON.stringify(messages)))
-
-  res.json(messages)
-})

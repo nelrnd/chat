@@ -1,9 +1,25 @@
 import moment from "moment"
 import { Message as MessageType } from "../types"
-import Linkify from "react-linkify"
 
 interface MessageProps {
   message: MessageType
+}
+
+const urlRegex = /(https?:\/\/[^\s]+)/g
+
+function linkify(text: string) {
+  const parts = text.split(urlRegex)
+  return parts.map((part, index) => {
+    if (part.match(urlRegex)) {
+      return (
+        <a href={part} key={index} target="_blank" rel="noopener noreferrer">
+          {part}
+        </a>
+      )
+    } else {
+      return part
+    }
+  })
 }
 
 export default function Message({ message }: MessageProps) {
@@ -13,16 +29,7 @@ export default function Message({ message }: MessageProps) {
       {message.images?.map((img) => (
         <img width="200" key={img} src={import.meta.env.VITE_SERVER_BASE_URL + "/" + img} />
       ))}
-      <Linkify
-        componentDecorator={(decoratedHref: string, decoratedText: string, key: number) => (
-          <a href={decoratedHref} key={key} target="_blank">
-            {decoratedText}
-          </a>
-        )}
-      >
-        {message.content}
-      </Linkify>{" "}
-      - {moment(message.timestamp).format("LT")}
+      {linkify(message.content)}- {moment(message.timestamp).format("LT")}
     </li>
   )
 }

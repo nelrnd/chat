@@ -74,7 +74,7 @@ io.on("connection", (socket) => {
   })
 
   socket.on("new message", (msg) => {
-    socket.to(msg.chat._id).emit("new message", msg)
+    socket.to(msg.message.chat._id).emit("new message", msg)
   })
 
   socket.on("started typing", (userName, chatId) => {

@@ -5,7 +5,6 @@ import { Chat, Message } from "../types"
 import { socket } from "../socket"
 
 type ContextContent = {
-  messages: Message[]
   chats: Chat[]
   createMessage: (data: { content: string }) => Promise<void>
   loading: boolean
@@ -14,7 +13,6 @@ type ContextContent = {
 }
 
 const ChatContext = createContext<ContextContent>({
-  messages: [],
   chats: [],
   createMessage: () => Promise.resolve(),
   loading: true,
@@ -28,7 +26,6 @@ interface ChatProviderProps {
 
 export default function ChatProvider({ children }: ChatProviderProps) {
   const { authUser } = useAuth()
-  const [messages, setMessages] = useState<Message[]>([])
   const [chats, setChats] = useState<Chat[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -61,10 +58,17 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     }
   }
 
-  const addMessage = (newMessage: Message) => {
+  const addMessage = (newMessage) => {
     setChats((prev) =>
       prev.map((chat) =>
-        chat._id === newMessage.chat._id ? { ...chat, messages: [...chat.messages, newMessage] } : chat
+        chat._id === newMessage.message.chat._id
+          ? {
+              ...chat,
+              messages: [...chat.messages, newMessage.message],
+              sharedImages: [...chat.sharedImages, ...newMessage.images],
+              sharedLinks: [...chat.sharedLinks, ...newMessage.links],
+            }
+          : chat
       )
     )
   }
@@ -144,17 +148,6 @@ export default function ChatProvider({ children }: ChatProviderProps) {
   useEffect(() => {
     if (authUser) {
       axios
-        .get("/message")
-        .then((res) => setMessages(res.data))
-        .catch((err) => console.log(err))
-    } else {
-      setMessages([])
-    }
-  }, [authUser])
-
-  useEffect(() => {
-    if (authUser) {
-      axios
         .get("/chat")
         .then((res) => {
           setChats(res.data)
@@ -166,7 +159,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     }
   }, [authUser])
 
-  const contextValue = { messages, chats, createMessage, loading, findChat, createChat }
+  const contextValue = { chats, createMessage, loading, findChat, createChat }
 
   return <ChatContext.Provider value={contextValue}>{children}</ChatContext.Provider>
 }

@@ -1,11 +1,10 @@
 import { useParams } from "react-router-dom"
 import { useChat } from "../providers/ChatProvider"
 import { useAuth } from "../providers/AuthProvider"
-import { Message, User } from "../types"
 import MessageForm from "../components/MessageForm"
 import IsTypingFeedback from "../components/IsTypingFeedback"
-import moment from "moment"
 import MessageList from "../components/MessageList"
+import ChatInfo from "../components/ChatInfo"
 
 export default function Chat() {
   const { chatId } = useParams()
@@ -21,6 +20,7 @@ export default function Chat() {
   return (
     <div>
       <h1>Chat with {otherMember?.name || "deleted user"}</h1>
+      <ChatInfo chat={chat} />
       <MessageList messages={chat.messages} />
       <IsTypingFeedback />
       <MessageForm />
