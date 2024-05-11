@@ -14,7 +14,17 @@ const storage = multer.diskStorage({
   },
 })
 
-const upload = multer({ storage })
+const upload = multer({
+  storage,
+  limits: { fileSize: 2000000 },
+  fileFilter: (req, file, cb) => {
+    const mimeTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"]
+    if (!mimeTypes.includes(file.mimetype)) {
+      return cb(new Error("file is not allowed"))
+    }
+    cb(null, true)
+  },
+})
 
 exports.message_create = [
   upload.array("images", 10),

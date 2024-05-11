@@ -62,7 +62,7 @@ export default function MessageForm() {
         spellCheck="false"
         onKeyDown={onKeyDown}
       ></textarea>
-      <input type="file" accept="image/*" {...register("images")} multiple />
+      <input type="file" accept="image/png, image/jpeg, image/jpg, image/webp" {...register("images")} multiple />
       <input type="hidden" {...register("chatId")} value={chatId} required />
       <button disabled={loading}>{loading ? "Loading..." : "Submit"}</button>
     </form>
