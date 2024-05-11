@@ -1,7 +1,7 @@
 const mongoose = require("mongoose")
 
 const messageSchema = new mongoose.Schema({
-  content: { type: String, required: true },
+  content: { type: String },
   images: { type: [{ type: String }] },
   sender: { type: mongoose.Types.ObjectId, ref: "User", required: true },
   chat: { type: mongoose.Types.ObjectId, ref: "Chat", required: true },

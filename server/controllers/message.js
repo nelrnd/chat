@@ -28,12 +28,9 @@ const upload = multer({
 
 exports.message_create = [
   upload.array("images", 10),
-  body("content").notEmpty().withMessage("Message is required").escape(),
   asyncHandler(async (req, res, next) => {
-    const result = validationResult(req)
-
-    if (!result.isEmpty()) {
-      return res.status(400).json({ message: result.array()[0].msg })
+    if (!req.body.content && !req.files.length) {
+      return res.status(400).json({ message: "Message cannot be empty" })
     }
 
     const images = req.files.length ? req.files.map((img) => img.path) : []
