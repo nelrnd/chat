@@ -2,6 +2,7 @@ import { Navigate, Outlet } from "react-router-dom"
 import { useAuth } from "../providers/AuthProvider"
 import { useEffect } from "react"
 import { socket } from "../socket"
+import SideBar from "../components/SideBar"
 
 export default function AuthRoot() {
   const { token, authUser } = useAuth()
@@ -16,7 +17,12 @@ export default function AuthRoot() {
 
   return (
     <SocketConnector>
-      <Outlet />
+      <div className="h-screen flex border-4 border-red-500">
+        <SideBar />
+        <div className="flex-1">
+          <Outlet />
+        </div>
+      </div>
     </SocketConnector>
   )
 }

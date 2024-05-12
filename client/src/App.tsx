@@ -32,26 +32,26 @@ const router = createBrowserRouter([
         path: "/about",
         element: <About />,
       },
+    ],
+  },
+  {
+    element: <AuthRoot />,
+    children: [
       {
-        element: <AuthRoot />,
-        children: [
-          {
-            path: "/chat",
-            element: <Chats />,
-          },
-          {
-            path: "/chat/:chatId",
-            element: <Chat />,
-          },
-          {
-            path: "/profile",
-            element: <Profile />,
-          },
-          {
-            path: "/settings",
-            element: <Settings />,
-          },
-        ],
+        path: "/chat",
+        element: <Chats />,
+      },
+      {
+        path: "/chat/:chatId",
+        element: <Chat />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
+      },
+      {
+        path: "/settings",
+        element: <Settings />,
       },
     ],
   },
