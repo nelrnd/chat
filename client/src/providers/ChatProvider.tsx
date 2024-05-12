@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import { useAuth } from "./AuthProvider"
 import axios from "axios"
-import { Chat, Message } from "../types"
+import { Chat, Image, Link, Message } from "../types"
 import { socket } from "../socket"
 
 type ContextContent = {
@@ -29,12 +29,26 @@ export default function ChatProvider({ children }: ChatProviderProps) {
   const [chats, setChats] = useState<Chat[]>([])
   const [loading, setLoading] = useState(true)
 
+  const findChat = (userId: string) => {
+    return chats.find((chat) => chat.members.length === 2 && chat.members.find((user) => user._id === userId))
+  }
+
+  const createChat = async (members: string[]) => {
+    try {
+      const res = await axios.post("/chat", { members })
+      const chat = res.data
+      setChats((chats) => [chat, ...chats])
+      return chat
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   const createMessage = async (data: { content: string }) => {
     try {
       const res = await axios.post("/message", data)
       const msg = res.data
       addMessage(msg)
-      socket.emit("new message", msg)
       return Promise.resolve()
     } catch (err) {
       console.log(err)
@@ -42,37 +56,17 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     }
   }
 
-  const findChat = (userId: string) => {
-    return chats.find((chat) => chat.members.length === 2 && chat.members.find((user) => user._id === userId))
-  }
-
-  const createChat = async (userId: string) => {
-    try {
-      const res = await axios.post("/chat", { userId })
-      const chat = res.data
-      setChats((prev) => [chat, ...prev])
-      socket.emit("new chat", chat)
-      return chat
-    } catch (err) {
-      console.log(err)
-    }
-  }
-
-  const addMessage = (newMessage) => {
-    setChats((prev) =>
-      prev.map((chat) => {
-        if (chat._id === newMessage.message.chat._id) {
+  const addMessage = ({ message, images, links }: { message: Message; images: Image[]; links: Link[] }) => {
+    setChats((chats) =>
+      chats.map((chat) => {
+        if (chat._id === message.chat) {
           const unreadCount = { ...chat.unreadCount }
-          chat.members.forEach((user) => {
-            if (user._id !== newMessage.message.sender._id) {
-              unreadCount[user._id]++
-            }
-          })
+          chat.members.forEach((user) => user._id !== message.sender._id && unreadCount[user._id]++)
           return {
             ...chat,
-            messages: [...chat.messages, newMessage.message],
-            sharedImages: [...chat.sharedImages, ...newMessage.images],
-            sharedLinks: [...chat.sharedLinks, ...newMessage.links],
+            messages: [...chat.messages, message],
+            sharedImages: [...chat.sharedImages, ...images],
+            sharedLinks: [...chat.sharedLinks, ...links],
             unreadCount,
           }
         } else {
@@ -82,95 +76,107 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     )
   }
 
-  const readMessages = (chatId: string) => {
-    setChats((prev) =>
-      prev.map((chat) => {
-        if (chat._id === chatId) {
-          const unreadCount = { ...chat.unreadCount }
-          unreadCount[authUser._id] = 0
-          return { ...chat, unreadCount }
-        } else {
-          return chat
-        }
-      })
-    )
-    axios.post(`/chat/${chatId}/read`)
+  const readMessages = async (chatId: string) => {
+    if (authUser && chatId) {
+      setChats((chats) =>
+        chats.map((chat) => {
+          if (chat._id === chatId) {
+            const unreadCount = { ...chat.unreadCount }
+            unreadCount[authUser?._id] = 0
+            return { ...chat, unreadCount }
+          } else {
+            return chat
+          }
+        })
+      )
+      await axios.post(`/chat/${chatId}/read`)
+    }
   }
 
   useEffect(() => {
-    if (authUser) {
-      socket.emit("login", authUser._id)
+    function onConnect() {
+      socket.emit("login", authUser?._id)
+    }
+
+    socket.on("connect", onConnect)
+
+    return () => {
+      socket.off("connect", onConnect)
     }
   }, [authUser])
 
   useEffect(() => {
-    function onNewMessage(msg: Message) {
-      addMessage(msg)
+    function onNewChat(chat: Chat) {
+      console.log("new chat my man")
+      setChats((chats) => [...chats, chat])
     }
 
-    function onUserConnected(userId: string) {
-      setChats((prev) =>
-        prev.map((chat) => ({
+    function onNewMessage(data: { message: Message; images: Image[]; links: Link[] }) {
+      addMessage(data)
+    }
+
+    function onStartTyping({ userId, chatId }: { userId: string; chatId: string }) {
+      setChats((chats) =>
+        chats.map((chat) => {
+          if (chat._id === chatId) {
+            return { ...chat, typingUsers: Array.from(new Set([...chat.typingUsers, userId])) }
+          } else {
+            return chat
+          }
+        })
+      )
+    }
+
+    function onStopTyping({ userId, chatId }: { userId: string; chatId: string }) {
+      setChats((chats) =>
+        chats.map((chat) => {
+          if (chat._id === chatId) {
+            return { ...chat, typingUsers: chat.typingUsers.filter((user) => user !== userId) }
+          } else {
+            return chat
+          }
+        })
+      )
+    }
+
+    function onUserConnection(userId: string) {
+      setChats((chats) =>
+        chats.map((chat) => ({
           ...chat,
           members: chat.members.map((user) => (user._id === userId ? { ...user, isOnline: true } : user)),
         }))
       )
     }
 
-    function onUserDisconnected(userId: string) {
-      setChats((prev) =>
-        prev.map((chat) => ({
+    function onUserDisonnection(userId: string) {
+      setChats((chats) =>
+        chats.map((chat) => ({
           ...chat,
           members: chat.members.map((user) => (user._id === userId ? { ...user, isOnline: false } : user)),
         }))
       )
     }
 
-    function onNewChat(chat: Chat) {
-      setChats((prev) => [chat, ...prev])
-      socket.emit("join chat", chat)
-    }
-
-    function onStartedTyping(userId: string, chatId: string) {
-      setChats((prev) =>
-        prev.map((chat) =>
-          chat._id === chatId
-            ? {
-                ...chat,
-                typingUsers: chat.typingUsers.includes(userId) ? chat.typingUsers : [...chat.typingUsers, userId],
-              }
-            : chat
-        )
-      )
-    }
-
-    function onStoppedTyping(userId: string, chatId: string) {
-      setChats((prev) =>
-        prev.map((chat) =>
-          chat._id === chatId ? { ...chat, typingUsers: chat.typingUsers.filter((user) => user !== userId) } : chat
-        )
-      )
-    }
-
-    socket.on("new message", onNewMessage)
-    socket.on("user connected", onUserConnected)
-    socket.on("user disconnected", onUserDisconnected)
-    socket.on("new chat", onNewChat)
-    socket.on("started typing", onStartedTyping)
-    socket.on("stopped typing", onStoppedTyping)
+    socket.on("new-chat", onNewChat)
+    socket.on("new-message", onNewMessage)
+    socket.on("start-typing", onStartTyping)
+    socket.on("stop-typing", onStopTyping)
+    socket.on("user-connection", onUserConnection)
+    socket.on("user-disconnection", onUserDisonnection)
 
     return () => {
-      socket.off("new message", onNewMessage)
-      socket.off("user connected", onUserConnected)
-      socket.off("user disconnected", onUserDisconnected)
-      socket.off("new chat", onNewChat)
-      socket.off("started typing", onStartedTyping)
-      socket.off("stopped typing", onStoppedTyping)
+      socket.off("new-chat", onNewChat)
+      socket.off("new-message", onNewMessage)
+      socket.off("start-typing", onStartTyping)
+      socket.off("stop-typing", onStopTyping)
+      socket.off("user-connection", onUserConnection)
+      socket.off("user-disconnection", onUserDisonnection)
     }
   }, [])
 
   useEffect(() => {
     if (authUser) {
+      socket.emit("login", authUser._id)
       axios
         .get("/chat")
         .then((res) => {

@@ -55,14 +55,15 @@ interface UserTabProps {
 }
 
 function UserTab({ user }: UserTabProps) {
-  const navigate = useNavigate()
+  const { authUser } = useAuth()
   const { findChat, createChat } = useChat()
+  const navigate = useNavigate()
 
   const handleClick = async () => {
     let chat = findChat(user._id)
 
     if (!chat) {
-      chat = await createChat(user._id)
+      chat = await createChat([user._id, authUser?._id])
     }
 
     navigate(`/chat/${chat._id}`)

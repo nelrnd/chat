@@ -12,17 +12,18 @@ export default function Chat() {
   const { chat, loading, readMessages } = useChat(chatId)
   const { authUser } = useAuth()
 
-  const otherMember = chat?.members.find((user: User) => user._id !== authUser?._id)
-
   useEffect(() => {
-    if (chat && authUser && chat.unreadCount[authUser?._id]) {
+    if (authUser && chat && chat.unreadCount[authUser?._id]) {
+      console.log("vroom")
       readMessages(chatId)
     }
-  }, [chat, authUser, chatId, readMessages])
+  }, [chatId, chat, authUser, readMessages])
 
   if (loading) return <p>Loading...</p>
 
   if (!chat) return <p>Chat not found</p>
+
+  const otherMember = chat?.members.find((user: User) => user._id !== authUser?._id)
 
   return (
     <div>

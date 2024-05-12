@@ -12,7 +12,7 @@ export type Message = {
   content: string
   images?: string[]
   sender: User
-  chat: Chat
+  chat: string
   timestamp: string
 }
 

@@ -5,6 +5,7 @@ const Link = require("../models/link")
 const asyncHandler = require("express-async-handler")
 const he = require("he")
 const multer = require("multer")
+const { findSocket } = require("../utils")
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -37,54 +38,49 @@ exports.message_create = [
 
     const imagesUrl = req.files.length ? req.files.map((img) => img.path) : []
     const urlRegex = /(https?:\/\/[^\s]+)/g
-    const linksUrl = req.body.content ? req.body.content.split(urlRegex).filter((part) => part.match(urlRegex)) : []
+    const linksUrl = (req.body.content || "").split(urlRegex).filter((part) => part.match(urlRegex))
 
-    const images = await Promise.all(
-      imagesUrl.map(async (url) => {
-        const image = new Image({
-          url: url,
-          sender: req.user._id,
-          chat: req.body.chatId,
-        })
-        await image.save()
-        return image
+    const createEntity = async (Model, url) => {
+      const entity = new Model({
+        url,
+        sender: req.user._id,
+        chat: req.body.chatId,
       })
-    )
+      await entity.save()
+      return entity
+    }
 
-    const links = await Promise.all(
-      linksUrl.map(async (url) => {
-        const link = new Link({
-          url: url,
-          sender: req.user._id,
-          chat: req.body.chatId,
-        })
-        await link.save()
-        return link
-      })
-    )
+    const imagesPromise = Promise.all(imagesUrl.map((url) => createEntity(Image, url)))
+    const linksPromise = Promise.all(linksUrl.map((url) => createEntity(Link, url)))
+
+    const [images, links] = await Promise.all([imagesPromise, linksPromise])
 
     let message = new Message({
       content: req.body.content,
-      images: imagesUrl,
       chat: req.body.chatId,
+      images: imagesUrl,
       sender: req.user._id,
     })
-
     await message.save()
-
     await message.populate({ path: "sender", select: "-password" })
-
-    await message.populate("chat")
-
     message = JSON.parse(he.decode(JSON.stringify(message)))
 
-    const chat = await Chat.findById(req.body.chatId)
-    chat.members.forEach((user) => {
-      if (user.toString() !== req.user._id.toString()) {
-        chat.unreadCount[user.toString()] += 1
+    // increment unread count
+    const { members, unreadCount } = await Chat.findById(req.body.chatId)
+    members.forEach((user) => {
+      const userId = user.toString()
+      if (userId !== req.user._id) {
+        unreadCount[userId]++
       }
     })
-    await Chat.findByIdAndUpdate(req.body.chatId, { unreadCount: chat.unreadCount })
+    await Chat.findByIdAndUpdate(req.body.chatId, { unreadCount })
+
+    const io = req.io
+    const socket = findSocket(io, req.user._id.toString())
+
+    if (socket) {
+      socket.to(req.body.chatId).emit("new-message", { message, links, images })
+    }
 
     res.json({ message, links, images })
   }),

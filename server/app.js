@@ -11,14 +11,12 @@ const passport = require("passport")
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
-app.use(
-  cors({
-    origin: process.env.CLIENT_BASE_URL,
-    methods: "GET,POST,PUT,DELETE",
-    credentials: true,
-  })
-)
+app.use(cors({ origin: process.env.CLIENT_BASE_URL, methods: "GET,POST,PUT,DELETE" }))
 app.use(passport.initialize())
+app.use((req, res, next) => {
+  req.io = io
+  next()
+})
 
 app.use("/media/avatars", express.static("media/avatars"))
 app.use("/media/images", express.static("media/images"))
@@ -28,65 +26,14 @@ const mongoDb = process.env.MONGODB_URL
 const main = async () => mongoose.connect(mongoDb)
 main().catch((err) => console.log(err))
 
-const User = require("./models/user")
-const Chat = require("./models/chat")
+const handlers = require("./handlers")
 
 io.on("connection", (socket) => {
-  let userId
-
-  socket.on("login", async (newUserId) => {
-    userId = newUserId
-    socket.join(userId)
-    socket.userId = userId
-
-    await User.findByIdAndUpdate(userId, { isOnline: true })
-
-    const chats = await Chat.find({ members: userId })
-    chats.forEach((chat) => {
-      socket.join(chat._id.toString())
-      socket.to(chat._id.toString()).emit("user connected", userId)
-    })
-  })
-
-  socket.on("disconnect", async () => {
-    if (userId) {
-      await User.findByIdAndUpdate(userId, { isOnline: false })
-
-      const chats = await Chat.find({ members: userId })
-      chats.forEach((chat) => {
-        socket.leave(chat._id.toString())
-        socket.to(chat._id.toString()).emit("user disconnected", userId)
-      })
-    }
-  })
-
-  socket.on("new chat", (chat) => {
-    socket.join(chat._id)
-    chat.members.forEach((user) => {
-      if (user._id !== userId) {
-        socket.to(user._id).emit("new chat", chat)
-      }
-    })
-  })
-
-  socket.on("join chat", (chat) => {
-    socket.join(chat._id)
-  })
-
-  socket.on("new message", (msg) => {
-    socket.to(msg.message.chat._id).emit("new message", msg)
-  })
-
-  socket.on("started typing", (userName, chatId) => {
-    socket.to(chatId).emit("started typing", userName, chatId)
-  })
-
-  socket.on("stopped typing", (userName, chatId) => {
-    socket.to(chatId).emit("stopped typing", userName, chatId)
-  })
+  socket.on("login", handlers.handleLogin)
+  socket.on("start-typing", handlers.handleStartTyping)
+  socket.on("stop-typing", handlers.handleStopTyping)
+  socket.on("disconnect", handlers.handleDisconnect)
 })
-
-app.get("/", (req, res) => res.send("Hello"))
 
 const userRouter = require("./routes/user")
 const messageRouter = require("./routes/message")

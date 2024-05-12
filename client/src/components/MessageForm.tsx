@@ -47,11 +47,11 @@ export default function MessageForm() {
 
   useEffect(() => {
     if (isTyping) {
-      socket.emit("started typing", authUser?.name, chatId)
+      socket.emit("start-typing", chatId)
     } else if (isTyping === false) {
-      socket.emit("stopped typing", authUser?.name, chatId)
+      socket.emit("stop-typing", chatId)
     }
-  }, [isTyping, authUser?.name, chatId])
+  }, [isTyping, chatId])
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

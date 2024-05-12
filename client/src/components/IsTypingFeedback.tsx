@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom"
 import { useChat } from "../providers/ChatProvider"
+import { User } from "../types"
 
 export default function IsTypingFeedback() {
   const { chatId } = useParams()
@@ -7,7 +8,9 @@ export default function IsTypingFeedback() {
 
   const formatIsTyping = (arr: string[]) => {
     return (
-      arr.reduce((acc, curr, id) => acc + (id == arr.length - 1 ? " and " : ", ") + curr) +
+      arr
+        .map((user) => chat.members.find((member: User) => member._id === user)?.name || "someone")
+        .reduce((acc, curr, id) => acc + (id == arr.length - 1 ? " and " : ", ") + curr) +
       (arr.length > 1 ? " are typing" : " is typing")
     )
   }

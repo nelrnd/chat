@@ -4,31 +4,35 @@ const Image = require("../models/image")
 const Link = require("../models/link")
 const asyncHandler = require("express-async-handler")
 const he = require("he")
+const { findSocket } = require("../utils")
 
 exports.chat_create = asyncHandler(async (req, res, next) => {
-  const members = [req.body.userId, req.user._id]
-
-  if (new Set(members.filter((user) => !!user)).size < 2) {
-    return res.status(400).json({ message: "Chat must contains at least 2 members" })
+  if (Array.from(new Set(req.body.members)).length < 2) {
+    return res.status(400).json({ message: "Chat must contain at least 2 members" })
   }
 
-  const unreadCount = members.reduce((acc, curr) => {
-    const accCopy = { ...acc }
-    accCopy[curr] = 0
-    return accCopy
-  }, {})
+  if (!req.body.members.includes(req.user._id.toString())) {
+    return res.status(400).json({ message: "Chat must contain auth user" })
+  }
 
-  let chat = new Chat({ members, unreadCount })
-
+  const unreadCount = {}
+  req.body.members.forEach((user) => (unreadCount[user] = 0))
+  let chat = new Chat({ members: req.body.members, unreadCount })
   await chat.save()
-
   await chat.populate({ path: "members", select: "-password" })
-
   chat = chat.toObject()
-  chat.messages = []
-  chat.typingUsers = []
-  chat.sharedImages = []
-  chat.sharedLinks = []
+  chat = { ...chat, messages: [], typingUsers: [], sharedImages: [], sharedLinks: [] }
+
+  const io = req.io
+  chat.members.forEach((user) => {
+    const socket = findSocket(io, user._id.toString())
+    if (socket) {
+      socket.join(chat._id.toString())
+      if (user._id.toString() !== req.user._id.toString()) {
+        io.to(user._id.toString()).emit("new-chat", chat)
+      }
+    }
+  })
 
   res.json(chat)
 })
@@ -96,6 +100,7 @@ exports.chat_check_auth = asyncHandler(async (req, res, next) => {
 exports.chat_read = asyncHandler(async (req, res, next) => {
   const { chatId } = req.params
   const { unreadCount } = await Chat.findById(chatId)
-  unreadCount[req.user._id] = 0
+  unreadCount[req.user._id.toString()] = 0
   await Chat.findByIdAndUpdate(chatId, { unreadCount })
+  res.end()
 })
