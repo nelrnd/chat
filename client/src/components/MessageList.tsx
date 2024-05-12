@@ -1,6 +1,7 @@
 import moment from "moment"
 import { Message as MessageType } from "../types"
 import Message from "./Message"
+import React from "react"
 
 interface MessageListProps {
   messages: MessageType[]
@@ -50,5 +51,16 @@ export default function MessageList({ messages }: MessageListProps) {
         </div>
       ))}
     </ul>
+  )
+}
+
+function Day({ messages }) {
+  return (
+    <React.Fragment key={messages[0].timestamp}>
+      <h3>{formatDay(messages[0].timestamp)}</h3>
+      {messages.map((msg) => (
+        <Message key={msg._id} message={msg} />
+      ))}
+    </React.Fragment>
   )
 }

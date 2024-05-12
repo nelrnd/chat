@@ -6,15 +6,21 @@ import ChatList from "./ChatList"
 export default function SideBar() {
   return (
     <nav className="w-[24rem] border-r border-neutral-800 flex flex-col">
-      <header className="px-6 py-8">
+      <header className="h-[6rem] px-6 py-8 flex items-center">
         <Link to="/chat" className="inline-block w-fit p-2 -m-2">
           <img src={logo} alt="MiChat" />
         </Link>
       </header>
 
-      <section className="p-3 flex-1">
-        <ChatList />
-      </section>
+      <div className="flex-1">
+        <section className="p-6 pt-0">
+          <input />
+        </section>
+
+        <section className="p-3">
+          <ChatList />
+        </section>
+      </div>
 
       <footer className="p-6">
         <Button asChild>
