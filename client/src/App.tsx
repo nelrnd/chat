@@ -10,6 +10,7 @@ import Root from "./routes/Root"
 import ChatProvider from "./providers/ChatProvider"
 import Chat from "./routes/Chat"
 import Settings from "./routes/Settings"
+import About from "./routes/About"
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,10 @@ const router = createBrowserRouter([
       {
         path: "/login",
         element: <Login />,
+      },
+      {
+        path: "/about",
+        element: <About />,
       },
       {
         element: <AuthRoot />,
