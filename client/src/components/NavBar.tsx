@@ -1,41 +1,26 @@
 import { Link } from "react-router-dom"
-import { useAuth } from "../providers/AuthProvider"
-import { Button } from "./ui/button"
+import logo from "../assets/navbar-logo.svg"
 
 export default function NavBar() {
-  const { authUser, setToken } = useAuth()
-
   return (
     <nav>
-      <ul>
-        {authUser ? (
-          <>
-            <li>
-              <Link to="/chat">Chat</Link>
-            </li>
-            <li>
-              <Link to="/profile">Profile</Link>
-            </li>
-            <li>
-              <Link to="/settings">Settings</Link>
-            </li>
-            <li>
-              <button onClick={() => setToken(null)}>Logout</button>
-            </li>
-          </>
-        ) : (
-          <>
-            <li>
-              <Link to="/login">Login</Link>
-            </li>
-            <li>
-              <Link to="/register">Register</Link>
-            </li>
-          </>
-        )}
-      </ul>
-
-      <Button>Just a button</Button>
+      <div className="max-w-[56rem] h-[6rem] m-auto flex justify-between items-center border-b border-neutral-800">
+        <Link to="/" className="p-2 -ml-2">
+          <img src={logo} alt="MiChat" />
+        </Link>
+        <ul className="flex gap-6">
+          <li>
+            <Link to="/about" className="font-medium text-neutral-400 hover:text-white transition-colors p-2">
+              About
+            </Link>
+          </li>
+          <li>
+            <Link to="/login" className="font-medium text-neutral-400 hover:text-white transition-colors p-2">
+              Open
+            </Link>
+          </li>
+        </ul>
+      </div>
     </nav>
   )
 }
