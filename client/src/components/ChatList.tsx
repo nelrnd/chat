@@ -15,9 +15,9 @@ export default function ChatList() {
   )
 }
 
-function formatRelativeTime(timestamp) {
-  const date = new Date(timestamp) / 1000
-  const now = new Date() / 1000
+function formatRelativeTime(timestamp: string) {
+  const date = new Date(timestamp).getTime() / 1000
+  const now = new Date().getTime() / 1000
 
   if (Math.round(date / 31536000) < Math.round(now / 31536000)) {
     const diff = Math.round(now / 31536000) - Math.round(date / 31536000)

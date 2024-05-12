@@ -1,12 +1,13 @@
 import axios from "axios"
 import { useEffect, useState } from "react"
-import { Chat, User } from "../types"
+import { User } from "../types"
 import { useNavigate } from "react-router-dom"
 import { useChat } from "../providers/ChatProvider"
 import { useAuth } from "../providers/AuthProvider"
+import { Input } from "./ui/input"
+import Avatar from "./Avatar"
 
-export default function UserSearch() {
-  const [value, setValue] = useState("")
+export default function UserSearch({ value, setValue }) {
   const [results, setResults] = useState<User[]>([])
   const [loading, setLoading] = useState(false)
 
@@ -27,25 +28,21 @@ export default function UserSearch() {
 
   return (
     <div>
-      <input placeholder="Search for user" value={value} onChange={(e) => setValue(e.target.value)} />
+      <Input placeholder="Search users" value={value} onChange={(e) => setValue(e.target.value)} />
 
-      {value && <p>Search results:</p>}
-
-      {value && results.length === 0 && loading === false && <p>No results...</p>}
-
-      {loading === true && results.length === 0 && <p>Loading...</p>}
-
-      {results.length > 0 && (
-        <>
-          <ul>
-            {results.map((user) => (
-              <UserTab key={user._id} user={user} />
-            ))}
-          </ul>
-        </>
+      {value && (
+        <div className="mt-4">
+          {loading === true && results.length === 0 && <p className="text-center text-neutral-400">Loading...</p>}
+          {results.length === 0 && loading === false && <p className="text-center text-neutral-400">No user found</p>}
+          {results.length > 0 && (
+            <ul className="-mx-2 space-y-2">
+              {results.map((user) => (
+                <UserTab key={user._id} user={user} />
+              ))}
+            </ul>
+          )}
+        </div>
       )}
-
-      {value && <hr />}
     </div>
   )
 }
@@ -61,18 +58,22 @@ function UserTab({ user }: UserTabProps) {
 
   const handleClick = async () => {
     let chat = findChat(user._id)
-
     if (!chat) {
       chat = await createChat([user._id, authUser?._id])
     }
-
     navigate(`/chat/${chat._id}`)
   }
 
   return (
     <li>
-      <button onClick={handleClick}>
-        {user.name} - {user.email}
+      <button onClick={handleClick} className="w-full p-2 rounded-lg hover:bg-neutral-900 transition-colors">
+        <div className="text-left flex items-center gap-3">
+          <Avatar src={user.avatar} className="w-[3rem]" />
+          <div className="flex-1">
+            <h3 className="font-semibold">{user.name}</h3>
+            <p className="text-neutral-400">{user.email}</p>
+          </div>
+        </div>
       </button>
     </li>
   )

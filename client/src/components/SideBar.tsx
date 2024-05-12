@@ -2,8 +2,12 @@ import { Link } from "react-router-dom"
 import { Button } from "./ui/button"
 import logo from "../assets/logo.svg"
 import ChatList from "./ChatList"
+import { useState } from "react"
+import UserSearch from "./UserSearch"
 
 export default function SideBar() {
+  const [searchTerm, setSearchTerm] = useState("")
+
   return (
     <nav className="w-[24rem] border-r border-neutral-800 flex flex-col">
       <header className="h-[6rem] px-6 py-8 flex items-center">
@@ -14,12 +18,14 @@ export default function SideBar() {
 
       <div className="flex-1">
         <section className="p-6 pt-0">
-          <input />
+          <UserSearch value={searchTerm} setValue={setSearchTerm} />
         </section>
 
-        <section className="p-3">
-          <ChatList />
-        </section>
+        {searchTerm === "" && (
+          <section className="p-3">
+            <ChatList />
+          </section>
+        )}
       </div>
 
       <footer className="p-6">
