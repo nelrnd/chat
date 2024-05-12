@@ -14,7 +14,6 @@ export default function Chat() {
 
   useEffect(() => {
     if (authUser && chat && chat.unreadCount[authUser?._id]) {
-      console.log("vroom")
       readMessages(chatId)
     }
   }, [chatId, chat, authUser, readMessages])

@@ -3,6 +3,7 @@ import UserSearch from "../components/UserSearch"
 import { useAuth } from "../providers/AuthProvider"
 import { Link, useParams } from "react-router-dom"
 import { Chat } from "../types"
+import NewChatModal from "../components/NewChatModal"
 
 export default function Chats() {
   const { chatId } = useParams()
@@ -21,6 +22,8 @@ export default function Chats() {
   return (
     <div>
       <h1>Chats</h1>
+
+      <NewChatModal />
 
       <UserSearch />
 

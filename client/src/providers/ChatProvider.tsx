@@ -107,7 +107,6 @@ export default function ChatProvider({ children }: ChatProviderProps) {
 
   useEffect(() => {
     function onNewChat(chat: Chat) {
-      console.log("new chat my man")
       setChats((chats) => [...chats, chat])
     }
 
