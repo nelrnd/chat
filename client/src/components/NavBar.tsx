@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom"
 import { useAuth } from "../providers/AuthProvider"
+import { Button } from "./ui/button"
 
 export default function NavBar() {
   const { authUser, setToken } = useAuth()
@@ -33,6 +34,8 @@ export default function NavBar() {
           </>
         )}
       </ul>
+
+      <Button>Just a button</Button>
     </nav>
   )
 }
