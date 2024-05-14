@@ -58,7 +58,7 @@ export default function ChatForm() {
   return (
     <div className="max-w-[40rem] m-auto bg-neutral-900 rounded-2xl">
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="h-[6rem] p-4 flex items-center gap-4">
+        <div className="h-[5rem] p-4 flex items-center gap-4">
           <input
             id="images"
             type="file"
