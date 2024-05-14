@@ -2,15 +2,25 @@ import { Link, useParams } from "react-router-dom"
 import { useChat } from "../providers/ChatProvider"
 import Avatar from "./Avatar"
 import { useAuth } from "@/providers/AuthProvider"
+import { Chat } from "@/types"
 
 export default function ChatList() {
+  const { chatId } = useParams()
   const { chats } = useChat()
+
+  const filterChats = (chat: Chat) => chat.messages.length > 0 || chat._id === chatId
+  const sortChats = (a: Chat, b: Chat) =>
+    new Date(b.messages[b.messages.length - 1].timestamp).getTime() -
+    new Date(a.messages[a.messages.length - 1].timestamp).getTime()
 
   return (
     <ul className="space-y-1">
-      {chats.map((chat) => (
-        <ChatTab key={chat._id} chat={chat} />
-      ))}
+      {chats
+        .filter(filterChats)
+        .sort(sortChats)
+        .map((chat) => (
+          <ChatTab key={chat._id} chat={chat} />
+        ))}
     </ul>
   )
 }
@@ -59,7 +69,7 @@ function ChatTab({ chat }) {
           <Avatar src={otherMember.avatar} />
           <div className="flex-1">
             <h3 className="font-semibold">{otherMember.name}</h3>
-            <p className="text-neutral-400">{chat.messages[chat.messages.length - 1].content}</p>
+            <p className="text-neutral-400">{chat.messages[chat.messages.length - 1]?.content || "yes"}</p>
           </div>
           <div>
             <p className="text-sm text-neutral-400">{formatRelativeTime(lastMessage.timestamp)}</p>
