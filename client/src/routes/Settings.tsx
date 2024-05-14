@@ -1,31 +1,37 @@
 import axios from "axios"
-import { SubmitHandler, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { useAuth } from "../providers/AuthProvider"
 import { useEffect, useState } from "react"
+import { Button } from "../components/ui/button"
 
-type Inputs = {
-  name: string
-  bio: string
-  avatar: FileList | null
-}
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+
+const formSchema = z.object({
+  name: z.string().min(1).max(50),
+  bio: z.string().max(500).optional(),
+  avatar: z.instanceof(FileList).optional(),
+})
 
 export default function Settings() {
   const { authUser, setAuthUser, setToken } = useAuth()
-  const { register, handleSubmit, watch, setValue } = useForm<Inputs>({
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       name: authUser?.name || "",
       bio: authUser?.bio || "",
     },
   })
+
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  console.log(authUser)
-
-  const avatar = watch("avatar")
-  const [previewAvatar, setPreviewAvatar] = useState(
-    authUser?.avatar && import.meta.env.VITE_BASE_API + authUser?.avatar
-  )
+  const avatar = form.watch("avatar")
+  const [previewAvatar, setPreviewAvatar] = useState(authUser?.avatar)
 
   useEffect(() => {
     if (avatar && avatar.length) {
@@ -33,12 +39,12 @@ export default function Settings() {
     }
   }, [avatar])
 
-  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    setLoading(true)
     const formData = new FormData()
     formData.append("name", data.name)
-    formData.append("bio", data.bio)
+    formData.append("bio", data.bio || "")
     formData.append("avatar", (data.avatar && data.avatar[0]) || (previewAvatar ? authUser?.avatar : ""))
-    setLoading(true)
     await axios
       .put("/user", formData)
       .then((res) => setAuthUser(res.data))
@@ -53,7 +59,7 @@ export default function Settings() {
   }
 
   const handleRemoveAvatar = () => {
-    setValue("avatar", null)
+    form.setValue("avatar", null)
     setPreviewAvatar("")
   }
 
@@ -61,10 +67,60 @@ export default function Settings() {
     axios.delete("/user").then(() => setToken(null))
   }
 
+  const handleLogout = () => {
+    setToken(null)
+  }
+
   return (
     <div>
-      <h1>Settings</h1>
+      <header className="h-[6rem] p-8 flex justify-between items-center border-b border-neutral-800">
+        <h1 className="scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0">Settings</h1>
+      </header>
 
+      <div className="max-w-[36rem] m-auto mt-8 space-y-8">
+        <section className="p-8 rounded-2xl border border-neutral-800">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Display name</FormLabel>
+                    <FormControl>
+                      <Input {...field} spellCheck="false" />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="bio"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Bio (a few words about you)</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} spellCheck="false" />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <Button>Save changes</Button>
+            </form>
+          </Form>
+        </section>
+
+        <Button onClick={handleDeleteAccount} variant="destructive" className="w-full">
+          Delete account
+        </Button>
+
+        <Button onClick={handleLogout} className="w-full">
+          Logout
+        </Button>
+      </div>
+      {/* 
       <form onSubmit={handleSubmit(onSubmit)}>
         <h2>Update profile</h2>
         <div>
@@ -92,10 +148,7 @@ export default function Settings() {
 
         <button disabled={loading}>{loading ? "Loading..." : "Update form"}</button>
       </form>
-
-      <hr />
-
-      <button onClick={handleDeleteAccount}>Delete my account</button>
+      */}
     </div>
   )
 }

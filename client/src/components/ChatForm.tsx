@@ -52,7 +52,7 @@ export default function ChatForm() {
   }, [isTyping, chatId])
 
   return (
-    <div className="max-w-[40rem] m-auto bg-neutral-800 rounded-2xl">
+    <div className="max-w-[40rem] m-auto bg-neutral-900 rounded-2xl">
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="h-[6rem] p-4 flex items-center gap-4">
           <input

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { SubmitHandler, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../providers/AuthProvider"
 import axios from "axios"
@@ -98,10 +98,10 @@ export default function Login() {
 
         <div className="space-y-2">
           <Button className="w-full" asChild>
-            <a href={import.meta.env.SERVER_BASE_URL + "/api/user/google/start"}>Login with Google</a>
+            <a href={SERVER_BASE_URL + "/api/user/google/start"}>Login with Google</a>
           </Button>
           <Button className="w-full" asChild>
-            <a href={import.meta.env.SERVER_BASE_URL + "/api/user/github/start"}>Login with GitHub</a>
+            <a href={SERVER_BASE_URL + "/api/user/github/start"}>Login with GitHub</a>
           </Button>
         </div>
 

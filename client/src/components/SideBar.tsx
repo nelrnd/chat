@@ -17,7 +17,7 @@ export default function SideBar() {
       </header>
 
       <div className="flex-1">
-        <section className="p-6 pt-0">
+        <section className="px-6 pb-4">
           <UserSearch value={searchTerm} setValue={setSearchTerm} />
         </section>
 
@@ -28,11 +28,11 @@ export default function SideBar() {
         )}
       </div>
 
-      <footer className="p-6">
-        <Button asChild>
+      <footer className="p-6 flex gap-3">
+        <Button className="flex-1" asChild>
           <Link to="/settings">Settings</Link>
         </Button>
-        <Button>New</Button>
+        <Button className="flex-1">New</Button>
       </footer>
     </nav>
   )
