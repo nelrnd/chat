@@ -3,21 +3,33 @@ import { useEffect, useState } from "react"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../providers/AuthProvider"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
-type Inputs = {
-  name: string
-  email: string
-  password: string
-}
+const formSchema = z.object({
+  name: z.string().min(1).max(50),
+  email: z.string().email().min(1),
+  password: z.string().min(6),
+})
 
 export default function Register() {
-  const { register, handleSubmit } = useForm<Inputs>()
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+  })
   const { token } = useAuth()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     setLoading(true)
     setError(null)
     await axios
@@ -41,32 +53,70 @@ export default function Register() {
 
   return (
     <div>
-      <h1>Register</h1>
+      <section className="max-w-[26rem] m-auto mt-[8rem] p-8 space-y-6 rounded-2xl border border-neutral-800">
+        <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight mb-8">Register</h1>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <label htmlFor="name">Display name</label>
-          <input id="name" {...register("name")} required />
-        </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} spellCheck="false" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <div>
-          <label htmlFor="email">Email</label>
-          <input id="email" type="email" {...register("email")} required />
-        </div>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" {...field} spellCheck="false" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <div>
-          <label htmlFor="password">Password</label>
-          <input id="password" type="password" {...register("password")} required />
-        </div>
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} spellCheck="false" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        {error && <p>{error}</p>}
+            {error && <p>{error}</p>}
 
-        <button disabled={loading}>{loading ? "Loading..." : "Register"}</button>
-      </form>
+            <Button className="w-full" disabled={loading}>
+              {loading ? "Loading..." : "Register"}
+            </Button>
+          </form>
+        </Form>
 
-      <p>
-        Have an account already? <Link to="/login">Login</Link>
-      </p>
+        <hr className="border-neutral-800" />
+
+        <p className="text-neutral-400">
+          Have an account already?{" "}
+          <Link to="/login" className="font-semibold text-white hover:underline">
+            Login
+          </Link>
+        </p>
+      </section>
     </div>
   )
 }
