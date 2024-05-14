@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom"
 import { useEffect, useRef, useState } from "react"
 import { socket } from "../socket"
 import { Button } from "./ui/button"
+import { BiImageAlt, BiSend } from "react-icons/bi"
 
 interface Inputs {
   content: string
@@ -14,7 +15,7 @@ interface Inputs {
 export default function ChatForm() {
   const { chatId } = useParams()
   const { createMessage } = useChat()
-  const { register, handleSubmit, reset } = useForm<Inputs>()
+  const { register, handleSubmit, reset, watch } = useForm<Inputs>()
   const [loading, setLoading] = useState(false)
   const [isTyping, setIsTyping] = useState<boolean | null>(null)
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -43,6 +44,9 @@ export default function ChatForm() {
     setLoading(false)
   }
 
+  const content = watch("content")
+  const images = watch("images")
+
   useEffect(() => {
     if (isTyping) {
       socket.emit("start-typing", chatId)
@@ -63,8 +67,10 @@ export default function ChatForm() {
             multiple
             className="hidden"
           />
-          <Button asChild>
-            <label htmlFor="images">Image</label>
+          <Button size="icon" variant="ghost" className="hover:bg-neutral-800" asChild>
+            <label htmlFor="images" className="cursor-pointer">
+              <BiImageAlt className="text-lg" />
+            </label>
           </Button>
 
           <input
@@ -77,7 +83,10 @@ export default function ChatForm() {
 
           <input type="hidden" {...register("chatId")} value={chatId} required />
 
-          <Button>Send</Button>
+          <Button disabled={loading || (!content && !images)}>
+            Send
+            <BiSend className="text-lg" />
+          </Button>
         </div>
       </form>
     </div>

@@ -8,6 +8,7 @@ import { z } from "zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { BiLogoGithub, BiLogoGoogle } from "react-icons/bi"
 
 const SERVER_BASE_URL = import.meta.env.VITE_SERVER_BASE_URL
 
@@ -53,7 +54,7 @@ export default function Login() {
 
   return (
     <div>
-      <section className="max-w-[26rem] m-auto mt-[8rem] p-8 space-y-6 rounded-2xl border border-neutral-800">
+      <section className="max-w-[26rem] m-auto my-[8rem] p-8 space-y-6 rounded-2xl border border-neutral-800">
         <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight mb-8">Login</h1>
 
         <Form {...form}>
@@ -97,11 +98,17 @@ export default function Login() {
         <hr className="border-neutral-800" />
 
         <div className="space-y-2">
-          <Button className="w-full" asChild>
-            <a href={SERVER_BASE_URL + "/api/user/google/start"}>Login with Google</a>
+          <Button variant="secondary" className="w-full" asChild>
+            <a href={SERVER_BASE_URL + "/api/user/google/start"}>
+              <BiLogoGoogle />
+              Login with Google
+            </a>
           </Button>
-          <Button className="w-full" asChild>
-            <a href={SERVER_BASE_URL + "/api/user/github/start"}>Login with GitHub</a>
+          <Button variant="secondary" className="w-full" asChild>
+            <a href={SERVER_BASE_URL + "/api/user/github/start"}>
+              <BiLogoGithub />
+              Login with GitHub
+            </a>
           </Button>
         </div>
 

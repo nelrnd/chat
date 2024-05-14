@@ -53,7 +53,7 @@ export default function Register() {
 
   return (
     <div>
-      <section className="max-w-[26rem] m-auto mt-[8rem] p-8 space-y-6 rounded-2xl border border-neutral-800">
+      <section className="max-w-[26rem] m-auto my-[8rem] p-8 space-y-6 rounded-2xl border border-neutral-800">
         <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight mb-8">Register</h1>
 
         <Form {...form}>

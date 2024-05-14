@@ -3,14 +3,14 @@ import { useForm } from "react-hook-form"
 import { useAuth } from "../providers/AuthProvider"
 import { useEffect, useState } from "react"
 import { Button, buttonVariants } from "../components/ui/button"
-
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import Avatar from "@/components/Avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { BiImageAlt, BiX } from "react-icons/bi"
 
 const formSchema = z.object({
   name: z.string().min(1).max(50),
@@ -97,14 +97,23 @@ export default function Settings() {
                         <DropdownMenuContent side="right">
                           <DropdownMenuItem className="cursor-pointer" asChild>
                             <FormLabel className={buttonVariants({ variant: "ghost", size: "sm" })}>
+                              <BiImageAlt />
                               Upload image
                             </FormLabel>
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="cursor-pointer" asChild>
-                            <Button onClick={removeAvatar} variant="ghost" size="sm" className="w-full cursor-pointer">
-                              Remove image
-                            </Button>
-                          </DropdownMenuItem>
+                          {previewAvatar && (
+                            <DropdownMenuItem className="cursor-pointer" asChild>
+                              <Button
+                                onClick={removeAvatar}
+                                variant="ghost"
+                                size="sm"
+                                className="w-full cursor-pointer"
+                              >
+                                <BiX />
+                                Remove image
+                              </Button>
+                            </DropdownMenuItem>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>

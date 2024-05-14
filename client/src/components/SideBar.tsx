@@ -4,6 +4,7 @@ import logo from "../assets/logo.svg"
 import ChatList from "./ChatList"
 import { useState } from "react"
 import UserSearch from "./UserSearch"
+import { BiCog, BiMessageAdd } from "react-icons/bi"
 
 export default function SideBar() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -30,9 +31,13 @@ export default function SideBar() {
 
       <footer className="p-6 flex gap-3">
         <Button variant="secondary" className="flex-1" asChild>
-          <Link to="/settings">Settings</Link>
+          <Link to="/settings">
+            <BiCog className="text-lg" />
+            Settings
+          </Link>
         </Button>
-        <Button variant="secondary" className="flex-1">
+        <Button className="flex-1">
+          <BiMessageAdd className="text-lg" />
           New
         </Button>
       </footer>

@@ -6,6 +6,7 @@ import { useChat } from "../providers/ChatProvider"
 import { useAuth } from "../providers/AuthProvider"
 import { Input } from "./ui/input"
 import Avatar from "./Avatar"
+import { BiSearch } from "react-icons/bi"
 
 export default function UserSearch({ value, setValue }) {
   const [results, setResults] = useState<User[]>([])
@@ -28,7 +29,10 @@ export default function UserSearch({ value, setValue }) {
 
   return (
     <div>
-      <Input placeholder="Search users" value={value} onChange={(e) => setValue(e.target.value)} />
+      <div className="relative">
+        <BiSearch className="text-neutral-400 text-lg absolute top-1/2 -translate-y-1/2 left-4 pointer-events-none" />
+        <Input placeholder="Search users" value={value} onChange={(e) => setValue(e.target.value)} className="pl-10" />
+      </div>
 
       {value && (
         <div className="mt-4">
