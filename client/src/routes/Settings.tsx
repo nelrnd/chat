@@ -2,13 +2,15 @@ import axios from "axios"
 import { useForm } from "react-hook-form"
 import { useAuth } from "../providers/AuthProvider"
 import { useEffect, useState } from "react"
-import { Button } from "../components/ui/button"
+import { Button, buttonVariants } from "../components/ui/button"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import Avatar from "@/components/Avatar"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 const formSchema = z.object({
   name: z.string().min(1).max(50),
@@ -58,8 +60,8 @@ export default function Settings() {
     setLoading(false)
   }
 
-  const handleRemoveAvatar = () => {
-    form.setValue("avatar", null)
+  const removeAvatar = () => {
+    form.setValue("avatar", undefined)
     setPreviewAvatar("")
   }
 
@@ -83,6 +85,45 @@ export default function Settings() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
+                name="avatar"
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                render={({ field: { value, onChange, ...fieldProps } }) => (
+                  <FormItem>
+                    <div className="w-fit m-auto">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger>
+                          <Avatar src={previewAvatar || ""} className="w-[8rem]" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent side="right">
+                          <DropdownMenuItem className="cursor-pointer" asChild>
+                            <FormLabel className={buttonVariants({ variant: "ghost", size: "sm" })}>
+                              Upload image
+                            </FormLabel>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="cursor-pointer" asChild>
+                            <Button onClick={removeAvatar} variant="ghost" size="sm" className="w-full cursor-pointer">
+                              Remove image
+                            </Button>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                    <FormControl>
+                      <Input
+                        {...fieldProps}
+                        type="file"
+                        accept="image/png, image/jpeg, image/jpg, image/webp"
+                        multiple
+                        onChange={(e) => onChange(e.target.files)}
+                        className="hidden"
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
@@ -103,52 +144,30 @@ export default function Settings() {
                     <FormControl>
                       <Textarea {...field} spellCheck="false" />
                     </FormControl>
+                    <FormDescription className="ml-auto w-fit">0/300 characters</FormDescription>
                   </FormItem>
                 )}
               />
 
-              <Button>Save changes</Button>
+              {error && <p>{error}</p>}
+
+              <Button disabled={loading} variant="secondary" className="block ml-auto">
+                {loading ? "Loading..." : "Save changes"}
+              </Button>
             </form>
           </Form>
         </section>
 
-        <Button onClick={handleDeleteAccount} variant="destructive" className="w-full">
-          Delete account
-        </Button>
+        <div className="space-y-4">
+          <Button onClick={handleDeleteAccount} variant="destructive" className="w-full">
+            Delete account
+          </Button>
 
-        <Button onClick={handleLogout} className="w-full">
-          Logout
-        </Button>
+          <Button onClick={handleLogout} variant="secondary" className="w-full">
+            Logout
+          </Button>
+        </div>
       </div>
-      {/* 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <h2>Update profile</h2>
-        <div>
-          <label htmlFor="name">Name</label>
-          <input id="name" {...register("name")} />
-        </div>
-
-        <div>
-          <label htmlFor="bio">Bio</label>
-          <textarea id="bio" {...register("bio")}></textarea>
-        </div>
-
-        <div>
-          {previewAvatar && <img src={previewAvatar} alt="" width="100" />}
-          <label htmlFor="avatar">Avatar</label>
-          <input id="avatar" type="file" accept="image/*" {...register("avatar")} />
-          {previewAvatar && (
-            <button type="button" onClick={handleRemoveAvatar}>
-              Remove avatar
-            </button>
-          )}
-        </div>
-
-        {error && <p>{error}</p>}
-
-        <button disabled={loading}>{loading ? "Loading..." : "Update form"}</button>
-      </form>
-      */}
     </div>
   )
 }

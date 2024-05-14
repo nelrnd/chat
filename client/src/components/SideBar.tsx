@@ -29,10 +29,12 @@ export default function SideBar() {
       </div>
 
       <footer className="p-6 flex gap-3">
-        <Button className="flex-1" asChild>
+        <Button variant="secondary" className="flex-1" asChild>
           <Link to="/settings">Settings</Link>
         </Button>
-        <Button className="flex-1">New</Button>
+        <Button variant="secondary" className="flex-1">
+          New
+        </Button>
       </footer>
     </nav>
   )
