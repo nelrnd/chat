@@ -1,22 +1,35 @@
+import { useEffect, useState } from "react"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../providers/AuthProvider"
 import axios from "axios"
-import { useEffect, useState } from "react"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
-type Inputs = {
-  email: string
-  password: string
-}
+const SERVER_BASE_URL = import.meta.env.VITE_SERVER_BASE_URL
+
+const formSchema = z.object({
+  email: z.string().email().min(1),
+  password: z.string().min(1),
+})
 
 export default function Login() {
-  const { register, handleSubmit } = useForm<Inputs>()
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  })
   const { token, setToken } = useAuth()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     setLoading(true)
     setError(null)
     await axios
@@ -40,38 +53,65 @@ export default function Login() {
 
   return (
     <div>
-      <h1>Login</h1>
+      <section className="max-w-[26rem] m-auto mt-[8rem] p-8 space-y-6 rounded-2xl border border-neutral-800">
+        <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight mb-8">Login</h1>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <label htmlFor="email">Email</label>
-          <input id="email" type="email" {...register("email")} required />
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" {...field} spellCheck="false" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} spellCheck="false" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {error && <p>{error}</p>}
+
+            <Button className="w-full" disabled={loading}>
+              {loading ? "Loading..." : "Login"}
+            </Button>
+          </form>
+        </Form>
+
+        <hr className="border-neutral-800" />
+
+        <div className="space-y-2">
+          <Button className="w-full" asChild>
+            <a href={import.meta.env.SERVER_BASE_URL + "/api/user/google/start"}>Login with Google</a>
+          </Button>
+          <Button className="w-full" asChild>
+            <a href={import.meta.env.SERVER_BASE_URL + "/api/user/github/start"}>Login with GitHub</a>
+          </Button>
         </div>
 
-        <div>
-          <label htmlFor="password">Password</label>
-          <input id="password" type="password" {...register("password")} required />
-        </div>
-
-        {error && <p>{error}</p>}
-
-        <button disabled={loading}>{loading ? "Loading..." : "Login"}</button>
-      </form>
-
-      <hr />
-
-      <div>
-        <p>
-          <a href={import.meta.env.VITE_SERVER_BASE_URL + "/api/user/google/start"}>Login with Google</a>
+        <p className="text-neutral-400">
+          Don't have an account yet?{" "}
+          <Link to="/register" className="font-semibold text-white hover:underline">
+            Register
+          </Link>
         </p>
-        <p>
-          <a href={import.meta.env.VITE_SERVER_BASE_URL + "/api/user/github/start"}>Login with GitHub</a>
-        </p>
-      </div>
-
-      <p>
-        Don't have an account yet? <Link to="/register">Register</Link>
-      </p>
+      </section>
     </div>
   )
 }
