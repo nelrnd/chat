@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import Avatar from "@/components/Avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { BiImageAlt, BiX } from "react-icons/bi"
+import { BiCamera, BiImageAlt, BiX } from "react-icons/bi"
 
 const formSchema = z.object({
   name: z.string().min(1).max(50),
@@ -92,7 +92,12 @@ export default function Settings() {
                     <div className="w-fit m-auto">
                       <DropdownMenu>
                         <DropdownMenuTrigger>
-                          <Avatar src={previewAvatar || ""} className="w-[8rem]" />
+                          <div className="relative rounded-full overflow-hidden">
+                            <div className="absolute z-10 bg-black/30 hover:bg-black/50 w-full h-full grid place-content-center transition-colors">
+                              <BiCamera className="text-3xl" />
+                            </div>
+                            <Avatar src={previewAvatar || ""} className="w-[8rem]" />
+                          </div>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent side="right">
                           <DropdownMenuItem className="cursor-pointer" asChild>
