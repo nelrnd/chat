@@ -42,7 +42,7 @@ exports.user_register = [
     .custom(async (value) => {
       const user = await User.findOne({ email: value })
       if (user) {
-        throw new Error("Email already in use")
+        throw new Error("Email is already used")
       }
     })
     .escape(),
@@ -169,7 +169,7 @@ exports.user_search = asyncHandler(async (req, res, next) => {
 exports.user_update = [
   upload.single("avatar"),
   body("name").trim().notEmpty().withMessage("Name is required").escape(),
-  body("bio").trim().optional().escape(),
+  body("bio").trim().isLength({ max: 300 }).withMessage("Bio cannot exceed 300 characters").optional().escape(),
   asyncHandler(async (req, res) => {
     const result = validationResult(req)
 
