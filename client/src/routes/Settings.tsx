@@ -11,6 +11,16 @@ import { Textarea } from "@/components/ui/textarea"
 import Avatar from "@/components/Avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { BiCamera, BiImageAlt, BiLoaderAlt, BiX } from "react-icons/bi"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name cannot exceed 50 characters"),
@@ -66,11 +76,11 @@ export default function Settings() {
     setPreviewAvatar("")
   }
 
-  const handleDeleteAccount = () => {
+  const deleteAccount = () => {
     axios.delete("/user").then(() => setToken(null))
   }
 
-  const handleLogout = () => {
+  const logout = () => {
     setToken(null)
   }
 
@@ -178,11 +188,34 @@ export default function Settings() {
         </section>
 
         <div className="space-y-4">
-          <Button onClick={handleDeleteAccount} variant="destructive" className="w-full">
-            Delete account
-          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="destructive" className="w-full">
+                Delete account
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Delete account</DialogTitle>
+                <DialogDescription>
+                  Do you really want to delete your account? This action cannot be undone. This will permanently delete
+                  your account and your data from our servers.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="secondary">Cancel</Button>
+                </DialogClose>
+                <DialogClose asChild>
+                  <Button onClick={deleteAccount} variant="destructive">
+                    Delete
+                  </Button>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
-          <Button onClick={handleLogout} variant="secondary" className="w-full">
+          <Button onClick={logout} variant="secondary" className="w-full">
             Logout
           </Button>
         </div>
