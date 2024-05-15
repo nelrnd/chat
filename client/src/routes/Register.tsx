@@ -10,9 +10,9 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
 const formSchema = z.object({
-  name: z.string().min(1).max(50),
-  email: z.string().email().min(1),
-  password: z.string().min(6),
+  name: z.string().min(1, "Name is required").max(50, "Name cannot exceed 50 characters"),
+  email: z.string().min(1, "Email is required").email("Please enter a valid email"),
+  password: z.string().min(1, "Password is required").min(6, "Password must contain at least 6 characters"),
 })
 
 export default function Register() {

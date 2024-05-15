@@ -13,8 +13,8 @@ import { BiLogoGithub, BiLogoGoogle } from "react-icons/bi"
 const SERVER_BASE_URL = import.meta.env.VITE_SERVER_BASE_URL
 
 const formSchema = z.object({
-  email: z.string().email().min(1),
-  password: z.string().min(1),
+  email: z.string().min(1, "Email is required").email("Please enter a valid email"),
+  password: z.string().min(1, "Password is required"),
 })
 
 export default function Login() {
