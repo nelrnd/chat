@@ -13,7 +13,7 @@ function linkify(text: string) {
   return parts.map((part, index) => {
     if (part.match(urlRegex)) {
       return (
-        <a href={part} key={index} target="_blank" rel="noopener noreferrer">
+        <a href={part} key={index} target="_blank" rel="noopener noreferrer" className="font-semibold hover:underline">
           {part}
         </a>
       )

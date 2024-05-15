@@ -61,9 +61,6 @@ function ChatTab({ chat }) {
   const unreadCount = chat.unreadCount[authUser._id]
   const isTyping = chat.typingUsers.filter((userId) => userId !== authUser._id)
 
-  console.log("chat:", chat)
-  console.log("other member: ", otherMember)
-
   return (
     otherMember && (
       <li>
