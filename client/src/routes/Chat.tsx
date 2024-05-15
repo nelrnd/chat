@@ -2,10 +2,8 @@ import { useEffect } from "react"
 import { useParams } from "react-router-dom"
 import { useChat } from "../providers/ChatProvider"
 import { useAuth } from "../providers/AuthProvider"
-import MessageForm from "../components/MessageForm"
 import IsTypingFeedback from "../components/IsTypingFeedback"
 import MessageList from "../components/MessageList"
-import ChatInfo from "../components/ChatInfo"
 import { Button } from "../components/ui/button"
 import { getChatName } from "../utils"
 import ChatForm from "../components/ChatForm"
@@ -25,8 +23,6 @@ export default function Chat() {
   if (loading) return <Loader />
 
   if (!chat) return <p>Chat not found</p>
-
-  const otherMember = chat?.members.find((user: User) => user._id !== authUser?._id)
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
