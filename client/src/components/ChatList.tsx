@@ -3,6 +3,7 @@ import { useChat } from "../providers/ChatProvider"
 import Avatar from "./Avatar"
 import { useAuth } from "@/providers/AuthProvider"
 import { Chat } from "@/types"
+import { BiImageAlt } from "react-icons/bi"
 
 export default function ChatList() {
   const { chatId } = useParams()
@@ -74,7 +75,16 @@ function ChatTab({ chat }) {
             <div className="flex-1">
               <h3 className="font-semibold">{otherMember.name}</h3>
               <p className={`${unreadCount ? "text-white font-medium" : "text-neutral-400"} `}>
-                {isTyping.length ? <span>is typing...</span> : <span>{lastMessage.content}</span>}
+                {isTyping.length ? (
+                  <span>is typing...</span>
+                ) : (
+                  <span className="inline-flex items-center gap-1">
+                    {lastMessage.images.length > 0 && <BiImageAlt />}
+                    {lastMessage.content || (
+                      <span className="italic">{lastMessage.images.length > 1 ? "images" : "image"}</span>
+                    )}
+                  </span>
+                )}
               </p>
             </div>
             <div className="space-y-1">
