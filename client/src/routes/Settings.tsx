@@ -32,6 +32,7 @@ export default function Settings() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
+  const bio = form.watch("bio")
   const avatar = form.watch("avatar")
   const [previewAvatar, setPreviewAvatar] = useState(authUser?.avatar)
 
@@ -159,7 +160,9 @@ export default function Settings() {
                     <FormControl>
                       <Textarea {...field} spellCheck="false" />
                     </FormControl>
-                    <FormDescription className="ml-auto w-fit">0/300 characters</FormDescription>
+                    <FormDescription className={`ml-auto w-fit ${bio && bio.length > 300 && "text-red-500"}`}>
+                      {bio.length || "0"}/300 characters
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -167,7 +170,7 @@ export default function Settings() {
 
               {error && <p>{error}</p>}
 
-              <Button variant="secondary" disabled={loading} className="block ml-auto">
+              <Button variant="secondary" disabled={loading || bio.length > 300} className="block ml-auto">
                 {loading ? <BiLoaderAlt className="text-2xl animate-spin" /> : "Save changes"}
               </Button>
             </form>
