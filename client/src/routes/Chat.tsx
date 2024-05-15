@@ -9,6 +9,7 @@ import ChatInfo from "../components/ChatInfo"
 import { Button } from "../components/ui/button"
 import { getChatName } from "../utils"
 import ChatForm from "../components/ChatForm"
+import Loader from "@/components/Loader"
 
 export default function Chat() {
   const { chatId } = useParams()
@@ -21,7 +22,7 @@ export default function Chat() {
     }
   }, [chatId, chat, authUser, readMessages])
 
-  if (loading) return <p>Loading...</p>
+  if (loading) return <Loader />
 
   if (!chat) return <p>Chat not found</p>
 

@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom"
 import { useEffect, useRef, useState } from "react"
 import { socket } from "../socket"
 import { Button } from "./ui/button"
-import { BiImageAlt, BiSend } from "react-icons/bi"
+import { BiImageAlt, BiLoaderAlt, BiSend } from "react-icons/bi"
 
 interface Inputs {
   content: string
@@ -84,8 +84,14 @@ export default function ChatForm() {
           <input type="hidden" {...register("chatId")} value={chatId} required />
 
           <Button disabled={loading || (!content && !images)}>
-            Send
-            <BiSend className="text-lg" />
+            {loading ? (
+              <BiLoaderAlt className="text-2xl animate-spin" />
+            ) : (
+              <>
+                Send
+                <BiSend className="text-lg" />
+              </>
+            )}
           </Button>
         </div>
       </form>

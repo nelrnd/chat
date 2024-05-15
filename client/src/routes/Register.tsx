@@ -8,6 +8,7 @@ import { z } from "zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { BiLoaderAlt } from "react-icons/bi"
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name cannot exceed 50 characters"),
@@ -103,7 +104,7 @@ export default function Register() {
             {error && <p>{error}</p>}
 
             <Button className="w-full" disabled={loading}>
-              {loading ? "Loading..." : "Register"}
+              {loading ? <BiLoaderAlt className="text-2xl animate-spin" /> : "Register"}
             </Button>
           </form>
         </Form>

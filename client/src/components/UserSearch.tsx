@@ -6,7 +6,7 @@ import { useChat } from "../providers/ChatProvider"
 import { useAuth } from "../providers/AuthProvider"
 import { Input } from "./ui/input"
 import Avatar from "./Avatar"
-import { BiSearch } from "react-icons/bi"
+import { BiLoaderAlt, BiSearch } from "react-icons/bi"
 
 export default function UserSearch({ value, setValue }) {
   const [results, setResults] = useState<User[]>([])
@@ -36,7 +36,11 @@ export default function UserSearch({ value, setValue }) {
 
       {value && (
         <div className="mt-4">
-          {loading === true && results.length === 0 && <p className="text-center text-neutral-400">Loading...</p>}
+          {loading === true && results.length === 0 && (
+            <p className="text-center text-neutral-400">
+              <BiLoaderAlt className="text-2xl animate-spin m-auto" />
+            </p>
+          )}
           {results.length === 0 && loading === false && <p className="text-center text-neutral-400">No user found</p>}
           {results.length > 0 && (
             <ul className="-mx-2 space-y-2">

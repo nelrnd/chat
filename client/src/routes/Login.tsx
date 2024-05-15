@@ -8,7 +8,7 @@ import { z } from "zod"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { BiLogoGithub, BiLogoGoogle } from "react-icons/bi"
+import { BiLoaderAlt, BiLogoGithub, BiLogoGoogle } from "react-icons/bi"
 
 const SERVER_BASE_URL = import.meta.env.VITE_SERVER_BASE_URL
 
@@ -90,7 +90,7 @@ export default function Login() {
             {error && <p>{error}</p>}
 
             <Button className="w-full" disabled={loading}>
-              {loading ? "Loading..." : "Login"}
+              {loading ? <BiLoaderAlt className="text-2xl animate-spin" /> : "Login"}
             </Button>
           </form>
         </Form>

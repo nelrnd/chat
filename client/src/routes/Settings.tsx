@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import Avatar from "@/components/Avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { BiCamera, BiImageAlt, BiX } from "react-icons/bi"
+import { BiCamera, BiImageAlt, BiLoaderAlt, BiX } from "react-icons/bi"
 
 const formSchema = z.object({
   name: z.string().min(1).max(50),
@@ -165,8 +165,8 @@ export default function Settings() {
 
               {error && <p>{error}</p>}
 
-              <Button disabled={loading} variant="secondary" className="block ml-auto">
-                {loading ? "Loading..." : "Save changes"}
+              <Button variant="secondary" disabled={loading} className="block ml-auto">
+                {loading ? <BiLoaderAlt className="text-2xl animate-spin" /> : "Save changes"}
               </Button>
             </form>
           </Form>

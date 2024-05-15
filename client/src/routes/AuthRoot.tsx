@@ -3,6 +3,7 @@ import { useAuth } from "../providers/AuthProvider"
 import { useEffect } from "react"
 import { socket } from "../socket"
 import SideBar from "../components/SideBar"
+import Loader from "@/components/Loader"
 
 export default function AuthRoot() {
   const { token, authUser } = useAuth()
@@ -11,15 +12,13 @@ export default function AuthRoot() {
     return <Navigate to="/login" />
   }
 
-  if (!authUser) {
-    return <p>Loading...</p>
-  }
+  if (!authUser) return <Loader />
 
   return (
     <SocketConnector>
       <div className="h-screen flex">
         <SideBar />
-        <div className="flex-1">
+        <div className="flex-1 relative">
           <Outlet />
         </div>
       </div>
