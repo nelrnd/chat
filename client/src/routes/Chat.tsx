@@ -51,7 +51,7 @@ function ChatHeader({ chat }) {
 
 function ChatMessages({ messages }) {
   return (
-    <section className="p-6 pb-0 flex-1 overflow-y-auto">
+    <section className="px-6 pb-0 flex-1 overflow-y-auto">
       <MessageList messages={messages} />
     </section>
   )
