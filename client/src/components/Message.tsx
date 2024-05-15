@@ -43,10 +43,14 @@ export default function Message({ message }) {
   return (
     <li className={`w-full flex ${fromMe ? "justify-end" : "justify-start"}`}>
       <div className="max-w-[80%] space-y-2">
-        <div className={`w-fit max-w-full px-4 py-3 rounded-md ${fromMe ? "bg-indigo-600" : "bg-neutral-800"}`}>
+        <div
+          className={`w-fit max-w-full px-4 py-3 break-words rounded-md ${fromMe ? "bg-indigo-600" : "bg-neutral-800"}`}
+        >
           {linkify(message.content)}
         </div>
-        <div className={fromMe ? "text-right" : "text-left"}>{moment(message.timestamp).format("LT")}</div>
+        <div className={`text-xs text-neutral-400 ${fromMe ? "text-right" : "text-left"}`}>
+          {moment(message.timestamp).format("LT")}
+        </div>
       </div>
     </li>
   )
