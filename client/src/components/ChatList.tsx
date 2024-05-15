@@ -58,6 +58,7 @@ function ChatTab({ chat }) {
   const { authUser } = useAuth()
   const otherMember = chat.members.find((user) => user._id !== authUser._id)
   const lastMessage = chat.messages[chat.messages.length - 1]
+  const unreadCount = chat.unreadCount[authUser._id]
 
   console.log("chat:", chat)
   console.log("other member: ", otherMember)
@@ -74,11 +75,15 @@ function ChatTab({ chat }) {
             <ChatAvatar chat={chat} />
             <div className="flex-1">
               <h3 className="font-semibold">{otherMember.name}</h3>
-              <p className="text-neutral-400">{chat.messages[chat.messages.length - 1]?.content || "yes"}</p>
+              <p className={`${unreadCount ? "text-white font-medium" : "text-neutral-400"} `}>
+                {chat.messages[chat.messages.length - 1]?.content || "yes"}
+              </p>
             </div>
             <div className="space-y-1">
-              <p className="text-xs text-neutral-400">{formatRelativeTime(lastMessage.timestamp)}</p>
-              <UnreadBadge count={chat.unreadCount[authUser._id]} />
+              <p className={`text-xs ${unreadCount ? "text-white" : "text-neutral-400"}`}>
+                {formatRelativeTime(lastMessage.timestamp)}
+              </p>
+              <UnreadBadge count={unreadCount} />
             </div>
           </div>
         </Link>
