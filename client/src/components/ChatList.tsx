@@ -59,26 +59,31 @@ function ChatTab({ chat }) {
   const otherMember = chat.members.find((user) => user._id !== authUser._id)
   const lastMessage = chat.messages[chat.messages.length - 1]
 
+  console.log("chat:", chat)
+  console.log("other member: ", otherMember)
+
   return (
-    <li>
-      <Link to={`/chat/${chat._id}`}>
-        <div
-          className={`p-3 flex gap-3 items-center rounded-lg border ${
-            chatId === chat._id ? "border-neutral-800 bg-neutral-900" : "border-transparent"
-          } hover:bg-neutral-900 transition-colors`}
-        >
-          <Avatar src={otherMember.avatar} />
-          <div className="flex-1">
-            <h3 className="font-semibold">{otherMember.name}</h3>
-            <p className="text-neutral-400">{chat.messages[chat.messages.length - 1]?.content || "yes"}</p>
+    otherMember && (
+      <li>
+        <Link to={`/chat/${chat._id}`} className="group">
+          <div
+            className={`p-3 flex gap-3 items-center rounded-lg border ${
+              chatId === chat._id ? "border-neutral-800 bg-neutral-900" : "border-transparent"
+            } hover:bg-neutral-900 transition-colors`}
+          >
+            <ChatAvatar chat={chat} />
+            <div className="flex-1">
+              <h3 className="font-semibold">{otherMember.name}</h3>
+              <p className="text-neutral-400">{chat.messages[chat.messages.length - 1]?.content || "yes"}</p>
+            </div>
+            <div>
+              <p className="text-sm text-neutral-400">{formatRelativeTime(lastMessage.timestamp)}</p>
+              <UnreadBadge count={chat.unreadCount[authUser._id]} />
+            </div>
           </div>
-          <div>
-            <p className="text-sm text-neutral-400">{formatRelativeTime(lastMessage.timestamp)}</p>
-            <UnreadBadge count={chat.unreadCount[authUser._id]} />
-          </div>
-        </div>
-      </Link>
-    </li>
+        </Link>
+      </li>
+    )
   )
 }
 
@@ -86,4 +91,36 @@ function UnreadBadge({ count }) {
   if (count === 0) return null
 
   return <div>{count}</div>
+}
+
+function ChatAvatar({ chat }) {
+  const { authUser } = useAuth()
+  const { chatId } = useParams()
+  const selected = chatId === chat._id
+
+  const otherMember = chat.members.find((user) => user._id !== authUser._id)
+
+  return (
+    <div className="relative">
+      <Avatar src={otherMember.avatar} />
+      {otherMember.isOnline && <OnlineBadge selected={selected} />}
+    </div>
+  )
+}
+
+function OnlineBadge({ selected }) {
+  return (
+    <div className="w-fit h-fit absolute right-0 bottom-0">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle
+          cx="8"
+          cy="8"
+          r="8"
+          className={`fill-neutral-950 group-hover:fill-neutral-900 transition-all ${selected && "fill-neutral-900"}`}
+        />
+        <circle cx="8" cy="8" r="6" fill="#86EFAC" />
+        <circle cx="8" cy="8" r="5" fill="#22C55E" />
+      </svg>
+    </div>
+  )
 }

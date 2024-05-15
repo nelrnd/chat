@@ -8,6 +8,7 @@ import { Button } from "../components/ui/button"
 import { getChatName } from "../utils"
 import ChatForm from "../components/ChatForm"
 import Loader from "@/components/Loader"
+import { BiInfoCircle } from "react-icons/bi"
 
 export default function Chat() {
   const { chatId } = useParams()
@@ -44,7 +45,10 @@ function ChatHeader({ chat }) {
         <h1 className="scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0">{getChatName(otherMembers)}</h1>
         {otherMembers.length === 1 && otherMembers[0].isOnline && <p className="text-sm text-neutral-400">Online</p>}
       </div>
-      <Button>Info</Button>
+      <Button variant="secondary">
+        <BiInfoCircle />
+        Info
+      </Button>
     </header>
   )
 }
