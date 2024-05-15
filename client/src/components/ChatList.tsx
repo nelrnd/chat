@@ -59,6 +59,7 @@ function ChatTab({ chat }) {
   const otherMember = chat.members.find((user) => user._id !== authUser._id)
   const lastMessage = chat.messages[chat.messages.length - 1]
   const unreadCount = chat.unreadCount[authUser._id]
+  const isTyping = chat.typingUsers.filter((userId) => userId !== authUser._id)
 
   console.log("chat:", chat)
   console.log("other member: ", otherMember)
@@ -76,7 +77,7 @@ function ChatTab({ chat }) {
             <div className="flex-1">
               <h3 className="font-semibold">{otherMember.name}</h3>
               <p className={`${unreadCount ? "text-white font-medium" : "text-neutral-400"} `}>
-                {chat.messages[chat.messages.length - 1]?.content || "yes"}
+                {isTyping.length ? <span>is typing...</span> : <span>{lastMessage.content}</span>}
               </p>
             </div>
             <div className="space-y-1">
