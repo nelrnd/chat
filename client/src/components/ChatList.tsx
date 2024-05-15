@@ -76,8 +76,8 @@ function ChatTab({ chat }) {
               <h3 className="font-semibold">{otherMember.name}</h3>
               <p className="text-neutral-400">{chat.messages[chat.messages.length - 1]?.content || "yes"}</p>
             </div>
-            <div>
-              <p className="text-sm text-neutral-400">{formatRelativeTime(lastMessage.timestamp)}</p>
+            <div className="space-y-1">
+              <p className="text-xs text-neutral-400">{formatRelativeTime(lastMessage.timestamp)}</p>
               <UnreadBadge count={chat.unreadCount[authUser._id]} />
             </div>
           </div>
@@ -90,7 +90,11 @@ function ChatTab({ chat }) {
 function UnreadBadge({ count }) {
   if (count === 0) return null
 
-  return <div>{count}</div>
+  return (
+    <div className="bg-indigo-600 text-white w-5 h-5 ml-auto rounded-full grid place-content-center">
+      <span className="text-xs leading-none tracking-tighter">{count < 100 ? count : "99+"}</span>
+    </div>
+  )
 }
 
 function ChatAvatar({ chat }) {
