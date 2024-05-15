@@ -31,7 +31,13 @@ export default function UserSearch({ value, setValue }) {
     <div>
       <div className="relative">
         <BiSearch className="text-neutral-400 text-lg absolute top-1/2 -translate-y-1/2 left-4 pointer-events-none" />
-        <Input placeholder="Search users" value={value} onChange={(e) => setValue(e.target.value)} className="pl-10" />
+        <Input
+          placeholder="Search users"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          spellCheck="false"
+          className="pl-10"
+        />
       </div>
 
       {value && (

@@ -13,15 +13,16 @@ export default function ChatList() {
     new Date(b.messages[b.messages.length - 1].timestamp).getTime() -
     new Date(a.messages[a.messages.length - 1].timestamp).getTime()
 
-  return (
+  const filteredAndSortedChats = chats.filter(filterChats).sort(sortChats)
+
+  return filteredAndSortedChats.length ? (
     <ul className="space-y-1">
-      {chats
-        .filter(filterChats)
-        .sort(sortChats)
-        .map((chat) => (
-          <ChatTab key={chat._id} chat={chat} />
-        ))}
+      {filteredAndSortedChats.map((chat) => (
+        <ChatTab key={chat._id} chat={chat} />
+      ))}
     </ul>
+  ) : (
+    <p className="text-neutral-400 text-center">No chats for now</p>
   )
 }
 
