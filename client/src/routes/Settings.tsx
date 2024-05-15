@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import { Button, buttonVariants } from "../components/ui/button"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from "@/components/ui/form"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import Avatar from "@/components/Avatar"
@@ -13,8 +13,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { BiCamera, BiImageAlt, BiLoaderAlt, BiX } from "react-icons/bi"
 
 const formSchema = z.object({
-  name: z.string().min(1).max(50),
-  bio: z.string().max(500).optional(),
+  name: z.string().min(1, "Name is required").max(50, "Name cannot exceed 50 characters"),
+  bio: z.string().max(300, "Bio cannot exceed 300 characters").optional(),
   avatar: z.instanceof(FileList).optional(),
 })
 
@@ -145,6 +145,7 @@ export default function Settings() {
                     <FormControl>
                       <Input {...field} spellCheck="false" />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -159,6 +160,7 @@ export default function Settings() {
                       <Textarea {...field} spellCheck="false" />
                     </FormControl>
                     <FormDescription className="ml-auto w-fit">0/300 characters</FormDescription>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
