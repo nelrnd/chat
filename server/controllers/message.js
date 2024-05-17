@@ -69,8 +69,10 @@ exports.message_create = [
     const { members, unreadCount } = await Chat.findById(req.body.chatId)
     members.forEach((user) => {
       const userId = user.toString()
-      if (userId !== req.user._id) {
+      if (userId !== req.user._id.toString()) {
         unreadCount[userId]++
+      } else {
+        unreadCount[userId] = 0
       }
     })
     await Chat.findByIdAndUpdate(req.body.chatId, { unreadCount })
