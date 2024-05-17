@@ -128,7 +128,7 @@ function FormImagePreview({ img, onClick }: FormImagePreviewProps) {
   const src = URL.createObjectURL(img)
 
   return (
-    <div className="overflow-hidden w-fit shrink-0 rounded-xl border-2 border-neutral-800 relative">
+    <div className="overflow-hidden w-fit shrink-0 rounded-xl border border-neutral-800 relative">
       <Button
         onClick={() => onClick(img)}
         variant="secondary"
