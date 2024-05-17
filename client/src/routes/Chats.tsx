@@ -6,11 +6,5 @@ export default function Chats() {
 
   if (loading) return <Loader />
 
-  return (
-    <div>
-      <h1>Chats</h1>
-
-      <p>Open a chat</p>
-    </div>
-  )
+  return <div></div>
 }
