@@ -7,7 +7,7 @@ body {
 }
 
 ::-webkit-scrollbar {
-  @apply w-[8px];
+  @apply w-[8px] h-[8px];
 }
 
 ::-webkit-scrollbar-track {

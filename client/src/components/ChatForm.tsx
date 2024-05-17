@@ -4,17 +4,17 @@ import { useParams } from "react-router-dom"
 import { useEffect, useRef, useState } from "react"
 import { socket } from "../socket"
 import { Button } from "./ui/button"
-import { BiImageAlt, BiLoaderAlt, BiSend } from "react-icons/bi"
+import { BiImageAlt, BiLoaderAlt, BiSend, BiX } from "react-icons/bi"
 
 interface Inputs {
   content: string
-  images: FileList
+  images: FileList | File[]
 }
 
 export default function ChatForm() {
   const { chatId } = useParams()
   const { createMessage } = useChat()
-  const { register, handleSubmit, reset, watch } = useForm<Inputs>()
+  const { register, handleSubmit, reset, watch, setValue } = useForm<Inputs>()
   const [loading, setLoading] = useState(false)
   const [isTyping, setIsTyping] = useState<boolean | null>(null)
   const [empty, setEmpty] = useState(true)
@@ -28,6 +28,13 @@ export default function ChatForm() {
     timeout.current = setTimeout(() => {
       setIsTyping(false)
     }, 2000)
+  }
+
+  const removeImage = (img: File) => {
+    setValue(
+      "images",
+      Array.from(images).filter((image) => image !== img)
+    )
   }
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
@@ -65,6 +72,13 @@ export default function ChatForm() {
 
   return (
     <div className="max-w-[40rem] m-auto bg-neutral-900 rounded-2xl">
+      {images && images.length > 0 && (
+        <div className="p-1 flex gap-4 overflow-x-auto w-fit">
+          {Array.from(images).map((img, id) => (
+            <FormImagePreview key={id} img={img} onClick={removeImage} />
+          ))}
+        </div>
+      )}
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="h-[5rem] p-4 flex items-center gap-4">
           <input
@@ -101,6 +115,30 @@ export default function ChatForm() {
           </Button>
         </div>
       </form>
+    </div>
+  )
+}
+
+interface FormImagePreviewProps {
+  img: File
+  onClick: (img: File) => void | void
+}
+
+function FormImagePreview({ img, onClick }: FormImagePreviewProps) {
+  const src = URL.createObjectURL(img)
+
+  return (
+    <div className="overflow-hidden w-fit shrink-0 rounded-xl border-2 border-neutral-800 relative">
+      <Button
+        onClick={() => onClick(img)}
+        variant="secondary"
+        size="icon"
+        className="absolute top-1 right-1"
+        aria-label="Remove image"
+      >
+        <BiX className="text-xl" />
+      </Button>
+      <img src={src} alt="" className="h-[8rem]" />
     </div>
   )
 }
