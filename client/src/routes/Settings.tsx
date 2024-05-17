@@ -188,7 +188,7 @@ export default function Settings() {
                 )}
               />
 
-              {error && <p>{error}</p>}
+              {error && <p className="font-medium text-red-500">{error}</p>}
 
               <Button variant="secondary" disabled={loading || bio.length > 300} className="block ml-auto">
                 {loading ? <BiLoaderAlt className="text-2xl animate-spin" /> : "Save changes"}

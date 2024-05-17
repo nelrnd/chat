@@ -101,7 +101,7 @@ export default function Register() {
               )}
             />
 
-            {error && <p>{error}</p>}
+            {error && <p className="font-medium text-red-500">{error}</p>}
 
             <Button className="w-full" disabled={loading}>
               {loading ? <BiLoaderAlt className="text-2xl animate-spin" /> : "Register"}
