@@ -12,6 +12,8 @@ export default function UserSearch({ value, setValue }) {
   const [results, setResults] = useState<User[]>([])
   const [loading, setLoading] = useState(false)
 
+  const clearValue = () => setValue("")
+
   useEffect(() => {
     if (value) {
       setLoading(true)
@@ -51,7 +53,7 @@ export default function UserSearch({ value, setValue }) {
           {results.length > 0 && (
             <ul className="-mx-2 space-y-2">
               {results.map((user) => (
-                <UserTab key={user._id} user={user} />
+                <UserTab key={user._id} user={user} onClick={clearValue} />
               ))}
             </ul>
           )}
@@ -63,9 +65,10 @@ export default function UserSearch({ value, setValue }) {
 
 interface UserTabProps {
   user: User
+  onClick: () => void
 }
 
-function UserTab({ user }: UserTabProps) {
+function UserTab({ user, onClick }: UserTabProps) {
   const { authUser } = useAuth()
   const { findChat, createChat } = useChat()
   const navigate = useNavigate()
@@ -76,6 +79,7 @@ function UserTab({ user }: UserTabProps) {
       chat = await createChat([user._id, authUser?._id])
     }
     navigate(`/chat/${chat._id}`)
+    onClick()
   }
 
   return (
