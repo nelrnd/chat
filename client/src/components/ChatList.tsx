@@ -6,6 +6,7 @@ import { Chat } from "@/types"
 import { BiImageAlt } from "react-icons/bi"
 import Loader from "./Loader"
 import { getChatName } from "@/utils"
+import { useEffect, useState } from "react"
 
 export const sortChats = (a: Chat, b: Chat) => {
   if (a.messages.length === 0) {
@@ -47,23 +48,23 @@ function formatRelativeTime(timestamp: string) {
   const date = new Date(timestamp).getTime() / 1000
   const now = new Date().getTime() / 1000
 
-  if (Math.round(date / 31536000) < Math.round(now / 31536000)) {
-    const diff = Math.round(now / 31536000) - Math.round(date / 31536000)
+  if (Math.floor(date / 31536000) < Math.floor(now / 31536000)) {
+    const diff = Math.floor(now / 31536000) - Math.floor(date / 31536000)
     return diff + "y"
-  } else if (Math.round(date / 2626288) < Math.round(now / 2626288)) {
-    const diff = Math.round(now / 2626288) - Math.round(date / 2626288)
-    return diff + "m"
-  } else if (Math.round(date / 604800) < Math.round(now / 604800)) {
-    const diff = Math.round(now / 604800) - Math.round(date / 604800)
+  } else if (Math.floor(date / 2626288) < Math.floor(now / 2626288)) {
+    const diff = Math.floor(now / 2626288) - Math.floor(date / 2626288)
+    return diff + "mo"
+  } else if (Math.floor(date / 604800) < Math.floor(now / 604800)) {
+    const diff = Math.floor(now / 604800) - Math.floor(date / 604800)
     return diff + "w"
-  } else if (Math.round(date / 86400) < Math.round(now / 86400)) {
-    const diff = Math.round(now / 86400) - Math.round(date / 86400)
+  } else if (Math.floor(date / 86400) < Math.floor(now / 86400)) {
+    const diff = Math.floor(now / 86400) - Math.floor(date / 86400)
     return diff + "d"
-  } else if (Math.round(date / 3600) < Math.round(now / 3600)) {
-    const diff = Math.round(now / 3600) - Math.round(date / 3600)
+  } else if (Math.floor(date / 3600) < Math.floor(now / 3600)) {
+    const diff = Math.floor(now / 3600) - Math.floor(date / 3600)
     return diff + "h"
-  } else if (Math.round(date / 60) < Math.round(now / 60)) {
-    const diff = Math.round(now / 60) - Math.round(date / 60)
+  } else if (Math.floor(date / 60) < Math.floor(now / 60)) {
+    const diff = Math.floor(now / 60) - Math.floor(date / 60)
     return diff + "m"
   } else {
     return "now"
@@ -77,6 +78,20 @@ function ChatTab({ chat }) {
   const lastMessage = chat.messages[chat.messages.length - 1]
   const unreadCount = chat.unreadCount[authUser._id]
   const isTyping = chat.typingUsers.filter((userId) => userId !== authUser._id)
+  const [formattedRelativeTime, setFormattedRelativeTime] = useState("")
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>
+
+    if (lastMessage) {
+      setFormattedRelativeTime(formatRelativeTime(lastMessage.timestamp))
+      interval = setInterval(() => {
+        setFormattedRelativeTime(formatRelativeTime(lastMessage.timestamp))
+      }, 60000)
+    }
+
+    return () => clearInterval(interval)
+  }, [lastMessage])
 
   return (
     otherMembers && (
@@ -105,9 +120,7 @@ function ChatTab({ chat }) {
             </div>
             {lastMessage && (
               <div className="space-y-1">
-                <p className={`text-xs ${unreadCount ? "text-white" : "text-neutral-400"}`}>
-                  {formatRelativeTime(lastMessage.timestamp)}
-                </p>
+                <p className={`text-xs ${unreadCount ? "text-white" : "text-neutral-400"}`}>{formattedRelativeTime}</p>
                 <UnreadBadge count={unreadCount} />
               </div>
             )}
