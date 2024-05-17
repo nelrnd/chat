@@ -6,6 +6,7 @@ interface MessageProps {
   message: MessageType
 }
 
+const SERVER_BASE_URL = import.meta.env.VITE_SERVER_BASE_URL
 const urlRegex = /(https?:\/\/[^\s]+)/g
 
 function linkify(text: string) {
@@ -22,19 +23,6 @@ function linkify(text: string) {
     }
   })
 }
-/*
-export default function Message({ message }: MessageProps) {
-  return (
-    <li>
-      <strong>{message.sender?.name || "deleted user"}: </strong>
-      {message.images?.map((img) => (
-        <img width="200" key={img} src={import.meta.env.VITE_SERVER_BASE_URL + "/" + img} />
-      ))}
-      {linkify(message.content)}- {moment(message.timestamp).format("LT")}
-    </li>
-  )
-}
-*/
 
 export default function Message({ message }) {
   const { authUser } = useAuth()
@@ -43,6 +31,9 @@ export default function Message({ message }) {
   return (
     <li className={`w-full flex ${fromMe ? "justify-end" : "justify-start"}`}>
       <div className="max-w-[80%] space-y-2">
+        {message.images.map((img) => (
+          <img key={img} src={SERVER_BASE_URL + "/" + img} alt="" className="block" />
+        ))}
         <div
           className={`w-fit max-w-full px-4 py-3 break-words rounded-md ${fromMe ? "bg-indigo-600" : "bg-neutral-800"}`}
         >

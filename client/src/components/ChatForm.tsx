@@ -8,7 +8,6 @@ import { BiImageAlt, BiLoaderAlt, BiSend } from "react-icons/bi"
 
 interface Inputs {
   content: string
-  chatId: string
   images: FileList
 }
 
@@ -35,7 +34,7 @@ export default function ChatForm() {
     setLoading(true)
     const formData = new FormData()
     formData.append("content", data.content)
-    formData.append("chatId", data.chatId)
+    formData.append("chatId", chatId || "")
     for (const image of data.images) {
       formData.append("images", image)
     }
@@ -80,8 +79,6 @@ export default function ChatForm() {
             onKeyDown={onKeyDown}
             className="h-[4rem] flex-1 bg-transparent placeholder-neutral-300 focus:outline-none"
           />
-
-          <input type="hidden" {...register("chatId")} value={chatId} required />
 
           <Button disabled={loading || (!content && !images)}>
             {loading ? (

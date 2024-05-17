@@ -4,17 +4,33 @@ import Avatar from "./Avatar"
 import { useAuth } from "@/providers/AuthProvider"
 import { Chat } from "@/types"
 import { BiImageAlt } from "react-icons/bi"
+import Loader from "./Loader"
+import { getChatName } from "@/utils"
+
+export const sortChats = (a: Chat, b: Chat) => {
+  if (a.messages.length === 0) {
+    return -1
+  }
+
+  if (b.messages.length === 0) {
+    return 1
+  }
+
+  return (
+    new Date(b.messages[b.messages.length - 1].timestamp).getTime() -
+    new Date(a.messages[a.messages.length - 1].timestamp).getTime()
+  )
+}
 
 export default function ChatList() {
   const { chatId } = useParams()
-  const { chats } = useChat()
+  const { chats, loading } = useChat()
 
   const filterChats = (chat: Chat) => chat.messages.length > 0 || chat._id === chatId
-  const sortChats = (a: Chat, b: Chat) =>
-    new Date(b.messages[b.messages.length - 1].timestamp).getTime() -
-    new Date(a.messages[a.messages.length - 1].timestamp).getTime()
 
   const filteredAndSortedChats = chats.filter(filterChats).sort(sortChats)
+
+  if (loading) return <Loader />
 
   return filteredAndSortedChats.length ? (
     <ul className="space-y-1">
@@ -57,13 +73,13 @@ function formatRelativeTime(timestamp: string) {
 function ChatTab({ chat }) {
   const { chatId } = useParams()
   const { authUser } = useAuth()
-  const otherMember = chat.members.find((user) => user._id !== authUser._id)
+  const otherMembers = chat.members.filter((user) => user._id !== authUser._id)
   const lastMessage = chat.messages[chat.messages.length - 1]
   const unreadCount = chat.unreadCount[authUser._id]
   const isTyping = chat.typingUsers.filter((userId) => userId !== authUser._id)
 
   return (
-    otherMember && (
+    otherMembers && (
       <li>
         <Link to={`/chat/${chat._id}`} className="group">
           <div
@@ -73,26 +89,28 @@ function ChatTab({ chat }) {
           >
             <ChatAvatar chat={chat} />
             <div className="flex-1">
-              <h3 className="font-semibold">{otherMember.name}</h3>
+              <h3 className="font-semibold">{getChatName(otherMembers)}</h3>
               <p className={`${unreadCount ? "text-white font-medium" : "text-neutral-400"} `}>
                 {isTyping.length ? (
                   <span>is typing...</span>
-                ) : (
+                ) : lastMessage ? (
                   <span className="inline-flex items-center gap-1">
                     {lastMessage.images.length > 0 && <BiImageAlt />}
                     {lastMessage.content || (
                       <span className="italic">{lastMessage.images.length > 1 ? "images" : "image"}</span>
                     )}
                   </span>
-                )}
+                ) : null}
               </p>
             </div>
-            <div className="space-y-1">
-              <p className={`text-xs ${unreadCount ? "text-white" : "text-neutral-400"}`}>
-                {formatRelativeTime(lastMessage.timestamp)}
-              </p>
-              <UnreadBadge count={unreadCount} />
-            </div>
+            {lastMessage && (
+              <div className="space-y-1">
+                <p className={`text-xs ${unreadCount ? "text-white" : "text-neutral-400"}`}>
+                  {formatRelativeTime(lastMessage.timestamp)}
+                </p>
+                <UnreadBadge count={unreadCount} />
+              </div>
+            )}
           </div>
         </Link>
       </li>

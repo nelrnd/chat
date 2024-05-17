@@ -4,7 +4,8 @@ import logo from "../assets/logo.svg"
 import ChatList from "./ChatList"
 import { useState } from "react"
 import UserSearch from "./UserSearch"
-import { BiCog, BiMessageAdd } from "react-icons/bi"
+import { BiCog } from "react-icons/bi"
+import NewChatModal from "./NewChatModal"
 
 export default function SideBar() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -17,7 +18,7 @@ export default function SideBar() {
         </Link>
       </header>
 
-      <div className="flex-1">
+      <div className="flex-1 relative">
         <section className="px-6 pb-4">
           <UserSearch value={searchTerm} setValue={setSearchTerm} />
         </section>
@@ -36,10 +37,7 @@ export default function SideBar() {
             Settings
           </Link>
         </Button>
-        <Button className="flex-1">
-          <BiMessageAdd className="text-lg" />
-          New
-        </Button>
+        <NewChatModal />
       </footer>
     </nav>
   )
