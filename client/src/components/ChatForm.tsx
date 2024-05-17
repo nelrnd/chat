@@ -17,6 +17,7 @@ export default function ChatForm() {
   const { register, handleSubmit, reset, watch } = useForm<Inputs>()
   const [loading, setLoading] = useState(false)
   const [isTyping, setIsTyping] = useState<boolean | null>(null)
+  const [empty, setEmpty] = useState(true)
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const onKeyDown = () => {
@@ -45,6 +46,14 @@ export default function ChatForm() {
 
   const content = watch("content")
   const images = watch("images")
+
+  useEffect(() => {
+    if (content || (images && images.length)) {
+      setEmpty(false)
+    } else {
+      setEmpty(true)
+    }
+  }, [content, images])
 
   useEffect(() => {
     if (isTyping) {
@@ -80,7 +89,7 @@ export default function ChatForm() {
             className="h-[4rem] flex-1 bg-transparent placeholder-neutral-300 focus:outline-none"
           />
 
-          <Button disabled={loading || (!content && !images)}>
+          <Button disabled={loading || empty}>
             {loading ? (
               <BiLoaderAlt className="text-2xl animate-spin" />
             ) : (
