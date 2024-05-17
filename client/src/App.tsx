@@ -11,6 +11,7 @@ import ChatProvider from "./providers/ChatProvider"
 import Chat from "./routes/Chat"
 import Settings from "./routes/Settings"
 import About from "./routes/About"
+import { Toaster } from "./components/ui/toaster"
 
 const router = createBrowserRouter([
   {
@@ -62,6 +63,7 @@ export default function App() {
     <AuthProvider>
       <ChatProvider>
         <RouterProvider router={router} />
+        <Toaster />
       </ChatProvider>
     </AuthProvider>
   )

@@ -21,6 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { useToast } from "@/components/ui/use-toast"
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name cannot exceed 50 characters"),
@@ -30,6 +31,7 @@ const formSchema = z.object({
 
 export default function Settings() {
   const { authUser, setAuthUser, setToken } = useAuth()
+  const { toast } = useToast()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -60,8 +62,16 @@ export default function Settings() {
     formData.append("avatar", (data.avatar && data.avatar[0]) || (previewAvatar ? authUser?.avatar : ""))
     await axios
       .put("/user", formData)
-      .then((res) => setAuthUser(res.data))
+      .then((res) => {
+        setAuthUser(res.data)
+        toast({ title: "Success", description: "User info updated successfully!" })
+      })
       .catch((err) => {
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong",
+          description: "There was a problem updating user info.",
+        })
         if (err.response && err.response.data.message) {
           setError(err.response.data.message)
         } else {
