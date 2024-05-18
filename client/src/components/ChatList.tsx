@@ -103,20 +103,22 @@ function ChatTab({ chat }) {
             } hover:bg-neutral-900 transition-colors`}
           >
             <ChatAvatar chat={chat} />
-            <div className="flex-1">
-              <h3 className="font-semibold">{getChatName(otherMembers)}</h3>
-              <p className={`${unreadCount ? "text-white font-medium" : "text-neutral-400"} `}>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold truncate">{getChatName(otherMembers)}</h3>
+              <div className={`${unreadCount ? "text-white font-medium" : "text-neutral-400"} `}>
                 {isTyping.length ? (
-                  <span>is typing...</span>
+                  "is typing..."
                 ) : lastMessage ? (
-                  <span className="inline-flex items-center gap-1">
+                  <div className="flex items-center gap-1">
                     {lastMessage.images.length > 0 && <BiImageAlt />}
-                    {lastMessage.content || (
-                      <span className="italic">{lastMessage.images.length > 1 ? "images" : "image"}</span>
-                    )}
-                  </span>
+                    <div className="flex-1 min-w-0 truncate">
+                      {lastMessage.content || (
+                        <span className="italic">{lastMessage.images.length > 1 ? "images" : "image"}</span>
+                      )}
+                    </div>
+                  </div>
                 ) : null}
-              </p>
+              </div>
             </div>
             {lastMessage && (
               <div className="space-y-1">
