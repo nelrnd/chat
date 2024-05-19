@@ -5,6 +5,7 @@ import React from "react"
 
 interface MessageListProps {
   messages: MessageType[]
+  chatType: "group" | "chat"
 }
 
 function splitMessagesIntoDays(messages: MessageType[]): MessageType[][] {
@@ -37,18 +38,32 @@ function formatDay(timestamp: string): string {
   }
 }
 
-export default function MessageList({ messages }: MessageListProps) {
+export default function MessageList({ messages, chatType }: MessageListProps) {
   if (messages.length < 1) return null
+
+  const checkFollowed = (currMessage, nextMessage) => {
+    console.log(currMessage)
+    if (
+      !nextMessage ||
+      currMessage.sender._id !== nextMessage.sender._id ||
+      Math.floor(new Date(currMessage.timestamp).getTime() / 1000 / 60) !==
+        Math.floor(new Date(nextMessage.timestamp).getTime() / 1000 / 60)
+    ) {
+      return false
+    }
+
+    return true
+  }
 
   return (
     <ul className="max-w-[40rem] m-auto">
       {splitMessagesIntoDays(messages).map((day) => (
-        <div key={day[0].timestamp} className="relative py-4 space-y-4">
+        <div key={day[0].timestamp} className="relative py-4">
           <h3 className="sticky top-4 text-sm px-3 py-1.5 w-fit m-auto bg-neutral-900 rounded-full border border-neutral-800">
             {formatDay(day[0].timestamp)}
           </h3>
-          {day.map((msg) => (
-            <Message key={msg._id} message={msg} />
+          {day.map((msg, id) => (
+            <Message key={msg._id} message={msg} chatType={chatType} followed={checkFollowed(msg, day[id + 1])} />
           ))}
         </div>
       ))}

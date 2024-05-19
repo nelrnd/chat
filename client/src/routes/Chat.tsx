@@ -4,17 +4,17 @@ import { useChat } from "../providers/ChatProvider"
 import { useAuth } from "../providers/AuthProvider"
 import IsTypingFeedback from "../components/IsTypingFeedback"
 import MessageList from "../components/MessageList"
-import { Button } from "../components/ui/button"
 import { getChatName } from "../utils"
 import ChatForm from "../components/ChatForm"
 import Loader from "@/components/Loader"
-import { BiInfoCircle } from "react-icons/bi"
 import ChatInfo from "@/components/ChatInfo"
 
 export default function Chat() {
   const { chatId } = useParams()
-  const { chat, loading, readMessages } = useChat(chatId)
   const { authUser } = useAuth()
+  const { chat, loading, readMessages } = useChat(chatId)
+
+  const chatType = chat?.members.length > 2 ? "group" : "chat"
 
   useEffect(() => {
     if (authUser && chat && chat.unreadCount[authUser?._id]) {
@@ -29,7 +29,7 @@ export default function Chat() {
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <ChatHeader chat={chat} />
-      <ChatMessages messages={chat.messages} />
+      <ChatMessages messages={chat.messages} chatType={chatType} />
       <IsTypingFeedback />
       <ChatFooter />
     </div>
@@ -51,10 +51,10 @@ function ChatHeader({ chat }) {
   )
 }
 
-function ChatMessages({ messages }) {
+function ChatMessages({ messages, chatType }) {
   return (
     <section className="px-6 pb-0 flex-1 overflow-y-auto">
-      <MessageList messages={messages} />
+      <MessageList messages={messages} chatType={chatType} />
     </section>
   )
 }
