@@ -1,6 +1,6 @@
 import { Link, useParams } from "react-router-dom"
 import { useChat } from "../providers/ChatProvider"
-import Avatar from "./Avatar"
+import Avatar, { GroupAvatar } from "./Avatar"
 import { useAuth } from "@/providers/AuthProvider"
 import { Chat } from "@/types"
 import { BiImageAlt } from "react-icons/bi"
@@ -148,12 +148,14 @@ function ChatAvatar({ chat }) {
   const { chatId } = useParams()
   const selected = chatId === chat._id
 
-  const otherMember = chat.members.find((user) => user._id !== authUser._id)
+  const otherMembers = chat.members.filter((user) => user._id !== authUser._id)
+
+  if (!otherMembers) return null
 
   return (
     <div className="relative">
-      <Avatar src={otherMember.avatar} />
-      {otherMember.isOnline && <OnlineBadge selected={selected} />}
+      {otherMembers.length === 1 ? <Avatar src={otherMembers[0].avatar} /> : <GroupAvatar members={otherMembers} />}
+      {otherMembers.length === 1 && otherMembers[0].isOnline && <OnlineBadge selected={selected} />}
     </div>
   )
 }

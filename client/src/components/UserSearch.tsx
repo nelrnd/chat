@@ -65,32 +65,41 @@ export default function UserSearch({ value, setValue }) {
 
 interface UserTabProps {
   user: User
-  onClick: () => void
+  onClick?: () => void
 }
 
-function UserTab({ user, onClick }: UserTabProps) {
+export function UserTab({ user, onClick }: UserTabProps) {
   const { authUser } = useAuth()
   const { findChat, createChat } = useChat()
   const navigate = useNavigate()
 
   const handleClick = async () => {
+    if (user._id === authUser._id) return
     let chat = findChat(user._id)
     if (!chat) {
       chat = await createChat([user._id, authUser?._id])
     }
     navigate(`/chat/${chat._id}`)
-    onClick()
+    if (onClick) {
+      onClick()
+    }
   }
 
   return (
     <li>
-      <button onClick={handleClick} className="w-full p-2 rounded-lg hover:bg-neutral-900 transition-colors">
+      <button
+        onClick={handleClick}
+        className={`w-full p-2 rounded-lg ${
+          user._id !== authUser._id ? "hover:bg-neutral-900" : "cursor-default"
+        } transition-colors`}
+      >
         <div className="text-left flex items-center gap-3">
-          <Avatar src={user.avatar} className="w-[3rem]" />
-          <div className="flex-1">
-            <h3 className="font-semibold">{user.name}</h3>
-            <p className="text-neutral-400">{user.email}</p>
+          <Avatar src={user.avatar} className="w-[3rem] shrink-0" />
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold truncate">{user.name}</h3>
+            <p className="text-neutral-400 text-sm truncate">{user.email}</p>
           </div>
+          {user._id === authUser._id && <p className="text-xs text-neutral-400">you</p>}
         </div>
       </button>
     </li>

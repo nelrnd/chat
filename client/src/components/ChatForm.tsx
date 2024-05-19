@@ -20,7 +20,10 @@ export default function ChatForm() {
   const [empty, setEmpty] = useState(true)
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const onKeyDown = () => {
+  const onKeyDown = (event) => {
+    if (event.target.value) {
+      setEmpty(false)
+    }
     if (timeout.current) {
       clearTimeout(timeout.current)
     }
@@ -38,6 +41,7 @@ export default function ChatForm() {
   }
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    if (loading || empty) return null
     setIsTyping(false)
     setLoading(true)
     const formData = new FormData()
@@ -55,6 +59,7 @@ export default function ChatForm() {
   const images = watch("images")
 
   useEffect(() => {
+    console.log("bing:", typeof content, content)
     if (content || (images && images.length)) {
       setEmpty(false)
     } else {
