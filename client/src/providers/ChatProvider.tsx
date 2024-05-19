@@ -29,6 +29,11 @@ export default function ChatProvider({ children }: ChatProviderProps) {
   const [chats, setChats] = useState<Chat[]>([])
   const [loading, setLoading] = useState(true)
 
+  const playPop = () => {
+    const pop = new Audio("/src/assets/pop.mp3")
+    pop.play()
+  }
+
   const findChat = (userId: string) => {
     return chats.find((chat) => chat.members.length === 2 && chat.members.find((user) => user._id === userId))
   }
@@ -111,6 +116,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     }
 
     function onNewMessage(data: { message: Message; images: Image[]; links: Link[] }) {
+      playPop()
       addMessage(data)
     }
 
