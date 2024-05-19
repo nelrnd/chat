@@ -24,21 +24,25 @@ function linkify(text: string) {
   })
 }
 
-export default function Message({ message }) {
+export default function Message({ message }: MessageProps) {
   const { authUser } = useAuth()
   const fromMe = message.sender._id === authUser?._id
 
   return (
     <li className={`w-full flex ${fromMe ? "justify-end" : "justify-start"}`}>
-      <div className="max-w-[80%] space-y-2">
+      <div className={`max-w-[80%] space-y-2 flex flex-col ${fromMe ? "items-end" : "items-start"}`}>
         {message.images.map((img) => (
           <img key={img} src={SERVER_BASE_URL + "/" + img} alt="" className="block" />
         ))}
-        <div
-          className={`w-fit max-w-full px-4 py-3 break-words rounded-md ${fromMe ? "bg-indigo-600" : "bg-neutral-800"}`}
-        >
-          {linkify(message.content)}
-        </div>
+        {message.content && (
+          <div
+            className={`w-fit max-w-full px-4 py-3 break-words rounded-md ${
+              fromMe ? "bg-indigo-600" : "bg-neutral-800"
+            }`}
+          >
+            {linkify(message.content)}
+          </div>
+        )}
         <div className={`text-xs text-neutral-400 ${fromMe ? "text-right" : "text-left"}`}>
           {moment(message.timestamp).format("LT")}
         </div>
