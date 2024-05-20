@@ -58,8 +58,8 @@ export default function MessageList({ messages, chatType }: MessageListProps) {
   return (
     <ul className="max-w-[40rem] m-auto">
       {splitMessagesIntoDays(messages).map((day) => (
-        <div key={day[0].timestamp} className="relative py-4">
-          <h3 className="sticky top-4 text-sm px-3 py-1.5 w-fit m-auto bg-neutral-900 rounded-full border border-neutral-800">
+        <div key={day[0].timestamp} className="relative pt-4">
+          <h3 className="sticky top-4 text-sm px-3 py-1.5 w-fit m-auto bg-neutral-900 rounded-full border border-neutral-800 mb-4">
             {formatDay(day[0].timestamp)}
           </h3>
           {day.map((msg, id) => (
