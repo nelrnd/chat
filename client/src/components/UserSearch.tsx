@@ -92,6 +92,7 @@ export function UserTab({ user, onClick }: UserTabProps) {
         className={`w-full p-2 rounded-lg ${
           user._id !== authUser._id ? "hover:bg-neutral-900" : "cursor-default"
         } transition-colors`}
+        disabled={user._id === authUser._id}
       >
         <div className="text-left flex items-center gap-3">
           <Avatar src={user.avatar} className="w-[3rem] shrink-0" />

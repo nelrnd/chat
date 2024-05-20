@@ -42,7 +42,6 @@ export default function MessageList({ messages, chatType }: MessageListProps) {
   if (messages.length < 1) return null
 
   const checkFollowed = (currMessage, nextMessage) => {
-    console.log(currMessage)
     if (
       !nextMessage ||
       currMessage.sender._id !== nextMessage.sender._id ||

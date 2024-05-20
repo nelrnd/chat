@@ -8,6 +8,7 @@ import { getChatName } from "@/utils"
 import { UserTab } from "./UserSearch"
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog"
 
 const SERVER_BASE_URL = import.meta.env.VITE_SERVER_BASE_URL
 
@@ -65,9 +66,7 @@ export default function ChatInfo({ chat }: ChatInfoProps) {
           <section className="p-6 space-y-2">
             <div className="flex justify-between items-center">
               <h4 className="font-semibold">Members ({chat.members.length})</h4>
-              <Button variant="link" className="p-0 h-auto">
-                view all
-              </Button>
+              <MembersModal members={[...otherMembers, authUser]} />
             </div>
             <ul className="-mx-2 space-y-2">
               {[...otherMembers, authUser].slice(0, 3).map((user) => (
@@ -80,20 +79,16 @@ export default function ChatInfo({ chat }: ChatInfoProps) {
         <section className="p-6 space-y-2">
           <div className="flex justify-between items-center">
             <h4 className="font-semibold">Shared images ({chat.sharedImages.length})</h4>
-            {chat.sharedImages.length > 0 && (
-              <Button variant="link" className="p-0 h-auto">
-                view all
-              </Button>
-            )}
+            {chat.sharedImages.length > 0 && <SharedImagesModal images={chat.sharedImages} />}
           </div>
           {chat.sharedImages.length ? (
-            <div className="grid grid-cols-3 gap-2">
+            <ul className="grid grid-cols-3 gap-2">
               {chat.sharedImages.slice(0, 3).map((img) => (
-                <div key={img.url} className="aspect-square overflow-hidden rounded-xl border border-neutral-800">
+                <li key={img._id} className="aspect-square overflow-hidden rounded-xl border border-neutral-800">
                   <img src={SERVER_BASE_URL + "/" + img.url} alt="" className="w-full h-full object-cover" />
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           ) : (
             <p className="text-neutral-400">No shared images for now</p>
           )}
@@ -102,30 +97,126 @@ export default function ChatInfo({ chat }: ChatInfoProps) {
         <section className="p-6 space-y-2">
           <div className="flex justify-between items-center">
             <h4 className="font-semibold">Shared links ({chat.sharedLinks.length})</h4>
-            {chat.sharedLinks.length > 0 && (
-              <Button variant="link" className="p-0 h-auto">
-                view all
-              </Button>
-            )}
+            {chat.sharedLinks.length > 0 && <SharedLinksModal links={chat.sharedLinks} />}
           </div>
           {chat.sharedLinks.length ? (
-            <div className="space-y-2 truncate">
+            <ul className="space-y-2 truncate">
               {chat.sharedLinks.slice(0, 3).map((link) => (
-                <a
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block font-semibold hover:underline truncate"
-                >
-                  {link.url}
-                </a>
+                <li key={link._id}>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block font-semibold hover:underline truncate"
+                  >
+                    {link.url}
+                  </a>
+                </li>
               ))}
-            </div>
+            </ul>
           ) : (
             <p className="text-neutral-400">No shared links for now</p>
           )}
         </section>
       </SheetContent>
     </Sheet>
+  )
+}
+
+function MembersModal({ members }) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="link" className="p-0 h-auto">
+          view all
+        </Button>
+      </DialogTrigger>
+
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>All members ({members.length})</DialogTitle>
+          <ul className="-mx-2 space-y-2 max-h-[32rem] overflow-y-auto">
+            {members.map((user) => (
+              <UserTab key={user._id} user={user} />
+            ))}
+          </ul>
+        </DialogHeader>
+
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="secondary">Close</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function SharedImagesModal({ images }) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="link" className="p-0 h-auto">
+          view all
+        </Button>
+      </DialogTrigger>
+
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Shared images ({images.length})</DialogTitle>
+          <ul className="grid grid-cols-3 gap-2 max-h-[32rem] overflow-y-auto">
+            {images.map((img) => (
+              <li key={img.url} className="aspect-square overflow-hidden rounded-xl border border-neutral-800">
+                <img src={SERVER_BASE_URL + "/" + img.url} alt="" className="w-full h-full object-cover" />
+              </li>
+            ))}
+          </ul>
+        </DialogHeader>
+
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="secondary">Close</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function SharedLinksModal({ links }) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="link" className="p-0 h-auto">
+          view all
+        </Button>
+      </DialogTrigger>
+
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Shared links ({links.length})</DialogTitle>
+          <ul className="space-y-3 max-h-[32rem] overflow-y-auto">
+            {links.map((link) => (
+              <li key={link._id}>
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block font-semibold hover:underline break-words"
+                >
+                  {link.url}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </DialogHeader>
+
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="secondary">Close</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
