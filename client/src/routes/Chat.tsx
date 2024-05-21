@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useLayoutEffect, useRef } from "react"
 import { useParams } from "react-router-dom"
 import { useChat } from "../providers/ChatProvider"
 import { useAuth } from "../providers/AuthProvider"
@@ -24,7 +24,7 @@ export default function Chat() {
 
   if (loading) return <Loader />
 
-  if (!chat) return <p>Chat not found</p>
+  if (!chat) return <ChatNotFound />
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -52,8 +52,20 @@ function ChatHeader({ chat }) {
 }
 
 function ChatMessages({ messages, chatType }) {
+  const { chatId } = useParams()
+  const elem = useRef<HTMLElement>(null)
+
+  useLayoutEffect(() => {
+    setTimeout(() => {
+      if (elem.current) {
+        elem.current.scrollTo(0, elem.current.scrollHeight)
+        console.log(chatId)
+      }
+    }, 10)
+  }, [chatId])
+
   return (
-    <section className="px-6 pb-0 flex-1 overflow-y-auto">
+    <section className="px-6 pb-0 flex-1 overflow-y-auto" ref={elem}>
       <MessageList messages={messages} chatType={chatType} />
     </section>
   )
@@ -64,5 +76,13 @@ function ChatFooter() {
     <footer className="p-6">
       <ChatForm />
     </footer>
+  )
+}
+
+function ChatNotFound() {
+  return (
+    <div className="absolute inset-0 grid place-content-center">
+      <h2 className="text-4xl font-semibold text-neutral-200 tracking-tight">Chat not found</h2>
+    </div>
   )
 }

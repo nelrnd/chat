@@ -12,6 +12,7 @@ import Chat from "./routes/Chat"
 import Settings from "./routes/Settings"
 import About from "./routes/About"
 import { Toaster } from "./components/ui/toaster"
+import ImageViewerProvider from "./providers/ImageViewerProvider"
 
 const router = createBrowserRouter([
   {
@@ -62,7 +63,9 @@ export default function App() {
   return (
     <AuthProvider>
       <ChatProvider>
-        <RouterProvider router={router} />
+        <ImageViewerProvider>
+          <RouterProvider router={router} />
+        </ImageViewerProvider>
         <Toaster />
       </ChatProvider>
     </AuthProvider>
