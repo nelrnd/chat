@@ -47,6 +47,7 @@ exports.message_create = [
         chat: req.body.chatId,
       })
       await entity.save()
+      await entity.populate({ path: "sender", select: "-password" })
       return entity
     }
 
@@ -58,7 +59,7 @@ exports.message_create = [
     let message = new Message({
       content: req.body.content,
       chat: req.body.chatId,
-      images: imagesUrl,
+      images: images,
       sender: req.user._id,
     })
     await message.save()

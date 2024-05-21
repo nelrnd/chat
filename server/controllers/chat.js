@@ -44,6 +44,7 @@ exports.chat_get_list = asyncHandler(async (req, res, next) => {
 
   const [messages, images, links] = await Promise.all([
     Message.find({ chat: { $in: chatIds } })
+      .populate({ path: "images", populate: { path: "sender", select: "-password" } })
       .populate({ path: "sender", select: "-password" })
       .lean(),
     Image.find({ chat: { $in: chatIds } })
@@ -53,6 +54,8 @@ exports.chat_get_list = asyncHandler(async (req, res, next) => {
       .populate({ path: "sender", select: "-password" })
       .lean(),
   ])
+
+  console.log(messages)
 
   const messagesMap = messages.reduce((map, message) => {
     map[message.chat.toString()] = map[message.chat.toString()] || []
