@@ -17,5 +17,9 @@ export default function IsTypingFeedback() {
 
   if (chat.typingUsers.length === 0) return null
 
-  return <p>{formatIsTyping(chat.typingUsers)}</p>
+  return (
+    <div className="px-6">
+      <p className="w-[40rem] m-auto">{formatIsTyping(chat.typingUsers)}...</p>
+    </div>
+  )
 }
