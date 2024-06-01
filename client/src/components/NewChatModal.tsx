@@ -139,7 +139,7 @@ export default function NewChatModal() {
               )}
             </div>
           ) : (
-            usersFromChats.length > 1 && (
+            usersFromChats.length > 0 && (
               <ul className="-mx-2 space-y-2">
                 {usersFromChats.map((user) => (
                   <UserCheckbox key={user._id} user={user} onChange={onChange} checked={checkChecked(user)} />
