@@ -48,22 +48,22 @@ function formatRelativeTime(timestamp: string) {
   const date = new Date(timestamp).getTime() / 1000
   const now = new Date().getTime() / 1000
 
-  if (Math.floor(date / 31536000) < Math.floor(now / 31536000)) {
+  if (now - date >= 31536000) {
     const diff = Math.floor(now / 31536000) - Math.floor(date / 31536000)
     return diff + "y"
-  } else if (Math.floor(date / 2626288) < Math.floor(now / 2626288)) {
-    const diff = Math.floor(now / 2626288) - Math.floor(date / 2626288)
+  } else if (now - date >= 2678400) {
+    const diff = Math.floor(now / 2678400) - Math.floor(date / 2678400)
     return diff + "mo"
-  } else if (Math.floor(date / 604800) < Math.floor(now / 604800)) {
+  } else if (now - date >= 604800) {
     const diff = Math.floor(now / 604800) - Math.floor(date / 604800)
     return diff + "w"
-  } else if (Math.floor(date / 86400) < Math.floor(now / 86400)) {
+  } else if (now - date >= 86400) {
     const diff = Math.floor(now / 86400) - Math.floor(date / 86400)
     return diff + "d"
-  } else if (Math.floor(date / 3600) < Math.floor(now / 3600)) {
+  } else if (now - date >= 3600) {
     const diff = Math.floor(now / 3600) - Math.floor(date / 3600)
     return diff + "h"
-  } else if (Math.floor(date / 60) < Math.floor(now / 60)) {
+  } else if (now - date >= 60) {
     const diff = Math.floor(now / 60) - Math.floor(date / 60)
     return diff + "m"
   } else {
