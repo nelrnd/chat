@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom"
 import { useEffect, useRef, useState } from "react"
 import { socket } from "../socket"
 import { Button } from "./ui/button"
-import { BiImageAlt, BiLoaderAlt, BiSend, BiX } from "react-icons/bi"
+import { BiImageAlt, BiJoystick, BiLoaderAlt, BiSend, BiX } from "react-icons/bi"
 
 interface Inputs {
   content: string
@@ -13,7 +13,7 @@ interface Inputs {
 
 export default function ChatForm() {
   const { chatId } = useParams()
-  const { createMessage } = useChat()
+  const { chat, createMessage } = useChat(chatId)
   const { register, handleSubmit, reset, watch, setValue } = useForm<Inputs>()
   const [loading, setLoading] = useState(false)
   const [isTyping, setIsTyping] = useState<boolean | null>(null)
@@ -94,11 +94,19 @@ export default function ChatForm() {
             multiple
             className="hidden"
           />
-          <Button size="icon" variant="ghost" className="hover:bg-neutral-800" asChild>
-            <label htmlFor="images" className="cursor-pointer">
-              <BiImageAlt className="text-lg" />
-            </label>
-          </Button>
+
+          <div className="flex items-center gap-1">
+            {chat.type === "private" && (
+              <Button size="icon" variant="ghost" className="hover:bg-neutral-800">
+                <BiJoystick className="text-lg" />
+              </Button>
+            )}
+            <Button size="icon" variant="ghost" className="hover:bg-neutral-800" asChild>
+              <label htmlFor="images" className="cursor-pointer">
+                <BiImageAlt className="text-lg" />
+              </label>
+            </Button>
+          </div>
 
           <input
             placeholder="Type something..."

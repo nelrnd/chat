@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
-import { useChat } from "../providers/ChatProvider"
+import { useChat, useChats } from "../providers/ChatProvider"
 import { useAuth } from "../providers/AuthProvider"
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog"
 import { Button } from "./ui/button"
@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom"
 
 export default function NewChatModal() {
   const { authUser } = useAuth()
-  const { chats, findChat, createChat } = useChat()
+  const { chats, findChat, createChat } = useChats()
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [results, setResults] = useState([])

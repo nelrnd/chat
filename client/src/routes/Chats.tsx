@@ -1,8 +1,8 @@
 import Loader from "@/components/Loader"
-import { useChat } from "../providers/ChatProvider"
+import { useChats } from "../providers/ChatProvider"
 
 export default function Chats() {
-  const { loading } = useChat()
+  const { loading } = useChats()
 
   if (loading) return <Loader />
 

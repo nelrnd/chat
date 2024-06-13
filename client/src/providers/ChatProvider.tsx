@@ -199,13 +199,12 @@ export default function ChatProvider({ children }: ChatProviderProps) {
   return <ChatContext.Provider value={contextValue}>{children}</ChatContext.Provider>
 }
 
+export function useChats() {
+  return useContext(ChatContext)
+}
+
 export function useChat(chatId?: string) {
-  const data = useContext(ChatContext)
-
-  if (chatId) {
-    const chat = data.chats.find((chat) => chat._id === chatId)
-    return { chat: chat, loading: data.loading, readMessages: data.readMessages }
-  }
-
-  return data
+  const content = useContext(ChatContext)
+  const chat = content.chats.find((chat) => chat._id === chatId)
+  return { chat, ...content, type: chat && chat.members.length > 2 ? "group" : "private" }
 }

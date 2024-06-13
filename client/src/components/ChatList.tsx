@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom"
-import { useChat } from "../providers/ChatProvider"
+import { useChats } from "../providers/ChatProvider"
 import Avatar, { GroupAvatar } from "./Avatar"
 import { useAuth } from "@/providers/AuthProvider"
 import { Chat } from "@/types"
@@ -25,7 +25,7 @@ export const sortChats = (a: Chat, b: Chat) => {
 
 export default function ChatList() {
   const { chatId } = useParams()
-  const { chats, loading } = useChat()
+  const { chats, loading } = useChats()
 
   const filterChats = (chat: Chat) => chat.messages.length > 0 || chat._id === chatId
 
