@@ -162,12 +162,53 @@ export default function ChatProvider({ children }: ChatProviderProps) {
       )
     }
 
+    function onNewGame(game) {
+      setChats((chats) =>
+        chats.map((chat) =>
+          chat._id === game.chat ? { ...chat, messages: [...chat.messages, { ...game, type: "game" }] } : chat
+        )
+      )
+    }
+
+    function onGameStart(game) {
+      setChats((chats) =>
+        chats.map((chat) =>
+          chat._id === game.chat
+            ? {
+                ...chat,
+                messages: chat.messages.map((message) =>
+                  message._id === game._id ? { ...game, type: "game" } : message
+                ),
+              }
+            : chat
+        )
+      )
+    }
+
+    function onGameUpdate(game) {
+      setChats((chats) =>
+        chats.map((chat) =>
+          chat._id === game.chat
+            ? {
+                ...chat,
+                messages: chat.messages.map((message) =>
+                  message._id === game._id ? { ...game, type: "game" } : message
+                ),
+              }
+            : chat
+        )
+      )
+    }
+
     socket.on("new-chat", onNewChat)
     socket.on("new-message", onNewMessage)
     socket.on("start-typing", onStartTyping)
     socket.on("stop-typing", onStopTyping)
     socket.on("user-connection", onUserConnection)
     socket.on("user-disconnection", onUserDisonnection)
+    socket.on("new-game", onNewGame)
+    socket.on("game-start", onGameStart)
+    socket.on("game-update", onGameUpdate)
 
     return () => {
       socket.off("new-chat", onNewChat)
@@ -176,6 +217,9 @@ export default function ChatProvider({ children }: ChatProviderProps) {
       socket.off("stop-typing", onStopTyping)
       socket.off("user-connection", onUserConnection)
       socket.off("user-disconnection", onUserDisonnection)
+      socket.off("new-game", onNewGame)
+      socket.off("game-start", onGameStart)
+      socket.off("game-update", onGameUpdate)
     }
   }, [])
 

@@ -2,6 +2,7 @@ import moment from "moment"
 import { Message as MessageType } from "../types"
 import Message from "./Message"
 import React from "react"
+import Game from "./Game"
 
 interface MessageListProps {
   messages: MessageType[]
@@ -61,9 +62,13 @@ export default function MessageList({ messages, chatType }: MessageListProps) {
           <h3 className="sticky top-4 text-sm px-3 py-1.5 w-fit m-auto bg-neutral-900 rounded-full border border-neutral-800 mb-4">
             {formatDay(day[0].timestamp)}
           </h3>
-          {day.map((msg, id) => (
-            <Message key={msg._id} message={msg} chatType={chatType} followed={checkFollowed(msg, day[id + 1])} />
-          ))}
+          {day.map((msg, id) =>
+            msg.type === "game" ? (
+              <Game key={msg._id} game={msg} />
+            ) : (
+              <Message key={msg._id} message={msg} chatType={chatType} followed={checkFollowed(msg, day[id + 1])} />
+            )
+          )}
         </div>
       ))}
     </ul>

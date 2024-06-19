@@ -55,8 +55,6 @@ exports.chat_get_list = asyncHandler(async (req, res, next) => {
       .lean(),
   ])
 
-  console.log(messages)
-
   const messagesMap = messages.reduce((map, message) => {
     map[message.chat.toString()] = map[message.chat.toString()] || []
     map[message.chat.toString()].push(message)

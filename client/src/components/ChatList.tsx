@@ -113,10 +113,10 @@ function ChatTab({ chat }) {
                     {otherMembers.length > 1 && (
                       <span>{lastMessage.sender._id === authUser._id ? "You" : lastMessage.sender.name}: </span>
                     )}
-                    {lastMessage.images.length > 0 && <BiImageAlt />}
+                    {lastMessage.images?.length > 0 && <BiImageAlt />}
                     <div className="flex-1 min-w-0 truncate">
                       {lastMessage.content || (
-                        <span className="italic">{lastMessage.images.length > 1 ? "images" : "image"}</span>
+                        <span className="italic">{lastMessage.images?.length > 1 ? "images" : "image"}</span>
                       )}
                     </div>
                   </div>
