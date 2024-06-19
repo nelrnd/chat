@@ -14,11 +14,15 @@ exports.game_create = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Game cannot be created on group chats" })
   }
 
+  const firstTurn = chat.members.findIndex((userId) => userId.toString() !== createdBy)
+
   const game = new Game({
     chat: chatId,
-    players: chat.members.sort((userId) => (userId === createdBy ? 1 : -1)),
+    players: chat.members,
     scores: { ...chat.members.reduce((acc, curr) => ({ ...acc, [curr._id]: 0 }), {}), draws: 0 },
     createdBy,
+    startTurn: firstTurn,
+    turn: firstTurn,
   })
 
   await game.save()
@@ -60,6 +64,15 @@ exports.game_play = asyncHandler(async (req, res) => {
   }
 
   game.board[index] = game.turn
+
+  if (game.win) {
+    game.incrementScores(win.player._id)
+    io.to(game.chat.toString()).emit("game-win", win)
+    setTimeout(() => {
+      game.end()
+      io.to(game.chat.toString()).emit("game-update")
+    }, 2000)
+  }
 
   if (game.draw) {
     game.incrementScores("draws")
