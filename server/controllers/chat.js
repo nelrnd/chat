@@ -15,13 +15,16 @@ exports.chat_create = asyncHandler(async (req, res, next) => {
     return res.status(400).json({ message: "Chat must contain auth user" })
   }
 
-  const unreadCount = members.reduce((acc, curr) => ({ ...acc, curr: 0 }), {})
+  const lastViewed = members.reduce((acc, curr) => ({ ...acc, [curr]: Date.now() }), {})
 
-  let chat = new Chat({ members, unreadCount })
+  let chat = new Chat({ members, lastViewed })
   await chat.save()
   await chat.populate({ path: "members", select: "-password" })
 
+  const unreadCount = await chat.getUnreadCount(req.user._id)
+
   chat = JSON.parse(he.decode(JSON.stringify(chat)))
+
   chat = {
     ...chat,
     type: chat.members.length === 2 ? "private" : "group",
@@ -29,6 +32,7 @@ exports.chat_create = asyncHandler(async (req, res, next) => {
     images: [],
     links: [],
     typingUsers: [],
+    unreadCount,
   }
 
   const { io } = req
@@ -46,7 +50,7 @@ exports.chat_create = asyncHandler(async (req, res, next) => {
 })
 
 exports.chat_get_list = asyncHandler(async (req, res, next) => {
-  let chats = await Chat.find({ members: req.user._id }).populate({ path: "members", select: "-password" }).lean()
+  let chats = await Chat.find({ members: req.user._id }).populate({ path: "members", select: "-password" })
 
   const chatIds = chats.map((chat) => chat._id.toString())
 
@@ -72,6 +76,17 @@ exports.chat_get_list = asyncHandler(async (req, res, next) => {
     }, {})
   )
 
+  let unreadCounts = await Promise.all(
+    chats.map(async (chat) => {
+      const unreadCount = await chat.getUnreadCount(req.user._id)
+      return { id: chat._id, unreadCount }
+    })
+  )
+
+  unreadCounts = unreadCounts.reduce((acc, curr) => ({ ...acc, [curr.id]: curr.unreadCount }), {})
+
+  chats = JSON.parse(he.decode(JSON.stringify(chats)))
+
   chats = chats.map((chat) => ({
     ...chat,
     type: chat.members.length === 2 ? "private" : "group",
@@ -79,6 +94,7 @@ exports.chat_get_list = asyncHandler(async (req, res, next) => {
     images: imagesMap[chat._id.toString()] || [],
     links: linksMap[chat._id.toString()] || [],
     typingUsers: [],
+    unreadCount: unreadCounts[chat._id.toString()],
   }))
 
   res.json(chats)
@@ -101,14 +117,14 @@ exports.chat_check_auth = asyncHandler(async (req, res, next) => {
 })
 */
 
-exports.chat_read = asyncHandler(async (req, res, next) => {
+exports.chat_read = asyncHandler(async (req, res) => {
   const userId = req.user._id.toString()
   const { chatId } = req.params
-  const chat = await chat.findById(chatId)
+  const chat = await Chat.findById(chatId)
   if (!chat) {
     return res.status(404).json({ message: "Chat not found" })
   }
-  chat.unreadCount[userId] = 0
+  chat.lastViewed[userId] = Date.now()
   await chat.save()
   res.end()
 })

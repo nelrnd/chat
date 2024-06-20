@@ -8,17 +8,16 @@ import { getChatName } from "../utils"
 import ChatForm from "../components/ChatForm"
 import Loader from "@/components/Loader"
 import ChatInfo from "@/components/ChatInfo"
+import { Chat as ChatType, Message } from "@/types"
 
 export default function Chat() {
   const { chatId } = useParams()
   const { authUser } = useAuth()
   const { chat, loading, readMessages } = useChat(chatId)
 
-  const chatType = chat?.members.length > 2 ? "group" : "chat"
-
   useEffect(() => {
-    if (authUser && chat && chat.unreadCount[authUser?._id]) {
-      readMessages(chatId)
+    if (chat?.unreadCount) {
+      readMessages(chat._id)
     }
   }, [chatId, chat, authUser, readMessages])
 
@@ -29,14 +28,18 @@ export default function Chat() {
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <ChatHeader chat={chat} />
-      <ChatMessages messages={chat.messages} chatType={chatType} />
+      <ChatMessages messages={chat.messages} chatType={chat.type} />
       <IsTypingFeedback />
       <ChatFooter />
     </div>
   )
 }
 
-function ChatHeader({ chat }) {
+interface ChatHeaderProps {
+  chat: ChatType
+}
+
+function ChatHeader({ chat }: ChatHeaderProps) {
   const { authUser } = useAuth()
   const otherMembers = chat.members.filter((user) => user._id !== authUser?._id)
 
@@ -51,7 +54,12 @@ function ChatHeader({ chat }) {
   )
 }
 
-function ChatMessages({ messages, chatType }) {
+interface ChatMessages {
+  messages: Message[]
+  chatType: "private" | "group"
+}
+
+function ChatMessages({ messages, chatType }: ChatMessages) {
   const { chatId } = useParams()
   const elem = useRef<HTMLElement>(null)
 

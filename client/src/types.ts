@@ -9,6 +9,7 @@ export type User = {
 
 export type Message = {
   _id: string
+  type: "game" | "normal"
   text: string
   images: Media[]
   links: Media[]
@@ -34,7 +35,7 @@ export type Chat = {
   images: Media[]
   links: Media[]
   typingUsers: string[]
-  unreadCount: Record<string, number>
+  unreadCount: number
 }
 
 export type Game = {

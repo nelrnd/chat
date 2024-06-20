@@ -1,27 +1,13 @@
+import { useEffect, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import { useChats } from "../providers/ChatProvider"
 import Avatar, { GroupAvatar } from "./Avatar"
 import { useAuth } from "@/providers/AuthProvider"
 import { Chat } from "@/types"
-import { BiImageAlt } from "react-icons/bi"
+import { BiImageAlt, BiJoystick } from "react-icons/bi"
 import Loader from "./Loader"
-import { getChatName } from "@/utils"
-import { useEffect, useState } from "react"
-
-export const sortChats = (a: Chat, b: Chat) => {
-  if (a.messages.length === 0) {
-    return -1
-  }
-
-  if (b.messages.length === 0) {
-    return 1
-  }
-
-  return (
-    new Date(b.messages[b.messages.length - 1].timestamp).getTime() -
-    new Date(a.messages[a.messages.length - 1].timestamp).getTime()
-  )
-}
+import { getChatName, sortChats } from "@/utils"
+import { formatIsTyping } from "@/utils"
 
 export default function ChatList() {
   const { chatId } = useParams()
@@ -71,13 +57,16 @@ function formatRelativeTime(timestamp: string) {
   }
 }
 
-function ChatTab({ chat }) {
+interface ChatTabProps {
+  chat: Chat
+}
+
+function ChatTab({ chat }: ChatTabProps) {
   const { chatId } = useParams()
   const { authUser } = useAuth()
-  const otherMembers = chat.members.filter((user) => user._id !== authUser._id)
+  const otherMembers = chat.members.filter((user) => user._id !== authUser?._id)
   const lastMessage = chat.messages[chat.messages.length - 1]
-  const unreadCount = chat.unreadCount[authUser._id]
-  const isTyping = chat.typingUsers.filter((userId) => userId !== authUser._id)
+  const isTyping = chat.typingUsers.filter((userId) => userId !== authUser?._id)
   const [formattedRelativeTime, setFormattedRelativeTime] = useState("")
 
   useEffect(() => {
@@ -93,50 +82,71 @@ function ChatTab({ chat }) {
     return () => clearInterval(interval)
   }, [lastMessage])
 
+  if (otherMembers.length === 0) {
+    return null
+  }
+
   return (
-    otherMembers && (
-      <li>
-        <Link to={`/chat/${chat._id}`} className="group">
-          <div
-            className={`p-3 flex gap-3 items-center rounded-lg border ${
-              chatId === chat._id ? "border-neutral-800 bg-neutral-900" : "border-transparent"
-            } hover:bg-neutral-900 transition-colors`}
-          >
-            <ChatAvatar chat={chat} />
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold truncate">{getChatName(otherMembers)}</h3>
-              <div className={`${unreadCount ? "text-white font-medium" : "text-neutral-400"} `}>
-                {isTyping.length ? (
-                  "is typing..."
-                ) : lastMessage ? (
-                  <div className="flex items-center gap-1">
-                    {otherMembers.length > 1 && (
-                      <span>{lastMessage.sender._id === authUser._id ? "You" : lastMessage.sender.name}: </span>
-                    )}
-                    {lastMessage.images?.length > 0 && <BiImageAlt />}
-                    <div className="flex-1 min-w-0 truncate">
-                      {lastMessage.content || (
-                        <span className="italic">{lastMessage.images?.length > 1 ? "images" : "image"}</span>
+    <li>
+      <Link to={`/chat/${chat._id}`} className="group">
+        <div
+          className={`p-3 flex gap-3 items-center rounded-lg border ${
+            chatId === chat._id ? "border-neutral-800 bg-neutral-900" : "border-transparent"
+          } hover:bg-neutral-900 transition-colors`}
+        >
+          <ChatAvatar chat={chat} />
+
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold truncate">{getChatName(otherMembers)}</h3>
+            <div className={`${chat.unreadCount ? "text-white font-medium" : "text-neutral-400"} `}>
+              {isTyping.length ? (
+                formatIsTyping(chat, isTyping, "short")
+              ) : lastMessage ? (
+                <div className="flex items-center gap-1">
+                  {lastMessage.type === "game" && (
+                    <>
+                      <BiJoystick className="relative top-[2px]" />
+                      <span className="italic">game</span>
+                    </>
+                  )}
+                  {lastMessage.type === "normal" && (
+                    <>
+                      {chat.type === "group" && (
+                        <span>{lastMessage.from._id === authUser?._id ? "You" : lastMessage.from.name}: </span>
                       )}
-                    </div>
-                  </div>
-                ) : null}
-              </div>
+                      {lastMessage.images.length > 0 && <BiImageAlt />}
+                      <div className="flex-1 min-w-0 truncate">
+                        {lastMessage.images.length > 0 && !lastMessage.text && (
+                          <span className="italic">{lastMessage.images.length > 1 ? "images" : "image"}</span>
+                        )}
+                        {lastMessage.text}
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : null}
             </div>
-            {lastMessage && (
-              <div className="space-y-1">
-                <p className={`text-xs ${unreadCount ? "text-white" : "text-neutral-400"}`}>{formattedRelativeTime}</p>
-                <UnreadBadge count={unreadCount} />
-              </div>
-            )}
           </div>
-        </Link>
-      </li>
-    )
+
+          {lastMessage && (
+            <div className="space-y-1">
+              <p className={`text-xs ${chat.unreadCount ? "text-white" : "text-neutral-400"}`}>
+                {formattedRelativeTime}
+              </p>
+              <UnreadBadge count={chat.unreadCount} />
+            </div>
+          )}
+        </div>
+      </Link>
+    </li>
   )
 }
 
-function UnreadBadge({ count }) {
+interface UnreadBadgeProps {
+  count: number
+}
+
+function UnreadBadge({ count }: UnreadBadgeProps) {
   if (count === 0) return null
 
   return (
@@ -146,24 +156,32 @@ function UnreadBadge({ count }) {
   )
 }
 
-function ChatAvatar({ chat }) {
+interface ChatAvatarProps {
+  chat: Chat
+}
+
+function ChatAvatar({ chat }: ChatAvatarProps) {
   const { authUser } = useAuth()
   const { chatId } = useParams()
   const selected = chatId === chat._id
 
-  const otherMembers = chat.members.filter((user) => user._id !== authUser._id)
+  const otherMembers = chat.members.filter((user) => user._id !== authUser?._id)
 
   if (!otherMembers) return null
 
   return (
     <div className="relative">
-      {otherMembers.length === 1 ? <Avatar src={otherMembers[0].avatar} /> : <GroupAvatar members={otherMembers} />}
-      {otherMembers.length === 1 && otherMembers[0].isOnline && <OnlineBadge selected={selected} />}
+      {chat.type === "private" ? <Avatar src={otherMembers[0].avatar} /> : <GroupAvatar members={otherMembers} />}
+      {chat.type === "private" && otherMembers[0].isOnline && <OnlineBadge selected={selected} />}
     </div>
   )
 }
 
-function OnlineBadge({ selected }) {
+interface OnlineBadgeProps {
+  selected: boolean
+}
+
+function OnlineBadge({ selected }: OnlineBadgeProps) {
   return (
     <div className="w-fit h-fit absolute right-0 bottom-0">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">

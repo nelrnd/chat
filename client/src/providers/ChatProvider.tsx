@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import { useAuth } from "./AuthProvider"
 import axios from "axios"
-import { Chat, Image, Link, Media, Message } from "../types"
+import { Chat, Media, Message } from "../types"
 import { socket } from "../socket"
 
 type ContextContent = {
@@ -73,35 +73,23 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     const chat = findChatFromId(message.chat)
 
     const [messageImages, messageLinks] = [images, links]
+    console.log("kuch")
 
-    const unreadCount = chat?.members.reduce((acc, curr) => {
-      if (curr._id !== message.from._id) {
-        acc[curr._id]++
-      }
-      return acc
-    }, chat.unreadCount)
+    if (chat?.unreadCount && message.from._id !== authUser?._id) {
+      ++chat.unreadCount
+      console.log("new msg")
+    }
 
     updateChat(message.chat, {
       messages: [...(chat?.messages || []), message],
       images: [...(chat?.images || []), ...messageImages],
       links: [...(chat?.links || []), ...messageLinks],
-      unreadCount,
     })
   }
 
   const readMessages = async (chatId: string) => {
     if (authUser && chatId) {
-      setChats((chats) =>
-        chats.map((chat) => {
-          if (chat._id === chatId) {
-            const unreadCount = { ...chat.unreadCount }
-            unreadCount[authUser?._id] = 0
-            return { ...chat, unreadCount }
-          } else {
-            return chat
-          }
-        })
-      )
+      updateChat(chatId, { unreadCount: 0 })
       await axios.post(`/chat/${chatId}/read`)
     }
   }
