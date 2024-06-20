@@ -1,13 +1,14 @@
 const mongoose = require("mongoose")
 const Schema = mongoose.Schema
 
-const messageSchema = new Schema({
-  text: String,
-  images: [{ type: mongoose.Types.ObjectId, ref: "Media" }],
-  links: [{ type: mongoose.Types.ObjectId, ref: "Media" }],
+// can be either an image or a link
+
+const mediaSchema = new Schema({
+  type: { type: String, required: true },
+  url: { type: String, required: true },
   from: { type: mongoose.Types.ObjectId, ref: "User", required: true },
   chat: { type: mongoose.Types.ObjectId, ref: "Chat", required: true },
   timestamp: { type: Date, default: Date.now },
 })
 
-module.exports = mongoose.model("Message", messageSchema)
+module.exports = mongoose.model("Media", mediaSchema)

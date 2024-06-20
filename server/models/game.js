@@ -16,10 +16,10 @@ const gameSchema = new Schema({
   board: { type: Array, default: new Array(9).fill(null), required: true },
   status: { type: String, default: "waiting", required: true },
   players: [{ type: mongoose.Types.ObjectId, ref: "User", required: true }],
-  chat: { type: mongoose.Types.ObjectId, ref: "Chat", required: true },
   startTurn: { type: Number, default: 0, required: true },
   turn: { type: Number, default: 0, required: true },
-  createdBy: { type: mongoose.Types.ObjectId, ref: "User", required: true },
+  from: { type: mongoose.Types.ObjectId, ref: "User", required: true },
+  chat: { type: mongoose.Types.ObjectId, ref: "Chat", required: true },
   scores: { type: Schema.Types.Mixed, required: true },
 })
 
@@ -53,7 +53,7 @@ gameSchema.virtual("win").get(function () {
           }
         })
       if (win) {
-        winningPlayerId = player._id
+        winningPlayerId = player._id.toString()
         winningPattern = pattern
         return false
       }

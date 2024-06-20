@@ -2,7 +2,7 @@ const Game = require("../models/game")
 const Chat = require("../models/chat")
 const asyncHandler = require("express-async-handler")
 
-exports.game_create = asyncHandler(async (req, res) => {
+exports.game_create = asyncHandler(async (req, res, next) => {
   const { io } = req
   const { chatId, createdBy } = req.body
   const chat = await Chat.findById(chatId)
@@ -28,8 +28,14 @@ exports.game_create = asyncHandler(async (req, res) => {
   await game.save()
   await game.populate({ path: "players", select: "-password" })
 
+  /*
   io.to(chatId).emit("new-game", game)
   res.json({ game })
+  */
+
+  req.game = game._id.toString()
+
+  next()
 })
 
 exports.game_start = asyncHandler(async (req, res) => {
@@ -66,8 +72,8 @@ exports.game_play = asyncHandler(async (req, res) => {
   game.board[index] = game.turn
 
   if (game.win) {
-    game.incrementScores(win.player._id)
-    io.to(game.chat.toString()).emit("game-win", win)
+    game.incrementScores(game.win.player._id)
+    io.to(game.chat.toString()).emit("game-win", { ...game.win, id: game._id.toString() })
     setTimeout(() => {
       game.end()
       io.to(game.chat.toString()).emit("game-update")
