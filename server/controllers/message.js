@@ -72,6 +72,7 @@ exports.message_create = [
     let message, images, links
 
     if (req.game) {
+      console.log(req.game)
       message = new Message({
         type: "game",
         game: req.game,
@@ -79,7 +80,7 @@ exports.message_create = [
         chat: req.body.chatId,
       })
     } else {
-      if (!req.body.content && !req.files.length) {
+      if (!req.body.text && !req.files.length) {
         return res.status(400).json({ message: "Message cannot be empty" })
       }
 
@@ -97,7 +98,9 @@ exports.message_create = [
 
     await message.save()
     await message.populate({ path: "from", select: "-password" })
-    await message.populate({ path: "game", populate: { path: "from", select: "-password" } })
+    if (message.type === "game") {
+      await message.populate({ path: "game", populate: { path: "from", select: "-password" } })
+    }
 
     message = JSON.parse(he.decode(JSON.stringify(message)))
 

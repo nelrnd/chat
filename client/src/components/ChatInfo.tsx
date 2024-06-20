@@ -19,8 +19,9 @@ interface ChatInfoProps {
 export default function ChatInfo({ chat }: ChatInfoProps) {
   const { chatId } = useParams()
   const { authUser } = useAuth()
+
   const [open, setOpen] = useState(false)
-  const otherMembers = chat.members.filter((user) => user._id !== authUser._id)
+  const otherMembers = chat.members.filter((user) => user._id !== authUser?._id)
   const chatType = chat.members.length > 2 ? "group" : "chat"
 
   useEffect(() => {
@@ -78,12 +79,12 @@ export default function ChatInfo({ chat }: ChatInfoProps) {
 
         <section className="p-6 space-y-2">
           <div className="flex justify-between items-center">
-            <h4 className="font-semibold">Shared images ({chat.sharedImages.length})</h4>
-            {chat.sharedImages.length > 0 && <SharedImagesModal images={chat.sharedImages} />}
+            <h4 className="font-semibold">Shared images ({chat.images.length})</h4>
+            {chat.images.length > 0 && <SharedImagesModal images={chat.images} />}
           </div>
-          {chat.sharedImages.length ? (
+          {chat.images.length ? (
             <ul className="grid grid-cols-3 gap-2">
-              {chat.sharedImages.slice(0, 3).map((img) => (
+              {chat.images.slice(0, 3).map((img) => (
                 <li key={img._id} className="aspect-square overflow-hidden rounded-xl border border-neutral-800">
                   <img src={SERVER_BASE_URL + "/" + img.url} alt="" className="w-full h-full object-cover" />
                 </li>
@@ -96,12 +97,12 @@ export default function ChatInfo({ chat }: ChatInfoProps) {
 
         <section className="p-6 space-y-2">
           <div className="flex justify-between items-center">
-            <h4 className="font-semibold">Shared links ({chat.sharedLinks.length})</h4>
-            {chat.sharedLinks.length > 0 && <SharedLinksModal links={chat.sharedLinks} />}
+            <h4 className="font-semibold">Shared links ({chat.links.length})</h4>
+            {chat.links.length > 0 && <SharedLinksModal links={chat.links} />}
           </div>
-          {chat.sharedLinks.length ? (
+          {chat.links.length ? (
             <ul className="space-y-2 truncate">
-              {chat.sharedLinks.slice(0, 3).map((link) => (
+              {chat.links.slice(0, 3).map((link) => (
                 <li key={link._id}>
                   <a
                     href={link.url}

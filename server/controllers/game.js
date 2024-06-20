@@ -4,7 +4,7 @@ const asyncHandler = require("express-async-handler")
 
 exports.game_create = asyncHandler(async (req, res, next) => {
   const { io } = req
-  const { chatId, createdBy } = req.body
+  const { chatId, from } = req.body
   const chat = await Chat.findById(chatId)
 
   if (!chat) {
@@ -14,15 +14,15 @@ exports.game_create = asyncHandler(async (req, res, next) => {
     return res.status(400).json({ message: "Game cannot be created on group chats" })
   }
 
-  const firstTurn = chat.members.findIndex((userId) => userId.toString() !== createdBy)
+  const firstTurn = chat.members.findIndex((userId) => userId.toString() !== from)
 
   const game = new Game({
     chat: chatId,
     players: chat.members,
-    scores: { ...chat.members.reduce((acc, curr) => ({ ...acc, [curr._id]: 0 }), {}), draws: 0 },
-    createdBy,
+    from,
     startTurn: firstTurn,
     turn: firstTurn,
+    scores: { ...chat.members.reduce((acc, curr) => ({ ...acc, [curr._id]: 0 }), {}), draws: 0 },
   })
 
   await game.save()

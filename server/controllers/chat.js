@@ -1,35 +1,43 @@
 const Chat = require("../models/chat")
 const Message = require("../models/message")
-const Image = require("../models/image")
-const Link = require("../models/link")
+const Media = require("../models/media")
 const asyncHandler = require("express-async-handler")
 const he = require("he")
 const { findSocket } = require("../utils")
 
 exports.chat_create = asyncHandler(async (req, res, next) => {
-  if (Array.from(new Set(req.body.members)).length < 2) {
+  const members = Array.from(new Set(req.body.members))
+
+  if (members.length < 2) {
     return res.status(400).json({ message: "Chat must contain at least 2 members" })
   }
-
-  if (!req.body.members.includes(req.user._id.toString())) {
+  if (!members.includes(req.user._id.toString())) {
     return res.status(400).json({ message: "Chat must contain auth user" })
   }
 
-  const unreadCount = {}
-  req.body.members.forEach((user) => (unreadCount[user] = 0))
-  let chat = new Chat({ members: req.body.members, unreadCount })
+  const unreadCount = members.reduce((acc, curr) => ({ ...acc, curr: 0 }), {})
+
+  let chat = new Chat({ members, unreadCount })
   await chat.save()
   await chat.populate({ path: "members", select: "-password" })
-  chat = chat.toObject()
-  chat = { ...chat, messages: [], typingUsers: [], sharedImages: [], sharedLinks: [] }
 
-  const io = req.io
-  chat.members.forEach((user) => {
-    const socket = findSocket(io, user._id.toString())
+  chat = JSON.parse(he.decode(JSON.stringify(chat)))
+  chat = {
+    ...chat,
+    type: chat.members.length === 2 ? "private" : "group",
+    messages: [],
+    images: [],
+    links: [],
+    typingUsers: [],
+  }
+
+  const { io } = req
+  members.forEach((user) => {
+    const socket = findSocket(io, user)
     if (socket) {
       socket.join(chat._id.toString())
-      if (user._id.toString() !== req.user._id.toString()) {
-        io.to(user._id.toString()).emit("new-chat", chat)
+      if (user !== req.user.toString()) {
+        io.to(user).emit("new-chat", chat)
       }
     }
   })
@@ -40,50 +48,44 @@ exports.chat_create = asyncHandler(async (req, res, next) => {
 exports.chat_get_list = asyncHandler(async (req, res, next) => {
   let chats = await Chat.find({ members: req.user._id }).populate({ path: "members", select: "-password" }).lean()
 
-  const chatIds = chats.map((chat) => chat._id)
+  const chatIds = chats.map((chat) => chat._id.toString())
 
   const [messages, images, links] = await Promise.all([
     Message.find({ chat: { $in: chatIds } })
-      .populate({ path: "images", populate: { path: "sender", select: "-password" } })
-      .populate({ path: "sender", select: "-password" })
+      .populate({ path: "images", populate: { path: "from", select: "-password" } })
+      .populate({ path: "from", select: "-password" })
+      .populate({ path: "game", populate: { path: "from", select: "-password" } })
       .lean(),
-    Image.find({ chat: { $in: chatIds } })
-      .populate({ path: "sender", select: "-password" })
+    Media.find({ type: "image", chat: { $in: chatIds } })
+      .populate({ path: "from", select: "-password" })
       .lean(),
-    Link.find({ chat: { $in: chatIds } })
-      .populate({ path: "sender", select: "-password" })
+    Media.find({ type: "link", chat: { $in: chatIds } })
+      .populate({ path: "from", select: "-password" })
       .lean(),
   ])
 
-  const messagesMap = messages.reduce((map, message) => {
-    map[message.chat.toString()] = map[message.chat.toString()] || []
-    map[message.chat.toString()].push(message)
-    return map
-  }, {})
-
-  const imagesMap = images.reduce((map, image) => {
-    map[image.chat.toString()] = map[image.chat.toString()] || []
-    map[image.chat.toString()].push(image)
-    return map
-  }, {})
-
-  const linksMap = links.reduce((map, link) => {
-    map[link.chat.toString()] = map[link.chat.toString()] || []
-    map[link.chat.toString()].push(link)
-    return map
-  }, {})
+  const [messagesMap, imagesMap, linksMap] = [messages, images, links].map((type) =>
+    type.reduce((map, item) => {
+      map[item.chat.toString()] = map[item.chat.toString()] || []
+      map[item.chat.toString()].push(item)
+      return map
+    }, {})
+  )
 
   chats = chats.map((chat) => ({
     ...chat,
+    type: chat.members.length === 2 ? "private" : "group",
     messages: messagesMap[chat._id.toString()] || [],
+    images: imagesMap[chat._id.toString()] || [],
+    links: linksMap[chat._id.toString()] || [],
     typingUsers: [],
-    sharedImages: imagesMap[chat._id.toString()] || [],
-    sharedLinks: linksMap[chat._id.toString()] || [],
   }))
 
   res.json(chats)
 })
 
+/*
+Not used yet
 exports.chat_check_auth = asyncHandler(async (req, res, next) => {
   const chat = await Chat.findById(req.body.chatId)
 
@@ -97,11 +99,16 @@ exports.chat_check_auth = asyncHandler(async (req, res, next) => {
 
   next()
 })
+*/
 
 exports.chat_read = asyncHandler(async (req, res, next) => {
+  const userId = req.user._id.toString()
   const { chatId } = req.params
-  const { unreadCount } = await Chat.findById(chatId)
-  unreadCount[req.user._id.toString()] = 0
-  await Chat.findByIdAndUpdate(chatId, { unreadCount })
+  const chat = await chat.findById(chatId)
+  if (!chat) {
+    return res.status(404).json({ message: "Chat not found" })
+  }
+  chat.unreadCount[userId] = 0
+  await chat.save()
   res.end()
 })

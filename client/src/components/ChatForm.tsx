@@ -9,7 +9,7 @@ import axios from "axios"
 import { useAuth } from "@/providers/AuthProvider"
 
 interface Inputs {
-  content: string
+  text: string
   images: FileList | File[]
 }
 
@@ -48,7 +48,7 @@ export default function ChatForm() {
     setIsTyping(false)
     setLoading(true)
     const formData = new FormData()
-    formData.append("content", data.content)
+    formData.append("text", data.text)
     formData.append("chatId", chatId || "")
     for (const image of data.images) {
       formData.append("images", image)
@@ -60,21 +60,21 @@ export default function ChatForm() {
 
   const handlePlay = async () => {
     if (chat && authUser) {
-      await axios.post("/game", { chatId, createdBy: authUser._id })
+      await axios.post("/game", { chatId, from: authUser._id })
     }
   }
 
-  const content = watch("content")
+  const text = watch("text")
   const images = watch("images")
 
   useEffect(() => {
-    console.log("bing:", typeof content, content)
-    if (content || (images && images.length)) {
+    console.log("bing:", typeof text, text)
+    if (text || (images && images.length)) {
       setEmpty(false)
     } else {
       setEmpty(true)
     }
-  }, [content, images])
+  }, [text, images])
 
   useEffect(() => {
     if (isTyping) {
@@ -106,11 +106,11 @@ export default function ChatForm() {
 
           <div className="flex items-center gap-1">
             {type === "private" && (
-              <Button onClick={handlePlay} size="icon" variant="ghost" className="hover:bg-neutral-800">
+              <Button type="button" onClick={handlePlay} size="icon" variant="ghost" className="hover:bg-neutral-800">
                 <BiJoystick className="text-lg" />
               </Button>
             )}
-            <Button size="icon" variant="ghost" className="hover:bg-neutral-800" asChild>
+            <Button type="button" size="icon" variant="ghost" className="hover:bg-neutral-800" asChild>
               <label htmlFor="images" className="cursor-pointer">
                 <BiImageAlt className="text-lg" />
               </label>
@@ -119,7 +119,7 @@ export default function ChatForm() {
 
           <input
             placeholder="Type something..."
-            {...register("content")}
+            {...register("text")}
             spellCheck="false"
             onKeyDown={onKeyDown}
             className="h-[4rem] flex-1 bg-transparent placeholder-neutral-300 focus:outline-none"

@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import { useAuth } from "./AuthProvider"
 import axios from "axios"
-import { Chat, Image, Link, Message } from "../types"
+import { Chat, Image, Link, Media, Message } from "../types"
 import { socket } from "../socket"
 
 type ContextContent = {
@@ -38,6 +38,10 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     return chats.find((chat) => chat.members.length === 2 && chat.members.find((user) => user._id === userId))
   }
 
+  const findChatFromId = (chatId: string) => {
+    return chats.find((chat) => chat._id === chatId)
+  }
+
   const createChat = async (members: string[]) => {
     try {
       const res = await axios.post("/chat", { members })
@@ -61,24 +65,28 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     }
   }
 
-  const addMessage = ({ message, images, links }: { message: Message; images: Image[]; links: Link[] }) => {
-    setChats((chats) =>
-      chats.map((chat) => {
-        if (chat._id === message.chat) {
-          const unreadCount = { ...chat.unreadCount }
-          chat.members.forEach((user) => user._id !== message.sender._id && unreadCount[user._id]++)
-          return {
-            ...chat,
-            messages: [...chat.messages, message],
-            sharedImages: [...chat.sharedImages, ...images],
-            sharedLinks: [...chat.sharedLinks, ...links],
-            unreadCount,
-          }
-        } else {
-          return chat
-        }
-      })
-    )
+  const updateChat = (chatId, content) => {
+    setChats((chats) => chats.map((chat) => (chat._id === chatId ? { ...chat, ...content } : chat)))
+  }
+
+  const addMessage = ({ message, images, links }: { message: Message; images: Media[]; links: Media[] }) => {
+    const chat = findChatFromId(message.chat)
+
+    const [messageImages, messageLinks] = [images, links]
+
+    const unreadCount = chat?.members.reduce((acc, curr) => {
+      if (curr._id !== message.from._id) {
+        acc[curr._id]++
+      }
+      return acc
+    }, chat.unreadCount)
+
+    updateChat(message.chat, {
+      messages: [...(chat?.messages || []), message],
+      images: [...(chat?.images || []), ...messageImages],
+      links: [...(chat?.links || []), ...messageLinks],
+      unreadCount,
+    })
   }
 
   const readMessages = async (chatId: string) => {

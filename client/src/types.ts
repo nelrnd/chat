@@ -2,36 +2,49 @@ export type User = {
   _id: string
   name: string
   email: string
-  isOnline: boolean
   bio?: string
   avatar?: string
+  isOnline: boolean
 }
 
 export type Message = {
   _id: string
-  content: string
-  images: Image[]
-  sender: User
+  text: string
+  images: Media[]
+  links: Media[]
+  from: User
   chat: string
   timestamp: string
 }
 
-export type Image = {
+export type Media = {
   _id: string
+  type: "image" | "link"
   url: string
-  sender: User
+  from: User
   chat: string
   timestamp: string
 }
-
-export type Link = Image
 
 export type Chat = {
   _id: string
+  type: "private" | "group"
   members: User[]
   messages: Message[]
+  images: Media[]
+  links: Media[]
   typingUsers: string[]
-  sharedImages: Image[]
-  sharedLinks: Link[]
   unreadCount: Record<string, number>
+}
+
+export type Game = {
+  _id: string
+  status: "waiting" | "running" | "over"
+  board: (number | null)[]
+  players: User[]
+  startTurn: number
+  turn: number
+  from: string
+  chat: string
+  scores: Record<string, number>
 }

@@ -1,7 +1,7 @@
 import Avatar from "@/components/Avatar"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogClose, DialogContent } from "@/components/ui/dialog"
-import { Image } from "@/types"
+import { Media } from "@/types"
 import moment from "moment"
 import { createContext, useContext, useEffect, useState } from "react"
 import { BiX } from "react-icons/bi"
@@ -9,7 +9,7 @@ import { BiX } from "react-icons/bi"
 const SERVER_BASE_URL = import.meta.env.VITE_SERVER_BASE_URL
 
 type ContextContent = {
-  setImage: (image: Image) => void
+  setImage: (image: Media) => void
 }
 
 const ImageViewerContext = createContext<ContextContent>({
@@ -22,7 +22,7 @@ interface ImageViewerProvider {
 
 export default function ImageViewerProvider({ children }: ImageViewerProvider) {
   const [open, setOpen] = useState(false)
-  const [image, setImage_] = useState<Image | null>(null)
+  const [image, setImage_] = useState<Media | null>(null)
 
   useEffect(() => {
     if (image) {
@@ -37,7 +37,7 @@ export default function ImageViewerProvider({ children }: ImageViewerProvider) {
     }
   }, [open])
 
-  const setImage = (image: Image | null) => {
+  const setImage = (image: Media | null) => {
     setImage_(image)
   }
 
@@ -49,9 +49,9 @@ export default function ImageViewerProvider({ children }: ImageViewerProvider) {
         <DialogContent className="min-w-full min-h-full p-0 rounded-none flex flex-col gap-0">
           <header className="p-6 flex justify-between">
             <div className="flex gap-3 items-center">
-              <Avatar src={image?.sender.avatar} className="w-[2.625rem]" />
+              <Avatar src={image?.from.avatar} className="w-[2.625rem]" />
               <div>
-                <p className="font-semibold">By {image?.sender.name}</p>
+                <p className="font-semibold">By {image?.from.name}</p>
                 <p className="text-sm text-neutral-400">
                   {moment(image?.timestamp).format("l")}, {moment(image?.timestamp).format("LT")}
                 </p>

@@ -1,13 +1,6 @@
 import moment from "moment"
 import { Message as MessageType } from "../types"
 import Message from "./Message"
-import React from "react"
-import Game from "./Game"
-
-interface MessageListProps {
-  messages: MessageType[]
-  chatType: "group" | "chat"
-}
 
 function splitMessagesIntoDays(messages: MessageType[]): MessageType[][] {
   return messages.reduce((acc: MessageType[][], curr: MessageType, id: number, arr: MessageType[]) => {
@@ -39,49 +32,45 @@ function formatDay(timestamp: string): string {
   }
 }
 
+function checkFollowed(currMessage: MessageType, nextMessage: MessageType | undefined): boolean {
+  if (
+    !nextMessage ||
+    currMessage.from._id !== nextMessage.from._id ||
+    Math.floor(new Date(currMessage.timestamp).getTime() / 1000 / 60) !==
+      Math.floor(new Date(nextMessage.timestamp).getTime() / 1000 / 60)
+  ) {
+    return false
+  }
+
+  return true
+}
+
+interface MessageListProps {
+  messages: MessageType[]
+  chatType: "private" | "group"
+}
+
 export default function MessageList({ messages, chatType }: MessageListProps) {
   if (messages.length < 1) return null
-
-  const checkFollowed = (currMessage, nextMessage) => {
-    if (
-      !nextMessage ||
-      currMessage.sender._id !== nextMessage.sender._id ||
-      Math.floor(new Date(currMessage.timestamp).getTime() / 1000 / 60) !==
-        Math.floor(new Date(nextMessage.timestamp).getTime() / 1000 / 60)
-    ) {
-      return false
-    }
-
-    return true
-  }
 
   return (
     <ul className="max-w-[40rem] m-auto">
       {splitMessagesIntoDays(messages).map((day) => (
-        <div key={day[0].timestamp} className="relative pt-4">
-          <h3 className="sticky top-4 text-sm px-3 py-1.5 w-fit m-auto bg-neutral-900 rounded-full border border-neutral-800 mb-4">
-            {formatDay(day[0].timestamp)}
-          </h3>
-          {day.map((msg, id) =>
-            msg.type === "game" ? (
-              <Game key={msg._id} game={msg} />
-            ) : (
-              <Message key={msg._id} message={msg} chatType={chatType} followed={checkFollowed(msg, day[id + 1])} />
-            )
-          )}
-        </div>
+        <Day key={day[0].timestamp} messages={day} chatType={chatType} />
       ))}
     </ul>
   )
 }
 
-function Day({ messages }) {
+function Day({ messages, chatType }: MessageListProps) {
   return (
-    <React.Fragment key={messages[0].timestamp}>
-      <h3>{formatDay(messages[0].timestamp)}</h3>
-      {messages.map((msg) => (
-        <Message key={msg._id} message={msg} />
+    <div>
+      <h3 className="sticky top-4 text-sm px-3 py-1.5 w-fit m-auto bg-neutral-900 rounded-full border border-neutral-800 mb-4">
+        {formatDay(messages[0].timestamp)}
+      </h3>
+      {messages.map((msg, id) => (
+        <Message key={msg._id} message={msg} chatType={chatType} followed={checkFollowed(msg, messages[id + 1])} />
       ))}
-    </React.Fragment>
+    </div>
   )
 }
