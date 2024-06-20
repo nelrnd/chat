@@ -36,7 +36,7 @@ exports.chat_create = asyncHandler(async (req, res, next) => {
     const socket = findSocket(io, user)
     if (socket) {
       socket.join(chat._id.toString())
-      if (user !== req.user.toString()) {
+      if (user !== req.user._id.toString()) {
         io.to(user).emit("new-chat", chat)
       }
     }

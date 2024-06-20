@@ -120,6 +120,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
 
   useEffect(() => {
     function onNewChat(chat: Chat) {
+      console.log(chat)
       setChats((chats) => [...chats, chat])
     }
 

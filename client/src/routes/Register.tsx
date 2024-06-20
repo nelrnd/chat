@@ -25,7 +25,7 @@ export default function Register() {
       password: "",
     },
   })
-  const { token } = useAuth()
+  const { token, setToken } = useAuth()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -35,7 +35,7 @@ export default function Register() {
     setError(null)
     await axios
       .post("/user/register", data)
-      .then(() => navigate("/login"))
+      .then((res) => setToken(res.data.token))
       .catch((err) => {
         if (err.response && err.response.data.message) {
           setError(err.response.data.message)

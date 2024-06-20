@@ -70,7 +70,7 @@ exports.user_register = [
 
     await user.save()
 
-    res.json({ message: "User created successfully" })
+    next()
   }),
 ]
 
