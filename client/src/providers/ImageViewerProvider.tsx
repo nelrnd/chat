@@ -27,7 +27,6 @@ export default function ImageViewerProvider({ children }: ImageViewerProvider) {
   useEffect(() => {
     if (image) {
       setOpen(true)
-      console.log(image)
     }
   }, [image])
 

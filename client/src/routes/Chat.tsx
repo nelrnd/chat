@@ -67,7 +67,6 @@ function ChatMessages({ messages, chatType }: ChatMessages) {
     setTimeout(() => {
       if (elem.current) {
         elem.current.scrollTo(0, elem.current.scrollHeight)
-        console.log(chatId)
       }
     }, 10)
   }, [chatId])

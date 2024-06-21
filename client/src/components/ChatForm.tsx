@@ -68,7 +68,6 @@ export default function ChatForm() {
   const images = watch("images")
 
   useEffect(() => {
-    console.log("bing:", typeof text, text)
     if (text || (images && images.length)) {
       setEmpty(false)
     } else {

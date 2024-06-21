@@ -38,10 +38,6 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     return chats.find((chat) => chat.members.length === 2 && chat.members.find((user) => user._id === userId))
   }
 
-  const findChatFromId = (chatId: string) => {
-    return chats.find((chat) => chat._id === chatId)
-  }
-
   const createChat = async (members: string[]) => {
     try {
       const res = await axios.post("/chat", { members })
@@ -70,27 +66,32 @@ export default function ChatProvider({ children }: ChatProviderProps) {
   }
 
   const addMessage = ({ message, images, links }: { message: Message; images: Media[]; links: Media[] }) => {
-    const chat = findChatFromId(message.chat)
-
-    const [messageImages, messageLinks] = [images, links]
-    console.log("kuch")
-
-    if (chat?.unreadCount && message.from._id !== authUser?._id) {
-      ++chat.unreadCount
-      console.log("new msg")
-    }
-
-    updateChat(message.chat, {
-      messages: [...(chat?.messages || []), message],
-      images: [...(chat?.images || []), ...messageImages],
-      links: [...(chat?.links || []), ...messageLinks],
-    })
+    setChats((chats) =>
+      chats.map((chat) => {
+        if (chat._id === message.chat) {
+          let unreadCount = chat?.unreadCount || 0
+          if (message.from._id !== authUser?._id) {
+            unreadCount++
+          }
+          const [messageImages, messageLinks] = [images, links]
+          return {
+            ...chat,
+            messages: [...(chat?.messages || []), message],
+            images: [...(chat?.images || []), ...messageImages],
+            links: [...(chat?.links || []), ...messageLinks],
+            unreadCount,
+          }
+        } else {
+          return chat
+        }
+      })
+    )
   }
 
   const readMessages = async (chatId: string) => {
     if (authUser && chatId) {
       updateChat(chatId, { unreadCount: 0 })
-      await axios.post(`/chat/${chatId}/read`)
+      axios.post(`/chat/${chatId}/read`)
     }
   }
 
@@ -112,7 +113,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
       setChats((chats) => [...chats, chat])
     }
 
-    function onNewMessage(data: { message: Message; images: Image[]; links: Link[] }) {
+    function onNewMessage(data: { message: Message; images: Media[]; links: Media[] }) {
       playPop()
       addMessage(data)
     }
@@ -247,5 +248,5 @@ export function useChats() {
 export function useChat(chatId?: string) {
   const content = useContext(ChatContext)
   const chat = content.chats.find((chat) => chat._id === chatId)
-  return { chat, ...content, type: chat && chat.members.length > 2 ? "group" : "private" }
+  return { chat, ...content }
 }

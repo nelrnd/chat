@@ -120,11 +120,9 @@ exports.chat_check_auth = asyncHandler(async (req, res, next) => {
 exports.chat_read = asyncHandler(async (req, res) => {
   const userId = req.user._id.toString()
   const { chatId } = req.params
-  const chat = await Chat.findById(chatId)
+  const chat = await Chat.findByIdAndUpdate(chatId, { $set: { [`lastViewed.${userId}`]: Date.now() } }, { new: true })
   if (!chat) {
     return res.status(404).json({ message: "Chat not found" })
   }
-  chat.lastViewed[userId] = Date.now()
-  await chat.save()
   res.end()
 })

@@ -72,7 +72,6 @@ exports.message_create = [
     let message, images, links
 
     if (req.game) {
-      console.log(req.game)
       message = new Message({
         type: "game",
         game: req.game,
