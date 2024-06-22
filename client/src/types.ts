@@ -11,6 +11,7 @@ export type Message = {
   _id: string
   type: "game" | "normal"
   text: string
+  game?: Game
   images: Media[]
   links: Media[]
   from: User

@@ -37,7 +37,10 @@ export default function Message({ message, chatType, followed }: MessageProps) {
         <div className="w-[2.625rem]">{!followed && <Avatar src={message.from.avatar} className="w-full" />}</div>
       )}
       {message.type === "game" ? (
-        <Game game={message.game} />
+        <div className="w-full space-y-2 flex flex-col justify-end items-end">
+          <Game game={message.game} />
+          <MessageMeta message={message} chatType={chatType} fromMe={fromMe} />
+        </div>
       ) : (
         <div className={`max-w-[80%] space-y-2 ${fromMe && "ml-auto flex flex-col items-end"}`}>
           {message.images?.map((image) => (
@@ -87,14 +90,14 @@ function MessageImage({ image }: MessageImageProps) {
 
 interface MessageMetaProps {
   message: MessageType
-  chatType: "group" | "chat"
+  chatType: "private" | "group"
   fromMe: boolean
 }
 
 function MessageMeta({ message, chatType, fromMe }: MessageMetaProps) {
   return (
     <div className={`w-fit text-xs text-neutral-400`}>
-      {chatType === "group" && !fromMe && message.sender.name + " • "} {moment(message.timestamp).format("LT")}
+      {chatType === "group" && !fromMe && message.from.name + " • "} {moment(message.timestamp).format("LT")}
     </div>
   )
 }

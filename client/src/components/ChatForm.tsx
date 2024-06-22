@@ -15,7 +15,7 @@ interface Inputs {
 
 export default function ChatForm() {
   const { chatId } = useParams()
-  const { chat, createMessage, type } = useChat(chatId)
+  const { chat, createMessage } = useChat(chatId)
   const { authUser } = useAuth()
   const { register, handleSubmit, reset, watch, setValue } = useForm<Inputs>()
   const [loading, setLoading] = useState(false)
@@ -104,7 +104,7 @@ export default function ChatForm() {
           />
 
           <div className="flex items-center gap-1">
-            {type === "private" && (
+            {chat?.type === "private" && (
               <Button type="button" onClick={handlePlay} size="icon" variant="ghost" className="hover:bg-neutral-800">
                 <BiJoystick className="text-lg" />
               </Button>
