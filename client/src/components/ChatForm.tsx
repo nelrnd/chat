@@ -5,8 +5,6 @@ import { useEffect, useRef, useState } from "react"
 import { socket } from "../socket"
 import { Button } from "./ui/button"
 import { BiImageAlt, BiJoystick, BiLoaderAlt, BiSend, BiX } from "react-icons/bi"
-import axios from "axios"
-import { useAuth } from "@/providers/AuthProvider"
 
 interface Inputs {
   text: string
@@ -15,8 +13,7 @@ interface Inputs {
 
 export default function ChatForm() {
   const { chatId } = useParams()
-  const { chat, createMessage } = useChat(chatId)
-  const { authUser } = useAuth()
+  const { chat, createMessage, createGame } = useChat(chatId)
   const { register, handleSubmit, reset, watch, setValue } = useForm<Inputs>()
   const [loading, setLoading] = useState(false)
   const [isTyping, setIsTyping] = useState<boolean | null>(null)
@@ -59,8 +56,8 @@ export default function ChatForm() {
   }
 
   const handlePlay = async () => {
-    if (chat && authUser) {
-      await axios.post("/game", { chatId, from: authUser._id })
+    if (chat) {
+      createGame(chat._id)
     }
   }
 

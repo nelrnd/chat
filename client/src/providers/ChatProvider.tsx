@@ -1,23 +1,27 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import { useAuth } from "./AuthProvider"
 import axios from "axios"
-import { Chat, Media, Message } from "../types"
+import { Chat, Game, Media, Message } from "../types"
 import { socket } from "../socket"
 
 type ContextContent = {
   chats: Chat[]
   createMessage: (data: { content: string }) => Promise<void>
+  createGame: (chatId: string) => Promise<void>
   loading: boolean
   findChat: (userId: string) => Chat | undefined
   createChat: (userId: string) => Promise<Chat> | undefined
+  updateGameMessage: (chatId: string, gameId: string, message: string) => void
 }
 
 const ChatContext = createContext<ContextContent>({
   chats: [],
   createMessage: () => Promise.resolve(),
+  createGame: () => Promise.resolve(),
   loading: true,
   findChat: () => undefined,
   createChat: () => undefined,
+  updateGameMessage: () => undefined,
 })
 
 interface ChatProviderProps {
@@ -61,6 +65,18 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     }
   }
 
+  const createGame = async (chatId: string) => {
+    try {
+      const res = await axios.post("/game", { chatId, from: authUser?._id })
+      const msg = res.data
+      addMessage(msg)
+      return Promise.resolve()
+    } catch (err) {
+      console.log(err)
+      return Promise.reject()
+    }
+  }
+
   const updateChat = (chatId, content) => {
     setChats((chats) => chats.map((chat) => (chat._id === chatId ? { ...chat, ...content } : chat)))
   }
@@ -77,14 +93,29 @@ export default function ChatProvider({ children }: ChatProviderProps) {
           return {
             ...chat,
             messages: [...(chat?.messages || []), message],
-            images: [...(chat?.images || []), ...messageImages],
-            links: [...(chat?.links || []), ...messageLinks],
+            images: [...(chat?.images || []), ...(messageImages || [])],
+            links: [...(chat?.links || []), ...(messageLinks || [])],
             unreadCount,
           }
         } else {
           return chat
         }
       })
+    )
+  }
+
+  const updateGameMessage = (chatId: string, gameId: string, message: string) => {
+    setChats((chats) =>
+      chats.map((chat) =>
+        chat._id === chatId
+          ? {
+              ...chat,
+              messages: chat.messages.map((msg) =>
+                msg.game && msg.game._id === gameId ? { ...msg, game: { ...msg.game, message } } : msg
+              ),
+            }
+          : chat
+      )
     )
   }
 
@@ -100,10 +131,17 @@ export default function ChatProvider({ children }: ChatProviderProps) {
       socket.emit("login", authUser?._id)
     }
 
+    function onGameWin(game: Game, win: { playerId: string }) {
+      const message = win.playerId === authUser?._id ? "You won" : "You lost"
+      updateGameMessage(game.chat, game._id, message)
+    }
+
     socket.on("connect", onConnect)
+    socket.on("game-win", onGameWin)
 
     return () => {
       socket.off("connect", onConnect)
+      socket.off("game-win", onGameWin)
     }
   }, [authUser])
 
@@ -168,21 +206,6 @@ export default function ChatProvider({ children }: ChatProviderProps) {
       )
     }
 
-    function onGameStart(game) {
-      setChats((chats) =>
-        chats.map((chat) =>
-          chat._id === game.chat
-            ? {
-                ...chat,
-                messages: chat.messages.map((message) =>
-                  message._id === game._id ? { ...game, type: "game" } : message
-                ),
-              }
-            : chat
-        )
-      )
-    }
-
     function onGameUpdate(game) {
       setChats((chats) =>
         chats.map((chat) =>
@@ -190,7 +213,9 @@ export default function ChatProvider({ children }: ChatProviderProps) {
             ? {
                 ...chat,
                 messages: chat.messages.map((message) =>
-                  message._id === game._id ? { ...game, type: "game" } : message
+                  message.game && message.game._id === game._id
+                    ? { ...message, game: { ...message.game, ...game } }
+                    : message
                 ),
               }
             : chat
@@ -205,7 +230,6 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     socket.on("user-connection", onUserConnection)
     socket.on("user-disconnection", onUserDisonnection)
     socket.on("new-game", onNewGame)
-    socket.on("game-start", onGameStart)
     socket.on("game-update", onGameUpdate)
 
     return () => {
@@ -216,7 +240,6 @@ export default function ChatProvider({ children }: ChatProviderProps) {
       socket.off("user-connection", onUserConnection)
       socket.off("user-disconnection", onUserDisonnection)
       socket.off("new-game", onNewGame)
-      socket.off("game-start", onGameStart)
       socket.off("game-update", onGameUpdate)
     }
   }, [])
@@ -236,7 +259,16 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     }
   }, [authUser])
 
-  const contextValue = { chats, createMessage, loading, findChat, createChat, readMessages }
+  const contextValue = {
+    chats,
+    createMessage,
+    createGame,
+    loading,
+    findChat,
+    createChat,
+    readMessages,
+    updateGameMessage,
+  }
 
   return <ChatContext.Provider value={contextValue}>{children}</ChatContext.Provider>
 }

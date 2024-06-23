@@ -98,25 +98,10 @@ exports.message_create = [
     await message.save()
     await message.populate({ path: "from", select: "-password" })
     if (message.type === "game") {
-      await message.populate({ path: "game", populate: { path: "from", select: "-password" } })
+      await message.populate({ path: "game", populate: { path: "players", select: "-password" } })
     }
 
     message = JSON.parse(he.decode(JSON.stringify(message)))
-
-    /*
-    // increment unread count
-    const { members, unreadCount } = await Chat.findById(req.body.chatId)
-    members.forEach((user) => {
-      const userId = user.toString()
-      if (userId !== req.user._id.toString()) {
-        unreadCount[userId]++
-      } else {
-        unreadCount[userId] = 0
-      }
-    })
-    
-    await Chat.findByIdAndUpdate(req.body.chatId, { unreadCount })
-    */
 
     const socket = findSocket(req.io, req.user._id.toString())
 

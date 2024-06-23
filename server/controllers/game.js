@@ -48,7 +48,7 @@ exports.game_start = asyncHandler(async (req, res) => {
   await game.save()
   await game.populate({ path: "players", select: "-password" })
 
-  io.to(game.chat.toString()).emit("game-start", game)
+  io.to(game.chat.toString()).emit("game-update", game)
   res.json({ game })
 })
 
@@ -71,27 +71,25 @@ exports.game_play = asyncHandler(async (req, res) => {
 
   game.board[index] = game.turn
 
-  if (game.win) {
-    game.incrementScores(game.win.player._id)
-    io.to(game.chat.toString()).emit("game-win", { ...game.win, id: game._id.toString() })
-    setTimeout(() => {
+  if (game.win || game.draw) {
+    if (game.win) {
+      game.incrementScores(game.win.playerId)
+      io.to(game.chat.toString()).emit("game-win", game, game.win)
+    } else {
+      game.incrementScores("draws")
+      io.to(game.chat.toString()).emit("game-draw", game)
+    }
+    setTimeout(async () => {
       game.end()
-      io.to(game.chat.toString()).emit("game-update")
+      await game.save()
+      io.to(game.chat.toString()).emit("game-update", game)
+      res.json({ game })
     }, 2000)
+  } else {
+    await game.switchTurn()
+    await game.save()
+
+    io.to(game.chat.toString()).emit("game-update", game)
+    res.json({ game })
   }
-
-  if (game.draw) {
-    game.incrementScores("draws")
-    io.to(game.chat.toString()).emit("game-draw")
-    setTimeout(() => {
-      game.end()
-      io.to(game.chat.toString()).emit("game-update")
-    }, 2000)
-  }
-
-  await game.switchTurn()
-  await game.save()
-
-  io.to(game.chat.toString()).emit("game-update", game)
-  res.json({ game })
 })

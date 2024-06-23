@@ -58,7 +58,7 @@ exports.chat_get_list = asyncHandler(async (req, res, next) => {
     Message.find({ chat: { $in: chatIds } })
       .populate({ path: "images", populate: { path: "from", select: "-password" } })
       .populate({ path: "from", select: "-password" })
-      .populate({ path: "game", populate: { path: "from", select: "-password" } })
+      .populate({ path: "game", populate: { path: "players", select: "-password" } })
       .lean(),
     Media.find({ type: "image", chat: { $in: chatIds } })
       .populate({ path: "from", select: "-password" })

@@ -2,6 +2,7 @@ import { useAuth } from "@/providers/AuthProvider"
 import { Button } from "./ui/button"
 import axios from "axios"
 import { useEffect, useState } from "react"
+import { useChat } from "@/providers/ChatProvider"
 
 const Game = ({ game }) => {
   return (
@@ -25,7 +26,7 @@ const GameWait = ({ game }) => {
 
   return (
     <div className="py-8 text-xl text-center grid place-content-center gap-4">
-      {game.createdBy === authUser?._id ? (
+      {game.from === authUser?._id ? (
         <>
           <p>Waiting for {otherPlayerName} to accept invitation...</p>
         </>
@@ -43,9 +44,21 @@ const GameWait = ({ game }) => {
 
 const GameRunning = ({ game }) => {
   const { authUser } = useAuth()
+  const { updateGameMessage } = useChat()
   const [message, setMessage] = useState("")
 
   const myTurn = game.players[game.turn]._id === authUser._id
+
+  useEffect(() => {
+    const message = myTurn ? "It's your turn" : "Waiting for your turn"
+    setMessage(message)
+  }, [game.board, myTurn])
+
+  useEffect(() => {
+    if (message !== game.message) {
+      updateGameMessage(game.chat, game._id, message)
+    }
+  }, [game._id, game.chat, game.message, message, updateGameMessage])
 
   useEffect(() => {
     if (myTurn) {
@@ -57,9 +70,9 @@ const GameRunning = ({ game }) => {
 
   return (
     <>
-      <GameMessage message={message} />
+      <GameMessage message={game.message} />
       <GameBoard game={game} myTurn={myTurn} />
-      <GameScore />
+      <GameScore scores={game.scores} players={game.players} />
     </>
   )
 }
@@ -106,21 +119,26 @@ function getMark(value) {
   }
 }
 
-const GameScore = () => {
+const GameScore = ({ scores, players }) => {
+  const { authUser } = useAuth()
+  const otherPlayer = players.find((player) => player._id !== authUser?._id)
+
+  if (!authUser) return null
+
   return (
     <table className="text-center w-full">
       <thead>
         <tr>
-          <th>Guz</th>
+          <th>{otherPlayer.name}</th>
           <th>Draws</th>
           <th>You</th>
         </tr>
       </thead>
       <tbody>
         <tr>
+          <td>{scores[otherPlayer._id]}</td>
           <td>0</td>
-          <td>0</td>
-          <td>0</td>
+          <td>{scores[authUser._id]}</td>
         </tr>
       </tbody>
     </table>

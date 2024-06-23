@@ -49,4 +49,5 @@ export type Game = {
   from: string
   chat: string
   scores: Record<string, number>
+  message?: string
 }
