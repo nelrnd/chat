@@ -42,7 +42,11 @@ interface ChatHeaderProps {
 }
 
 function splitText(text: string) {
-  return text.split("").map((char) => <span className={char !== " " ? "char inline-block" : ""}>{char}</span>)
+  return text.split("").map((char, id) => (
+    <span key={id} className={char !== " " ? "char inline-block" : ""}>
+      {char}
+    </span>
+  ))
 }
 
 function ChatHeader({ chat }: ChatHeaderProps) {

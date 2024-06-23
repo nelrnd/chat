@@ -10,10 +10,6 @@ interface GameProps {
 }
 
 const Game = ({ game }: GameProps) => {
-  if (game.status === "over") {
-    console.log(game)
-  }
-
   return (
     <div className="w-[24rem] ml-auto p-4 border border-neutral-800 rounded-2xl space-y-4">
       {game.status === "waiting" && <GameWait game={game} />}
