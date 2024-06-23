@@ -28,7 +28,8 @@ gameSchema.methods.switchTurn = function () {
 }
 
 gameSchema.methods.incrementScores = function (field) {
-  this.scores[field]++
+  ++this.scores[field]
+  this.markModified(`scores.${field}`)
 }
 
 gameSchema.methods.end = function () {

@@ -131,17 +131,10 @@ export default function ChatProvider({ children }: ChatProviderProps) {
       socket.emit("login", authUser?._id)
     }
 
-    function onGameWin(game: Game, win: { playerId: string }) {
-      const message = win.playerId === authUser?._id ? "You won" : "You lost"
-      updateGameMessage(game.chat, game._id, message)
-    }
-
     socket.on("connect", onConnect)
-    socket.on("game-win", onGameWin)
 
     return () => {
       socket.off("connect", onConnect)
-      socket.off("game-win", onGameWin)
     }
   }, [authUser])
 
@@ -207,6 +200,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     }
 
     function onGameUpdate(game) {
+      console.log("update")
       setChats((chats) =>
         chats.map((chat) =>
           chat._id === game.chat
@@ -214,7 +208,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
                 ...chat,
                 messages: chat.messages.map((message) =>
                   message.game && message.game._id === game._id
-                    ? { ...message, game: { ...message.game, ...game } }
+                    ? { ...message, game: { ...game, message: message.game.message } }
                     : message
                 ),
               }

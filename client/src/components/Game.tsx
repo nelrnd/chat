@@ -45,28 +45,24 @@ const GameWait = ({ game }) => {
 const GameRunning = ({ game }) => {
   const { authUser } = useAuth()
   const { updateGameMessage } = useChat()
-  const [message, setMessage] = useState("")
 
-  const myTurn = game.players[game.turn]._id === authUser._id
+  const myTurn = game.players[game.turn]._id === authUser?._id
 
+  // set game message
   useEffect(() => {
-    const message = myTurn ? "It's your turn" : "Waiting for your turn"
-    setMessage(message)
-  }, [game.board, myTurn])
+    let message
+    if (game.win) {
+      message = game.win.playerId === authUser?._id ? "You won" : "You lost"
+    } else if (game.draw) {
+      message = "It's a draw"
+    } else {
+      message = myTurn ? "It's your turn" : "Waiting for your turn"
+    }
 
-  useEffect(() => {
-    if (message !== game.message) {
+    if (game.message !== message) {
       updateGameMessage(game.chat, game._id, message)
     }
-  }, [game._id, game.chat, game.message, message, updateGameMessage])
-
-  useEffect(() => {
-    if (myTurn) {
-      setMessage("It's your turn")
-    } else {
-      setMessage("Waiting for your turn")
-    }
-  }, [myTurn])
+  }, [game, authUser, myTurn, updateGameMessage])
 
   return (
     <>
@@ -137,7 +133,7 @@ const GameScore = ({ scores, players }) => {
       <tbody>
         <tr>
           <td>{scores[otherPlayer._id]}</td>
-          <td>0</td>
+          <td>{scores.draws}</td>
           <td>{scores[authUser._id]}</td>
         </tr>
       </tbody>
