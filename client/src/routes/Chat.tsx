@@ -9,6 +9,8 @@ import ChatForm from "../components/ChatForm"
 import Loader from "@/components/Loader"
 import ChatInfo from "@/components/ChatInfo"
 import { Chat as ChatType, Message } from "@/types"
+import gsap from "gsap"
+import { useGSAP } from "@gsap/react"
 
 export default function Chat() {
   const { chatId } = useParams()
@@ -39,14 +41,29 @@ interface ChatHeaderProps {
   chat: ChatType
 }
 
+function splitText(text: string) {
+  return text.split("").map((char) => <span className={char !== " " ? "char inline-block" : ""}>{char}</span>)
+}
+
 function ChatHeader({ chat }: ChatHeaderProps) {
   const { authUser } = useAuth()
   const otherMembers = chat.members.filter((user) => user._id !== authUser?._id)
 
+  const heading = useRef(null)
+
+  useGSAP(
+    () => {
+      gsap.from(".char", { duration: 0.25, stagger: 0.05, ease: "power1.out", y: 10, opacity: 0, rotateY: 40 })
+    },
+    { scope: heading, dependencies: [chat._id], revertOnUpdate: true }
+  )
+
   return (
     <header className="h-[6rem] p-8 flex justify-between items-center border-b border-neutral-800">
-      <div className="space-y-1">
-        <h1 className="scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0">{getChatName(otherMembers)}</h1>
+      <div>
+        <h1 ref={heading} className="scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0">
+          {splitText(getChatName(otherMembers))}
+        </h1>
         {otherMembers.length === 1 && otherMembers[0].isOnline && <p className="text-sm text-neutral-400">Online</p>}
       </div>
       <ChatInfo chat={chat} />
