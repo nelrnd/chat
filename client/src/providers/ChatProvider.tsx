@@ -140,7 +140,6 @@ export default function ChatProvider({ children }: ChatProviderProps) {
 
   useEffect(() => {
     function onNewChat(chat: Chat) {
-      console.log(chat)
       setChats((chats) => [...chats, chat])
     }
 
@@ -200,7 +199,6 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     }
 
     function onGameUpdate(game) {
-      console.log("update")
       setChats((chats) =>
         chats.map((chat) =>
           chat._id === game.chat

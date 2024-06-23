@@ -36,14 +36,19 @@ exports.handleDisconnect = async function () {
     socket.to(chatId).emit("user-disconnection", socket.userId)
   })
 
-  // delete waiting games when both players are offline
+  // delete and update games status when players go offline
   const waitingGames = await Game.find({ players: socket.userId, status: "waiting" }).populate({ path: "players" })
+  const runningGames = await Game.find({ players: socket.userId, status: "running" }).populate({ path: "players" })
   const offlineWaitingGames = waitingGames.filter((game) => game.players.every((player) => player.isOnline === false))
-  await Game.deleteMany({ _id: { $in: offlineWaitingGames.map((game) => game._id) } })
-  await Message.deleteMany({ game: { $in: offlineWaitingGames.map((game) => game._id) } })
-
-  // update game status from running to over when both players are offline
-  const runningGames = await Game.find({ players: socket.userId, status: "running" })
   const offlineRunningGames = runningGames.filter((game) => game.players.every((player) => player.isOnline === false))
-  await Game.updateMany({ _id: { $in: offlineRunningGames.map((game) => game._id) } }, { status: "over" })
+  const gamesToBeDeleted = [
+    ...offlineWaitingGames,
+    ...offlineRunningGames.filter((game) => Object.keys(game.scores).every((score) => game.scores[score] === 0)),
+  ]
+  await Game.deleteMany({ _id: { $in: gamesToBeDeleted.map((game) => game._id) } })
+  await Message.deleteMany({ game: { $in: gamesToBeDeleted.map((game) => game._id) } })
+  const gamesToBeUpdated = offlineRunningGames.filter(
+    (game) => gamesToBeDeleted.map((deletedGame) => deletedGame._id).includes(game._id) === false
+  )
+  await Game.updateMany({ _id: { $in: gamesToBeUpdated.map((game) => game._id) } }, { status: "over" })
 }

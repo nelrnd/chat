@@ -1,10 +1,19 @@
 import { useAuth } from "@/providers/AuthProvider"
 import { Button } from "./ui/button"
 import axios from "axios"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
+import { Game as GameType } from "@/types"
 import { useChat } from "@/providers/ChatProvider"
 
-const Game = ({ game }) => {
+interface GameProps {
+  game: GameType
+}
+
+const Game = ({ game }: GameProps) => {
+  if (game.status === "over") {
+    console.log(game)
+  }
+
   return (
     <div className="w-[24rem] ml-auto p-4 border border-neutral-800 rounded-2xl space-y-4">
       {game.status === "waiting" && <GameWait game={game} />}
@@ -16,8 +25,9 @@ const Game = ({ game }) => {
 
 export default Game
 
-const GameWait = ({ game }) => {
+const GameWait = ({ game }: GameProps) => {
   const { authUser } = useAuth()
+
   const otherPlayerName = game.players.find((player) => player._id !== authUser?._id).name
 
   function handlePlay() {
@@ -42,7 +52,7 @@ const GameWait = ({ game }) => {
   )
 }
 
-const GameRunning = ({ game }) => {
+const GameRunning = ({ game }: GameProps) => {
   const { authUser } = useAuth()
   const { updateGameMessage } = useChat()
 
@@ -73,18 +83,23 @@ const GameRunning = ({ game }) => {
   )
 }
 
-const GameMessage = ({ message }) => {
+interface GameMessageProps {
+  message: string
+}
+
+const GameMessage = ({ message }: GameMessageProps) => {
   if (!message) return null
 
   return <div className="text-sm px-3 py-1.5 w-fit m-auto rounded-full border border-neutral-800">{message}</div>
 }
 
 interface GameBoardProps {
+  game: GameType
   myTurn: boolean
 }
 
 const GameBoard = ({ game, myTurn }: GameBoardProps) => {
-  function handlePlay(index) {
+  function handlePlay(index: number) {
     axios.post(`/game/${game._id}/play`, { index })
   }
 
@@ -104,7 +119,7 @@ const GameBoard = ({ game, myTurn }: GameBoardProps) => {
   )
 }
 
-function getMark(value) {
+function getMark(value: number | null) {
   switch (value) {
     case 0:
       return "X"
@@ -115,7 +130,12 @@ function getMark(value) {
   }
 }
 
-const GameScore = ({ scores, players }) => {
+interface GameScoreProps {
+  scores: GameType["scores"]
+  players: GameType["players"]
+}
+
+const GameScore = ({ scores, players }: GameScoreProps) => {
   const { authUser } = useAuth()
   const otherPlayer = players.find((player) => player._id !== authUser?._id)
 
@@ -125,14 +145,14 @@ const GameScore = ({ scores, players }) => {
     <table className="text-center w-full">
       <thead>
         <tr>
-          <th>{otherPlayer.name}</th>
+          <th>{otherPlayer?.name}</th>
           <th>Draws</th>
           <th>You</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td>{scores[otherPlayer._id]}</td>
+          <td>{scores[otherPlayer?._id]}</td>
           <td>{scores.draws}</td>
           <td>{scores[authUser._id]}</td>
         </tr>
@@ -141,14 +161,18 @@ const GameScore = ({ scores, players }) => {
   )
 }
 
-const GameOver = ({ game }) => {
+interface GameOverProps {
+  game: GameType
+}
+
+const GameOver = ({ game }: GameOverProps) => {
   const { authUser } = useAuth()
   const otherPlayerName = game.players.find((player) => player._id !== authUser?._id).name
 
   return (
-    <div>
-      <p>You and {otherPlayerName} played a game of TicTacToe</p>
-      <GameScore />
+    <div className="space-y-4">
+      <p className="text-center">You played a game of TicTacToe</p>
+      <GameScore scores={game.scores} players={game.players} />
     </div>
   )
 }
