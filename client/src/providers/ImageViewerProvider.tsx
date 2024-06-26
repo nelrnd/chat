@@ -79,3 +79,18 @@ export default function ImageViewerProvider({ children }: ImageViewerProvider) {
 export function useImageViewer() {
   return useContext(ImageViewerContext)
 }
+
+interface ImageWrapperProps {
+  image: Media
+  children: React.ReactNode
+}
+
+export function ImageWrapper({ image, children }: ImageWrapperProps) {
+  const { setImage } = useImageViewer()
+
+  return (
+    <button onClick={() => setImage(image)} className="hover:opacity-90 transition-opacity">
+      {children}
+    </button>
+  )
+}

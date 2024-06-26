@@ -2,7 +2,7 @@ import moment from "moment"
 import { Media, Message as MessageType } from "../types"
 import { useAuth } from "../providers/AuthProvider"
 import Avatar from "./Avatar"
-import { useImageViewer } from "@/providers/ImageViewerProvider"
+import { ImageWrapper } from "@/providers/ImageViewerProvider"
 import Game from "./Game"
 
 const SERVER_BASE_URL = import.meta.env.VITE_SERVER_BASE_URL
@@ -12,8 +12,14 @@ function linkify(text: string) {
   return text.split(urlRegex).map((part, index) => {
     if (part.match(urlRegex)) {
       return (
-        <a href={part} key={index} target="_blank" rel="noopener noreferrer" className="font-semibold hover:underline">
-          {part}
+        <a
+          href={part}
+          key={index}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-semibold hover:underline inline-block"
+        >
+          <span>{part}</span>
         </a>
       )
     }
@@ -62,7 +68,7 @@ interface MessageContentProps {
 function MessageContent({ text, fromMe }: MessageContentProps) {
   return (
     <div
-      className={`w-fit max-w-full px-4 py-3 break-words rounded-md ${
+      className={`w-fit max-w-full px-4 py-3 break-all rounded-md ${
         fromMe ? "bg-indigo-600 rounded-br-none" : "bg-neutral-800 rounded-bl-none"
       }`}
     >
@@ -72,19 +78,16 @@ function MessageContent({ text, fromMe }: MessageContentProps) {
 }
 
 interface MessageImageProps {
-  image: Image
+  image: Media
 }
 
 function MessageImage({ image }: MessageImageProps) {
-  const { setImage } = useImageViewer()
-
   return (
-    <button
-      onClick={() => setImage(image)}
-      className="h-[16rem] w-auto max-w-full overflow-hidden rounded-2xl shadow-xl hover:opacity-90 transition-opacity"
-    >
-      <img src={SERVER_BASE_URL + "/" + image.url} alt="" className="block h-[16rem]" />
-    </button>
+    <ImageWrapper image={image}>
+      <div className="h-[16rem] w-auto max-w-full overflow-hidden rounded-2xl shadow-xl">
+        <img src={SERVER_BASE_URL + "/" + image.url} alt="" className="block h-[16rem]" />
+      </div>
+    </ImageWrapper>
   )
 }
 
