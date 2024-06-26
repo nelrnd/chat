@@ -5,7 +5,7 @@ export default function Footer() {
 
   return (
     <footer>
-      <div className="max-w-[56rem] h-[10rem] m-auto p-3 flex justify-between items-center border-t border-neutral-800">
+      <div className="max-w-[56rem] h-[10rem] m-auto px-3 flex justify-between items-center border-t border-neutral-800">
         <div>
           <img src={logo} alt="" />
           <p className="text-neutral-400 mt-2">© {year} MiChat, Inc.</p>

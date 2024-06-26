@@ -54,7 +54,7 @@ export default function Login() {
 
   return (
     <div>
-      <section className="max-w-[26rem] m-auto my-[8rem] p-8 space-y-6 rounded-2xl border border-neutral-800">
+      <section className="max-w-[26rem] m-auto my-[4rem] md:my-[8rem] px-4 py-8 sm:px-8 space-y-6 rounded-2xl border border-neutral-800">
         <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight mb-8">Login</h1>
 
         <Form {...form}>
