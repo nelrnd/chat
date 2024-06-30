@@ -11,6 +11,7 @@ import { useParams } from "react-router-dom"
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog"
 import { ImageWrapper } from "@/providers/ImageViewerProvider"
 import { cn } from "@/lib/utils"
+import { useMediaQuery } from "react-responsive"
 
 const SERVER_BASE_URL = import.meta.env.VITE_SERVER_BASE_URL
 
@@ -21,6 +22,7 @@ interface ChatInfoProps {
 export default function ChatInfo({ chat }: ChatInfoProps) {
   const { chatId } = useParams()
   const { authUser } = useAuth()
+  const isSmall = useMediaQuery({ query: "(max-width: 768px)" })
 
   const [open, setOpen] = useState(false)
   const otherMembers = chat.members.filter((user) => user._id !== authUser?._id)
@@ -33,9 +35,9 @@ export default function ChatInfo({ chat }: ChatInfoProps) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="secondary">
+        <Button variant="secondary" size={isSmall ? "icon" : "default"}>
           <BiInfoCircle />
-          Info
+          <span className="sr-only md:not-sr-only">Info</span>
         </Button>
       </SheetTrigger>
 

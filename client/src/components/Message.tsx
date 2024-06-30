@@ -84,8 +84,8 @@ interface MessageImageProps {
 function MessageImage({ image }: MessageImageProps) {
   return (
     <ImageWrapper image={image}>
-      <div className="h-[16rem] w-auto max-w-full overflow-hidden rounded-2xl shadow-xl">
-        <img src={SERVER_BASE_URL + "/" + image.url} alt="" className="block h-[16rem]" />
+      <div className="h-[12rem] md:h-[16rem] w-auto max-w-full overflow-hidden rounded-2xl shadow-xl">
+        <img src={SERVER_BASE_URL + "/" + image.url} alt="" className="block h-[12rem] md:h-[16rem] object-cover" />
       </div>
     </ImageWrapper>
   )

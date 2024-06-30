@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import Avatar from "@/components/Avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { BiCamera, BiImageAlt, BiLoaderAlt, BiX } from "react-icons/bi"
+import { BiArrowBack, BiCamera, BiImageAlt, BiLoaderAlt, BiX } from "react-icons/bi"
 import {
   Dialog,
   DialogClose,
@@ -22,6 +22,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/use-toast"
+import { Link } from "react-router-dom"
+import { useMediaQuery } from "react-responsive"
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name cannot exceed 50 characters"),
@@ -30,6 +32,7 @@ const formSchema = z.object({
 })
 
 export default function Settings() {
+  const isSmall = useMediaQuery({ query: "(max-width: 768px)" })
   const { authUser, setAuthUser, setToken } = useAuth()
   const { toast } = useToast()
 
@@ -96,12 +99,18 @@ export default function Settings() {
 
   return (
     <div>
-      <header className="h-[6rem] p-8 flex justify-between items-center border-b border-neutral-800">
-        <h1 className="scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0">Settings</h1>
+      <header className="h-[6rem] p-3 md:p-6 flex items-center gap-4 border-b border-neutral-800">
+        <Button variant="secondary" size="icon" className="md:hidden" asChild>
+          <Link to="/chat">
+            <BiArrowBack />
+            <span className="sr-only">Go back to main page</span>
+          </Link>
+        </Button>
+        <h1 className="scroll-m-20 text-2xl md:text-3xl font-semibold tracking-tight first:mt-0">Settings</h1>
       </header>
 
-      <div className="max-w-[36rem] m-auto mt-8 space-y-8">
-        <section className="p-8 rounded-2xl border border-neutral-800">
+      <div className="max-w-[36rem] m-auto mt-8 p-3 pb-8 md:p-0 space-y-8">
+        <section className="p-3 md:p-6 rounded-2xl border border-neutral-800">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
@@ -120,7 +129,7 @@ export default function Settings() {
                             <Avatar src={previewAvatar || ""} className="w-[8rem]" />
                           </div>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent side="right">
+                        <DropdownMenuContent side={isSmall ? "bottom" : "right"} className="bg-neutral-950">
                           <DropdownMenuItem className="cursor-pointer" asChild>
                             <FormLabel className={buttonVariants({ variant: "ghost", size: "sm" })}>
                               <BiImageAlt />

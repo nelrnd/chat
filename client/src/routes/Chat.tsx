@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef } from "react"
-import { useParams } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 import { useChat } from "../providers/ChatProvider"
 import { useAuth } from "../providers/AuthProvider"
 import IsTypingFeedback from "../components/IsTypingFeedback"
@@ -11,6 +11,8 @@ import ChatInfo from "@/components/ChatInfo"
 import { Chat as ChatType, Message } from "@/types"
 import gsap from "gsap"
 import { useGSAP } from "@gsap/react"
+import { Button } from "@/components/ui/button"
+import { BiArrowBack } from "react-icons/bi"
 
 export default function Chat() {
   const { chatId } = useParams()
@@ -42,9 +44,14 @@ interface ChatHeaderProps {
 }
 
 function splitText(text: string) {
-  return text.split("").map((char, id) => (
-    <span key={id} className={char !== " " ? "char inline-block" : ""}>
-      {char}
+  return text.split(" ").map((word, wordIndex) => (
+    <span key={wordIndex} className="whitespace-nowrap">
+      {word.split("").map((char, charIndex) => (
+        <span key={charIndex} className="char inline-block">
+          {char}
+        </span>
+      ))}
+      {wordIndex < text.split(" ").length - 1 && <span className="whitespace-pre inline">&nbsp;</span>}
     </span>
   ))
 }
@@ -63,9 +70,19 @@ function ChatHeader({ chat }: ChatHeaderProps) {
   )
 
   return (
-    <header className="h-[6rem] p-8 flex justify-between items-center border-b border-neutral-800">
-      <div>
-        <h1 ref={heading} className="scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0">
+    <header className="h-[6rem] p-3 md:p-6 flex justify-between items-center gap-4 border-b border-neutral-800">
+      <Button variant="secondary" size="icon" className="md:hidden" asChild>
+        <Link to="/chat">
+          <BiArrowBack />
+          <span className="sr-only">Go back to main page</span>
+        </Link>
+      </Button>
+      <div className="flex-1">
+        <h1
+          ref={heading}
+          className="scroll-m-20 text-2xl md:text-3xl font-semibold tracking-tight first:mt-0 leading-none whitespace-normal"
+          style={{ wordBreak: "break-word" }}
+        >
           {splitText(getChatName(otherMembers))}
         </h1>
         {otherMembers.length === 1 && otherMembers[0].isOnline && <p className="text-sm text-neutral-400">Online</p>}
@@ -93,7 +110,7 @@ function ChatMessages({ messages, chatType }: ChatMessages) {
   }, [chatId])
 
   return (
-    <section className="px-6 pb-0 flex-1 overflow-y-auto" ref={elem}>
+    <section className="px-3 md:px-6 pb-0 flex-1 overflow-y-auto" ref={elem}>
       <MessageList messages={messages} chatType={chatType} />
     </section>
   )
@@ -101,7 +118,7 @@ function ChatMessages({ messages, chatType }: ChatMessages) {
 
 function ChatFooter() {
   return (
-    <footer className="p-6">
+    <footer className="p-3 md:p-6">
       <ChatForm />
     </footer>
   )

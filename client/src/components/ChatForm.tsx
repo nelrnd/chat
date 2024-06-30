@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react"
 import { socket } from "../socket"
 import { Button } from "./ui/button"
 import { BiImageAlt, BiJoystick, BiLoaderAlt, BiSend, BiX } from "react-icons/bi"
+import { useMediaQuery } from "react-responsive"
 
 interface Inputs {
   text: string
@@ -13,6 +14,7 @@ interface Inputs {
 
 export default function ChatForm() {
   const { chatId } = useParams()
+  const isSmall = useMediaQuery({ query: "(max-width: 768px)" })
   const { chat, createMessage, createGame } = useChat(chatId)
   const { register, handleSubmit, reset, watch, setValue } = useForm<Inputs>()
   const [loading, setLoading] = useState(false)
@@ -81,7 +83,7 @@ export default function ChatForm() {
   }, [isTyping, chatId])
 
   return (
-    <div className="max-w-[40rem] m-auto bg-neutral-900 rounded-2xl">
+    <div className="w-full max-w-[40rem] m-auto bg-neutral-900 rounded-2xl">
       {images && images.length > 0 && (
         <div className="p-1 flex gap-4 overflow-x-auto w-fit">
           {Array.from(images).map((img, id) => (
@@ -90,7 +92,7 @@ export default function ChatForm() {
         </div>
       )}
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="h-[5rem] p-4 flex items-center gap-4">
+        <div className="h-[5rem] p-3 md:p-4 flex items-center gap-4">
           <input
             id="images"
             type="file"
@@ -118,15 +120,15 @@ export default function ChatForm() {
             {...register("text")}
             spellCheck="false"
             onKeyDown={onKeyDown}
-            className="h-[4rem] flex-1 bg-transparent placeholder-neutral-300 focus:outline-none"
+            className="h-[4rem] w-full flex-1 bg-transparent placeholder-neutral-300 focus:outline-none"
           />
 
-          <Button disabled={loading || empty}>
+          <Button size={isSmall ? "icon" : "default"} disabled={loading || empty}>
             {loading ? (
               <BiLoaderAlt className="text-2xl animate-spin" />
             ) : (
               <>
-                Send
+                <span className="hidden md:inline">Send</span>
                 <BiSend className="text-lg" />
               </>
             )}

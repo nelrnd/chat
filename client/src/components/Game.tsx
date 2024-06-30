@@ -11,7 +11,7 @@ interface GameProps {
 
 const Game = ({ game }: GameProps) => {
   return (
-    <div className="w-[24rem] ml-auto p-4 border border-neutral-800 rounded-2xl space-y-4">
+    <div className="w-full md:w-[24rem] ml-auto p-4 border border-neutral-800 rounded-2xl space-y-4">
       {game.status === "waiting" && <GameWait game={game} />}
       {game.status === "over" && <GameOver game={game} />}
       {game.status === "running" && <GameRunning game={game} />}

@@ -18,7 +18,7 @@ export default function AuthRoot() {
     <SocketConnector>
       <div className="h-screen flex">
         <SideBar />
-        <div className="flex-1 relative">
+        <div className="flex-1 relative w-full">
           <Outlet />
         </div>
       </div>
