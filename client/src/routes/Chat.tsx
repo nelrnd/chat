@@ -43,7 +43,7 @@ interface ChatHeaderProps {
   chat: ChatType
 }
 
-function splitText(text: string) {
+export function splitText(text: string) {
   return text.split(" ").map((word, wordIndex) => (
     <span key={wordIndex} className="whitespace-nowrap">
       {word.split("").map((char, charIndex) => (

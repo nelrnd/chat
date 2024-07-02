@@ -1,8 +1,11 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../providers/AuthProvider"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { Button } from "../components/ui/button"
-import appPreview from "../assets/app-preview.jpg"
+import { splitText } from "./Chat"
+import { useGSAP } from "@gsap/react"
+import gsap from "gsap"
+import preview from "../assets/preview.jpg"
 
 export default function Home() {
   const { token } = useAuth()
@@ -24,9 +27,15 @@ export default function Home() {
 }
 
 function HeroSection() {
+  useGSAP(() => {
+    gsap.from(".char", { delay: 0.2, duration: 0.3, stagger: 0.05, ease: "power1.out", y: 10, opacity: 0, rotateY: 40 })
+  })
+
   return (
-    <section className="max-w-[56rem] min-h-[32rem] m-auto px-3 py-8 flex flex-col items-center gap-6 justify-center">
-      <h1 className="text-4xl font-extrabold tracking-tight text-[6rem] text-center leading-none">The best chat app</h1>
+    <section className="max-w-[56rem] min-h-[32rem] m-auto px-3 py-8 flex flex-col items-center gap-6 justify-center overflow-hidden">
+      <h1 className="text-4xl font-extrabold tracking-tight text-[6rem] text-center leading-none break-words whitespace-normal max-w-full">
+        {splitText("The best chat app")}
+      </h1>
       <p className="text-neutral-300 text-xl text-center leading-8">
         Open source real-time chat app
         <br />
@@ -40,9 +49,24 @@ function HeroSection() {
 }
 
 function PreviewSection() {
+  const previewImage = useRef(null)
+
+  useGSAP(() => {
+    gsap.from(previewImage.current, {
+      delay: 0.3,
+      duration: 1,
+      ease: "power1.out",
+      y: 100,
+      opacity: 0,
+      scale: 0.8,
+      rotateX: -25,
+    })
+  })
   return (
-    <section className="max-w-[56rem] m-auto px-3 pb-16">
-      <div className="aspect-video bg-neutral-800 rounded-2xl shadow-lg"></div>
+    <section className="max-w-[56rem] m-auto px-3 pb-16" style={{ perspective: "2000px" }}>
+      <div className="rounded-2xl shadow-lg overflow-hidden border border-neutral-800" ref={previewImage}>
+        <img src={preview} alt="" />
+      </div>
     </section>
   )
 }
