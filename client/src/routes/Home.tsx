@@ -16,20 +16,95 @@ export default function Home() {
 
   return (
     <div>
-      <section className="py-[6rem] px-3 text-center space-y-4 md:space-y-8">
-        <h1 className="scroll-m-20 text-5xl md:text-[6rem] font-extrabold tracking-tight leading-none">
-          The best chat app
-        </h1>
-        <p className="max-w-[24rem] m-auto text-neutral-400">
-          Open-source real-time web chat app that includes group chats, sending pictures, video calls...
-        </p>
-        <Button className="mt-6" asChild>
-          <Link to="/login">Open</Link>
-        </Button>
-      </section>
-      <section className="mb-[6rem] px-3">
-        <img src={appPreview} alt="" className="block m-auto rounded-2xl shadow-xl" />
-      </section>
+      <HeroSection />
+      <PreviewSection />
+      <FeaturesSection />
     </div>
+  )
+}
+
+function HeroSection() {
+  return (
+    <section className="max-w-[56rem] min-h-[32rem] m-auto px-3 py-8 flex flex-col items-center gap-6 justify-center">
+      <h1 className="text-4xl font-extrabold tracking-tight text-[6rem] text-center leading-none">The best chat app</h1>
+      <p className="text-neutral-300 text-xl text-center leading-8">
+        Open source real-time chat app
+        <br />
+        that runs on the web.
+      </p>
+      <Button>
+        <Link to="/login">Open app</Link>
+      </Button>
+    </section>
+  )
+}
+
+function PreviewSection() {
+  return (
+    <section className="max-w-[56rem] m-auto px-3 pb-16">
+      <div className="aspect-video bg-neutral-800 rounded-2xl shadow-lg"></div>
+    </section>
+  )
+}
+
+const features = [
+  {
+    heading: "Play a game",
+    description: "Feeling bored? Play a game of TicTacToe with your friend.",
+    isNew: true,
+  },
+  {
+    heading: "Share images",
+    description: "An image is worth a thousand words. Share pictures of your latest trip or discovery.",
+    isNew: false,
+  },
+  {
+    heading: "Group chats",
+    description: "Create a unique place just for your group of friends.",
+    isNew: false,
+  },
+  {
+    heading: "Status and feedback",
+    description: "Know in real-time when someone is online or typing something.",
+    isNew: false,
+  },
+]
+
+interface FeatureProps {
+  feature: {
+    heading: string
+    description: string
+    isNew: boolean
+  }
+}
+
+function Feature({ feature }: FeatureProps) {
+  return (
+    <article className="py-16 grid grid-cols-2 gap-12 items-center group">
+      <div>
+        <h3 className="text-3xl font-semibold tracking-tight mb-4">
+          {feature.heading}{" "}
+          {feature.isNew && (
+            <span className="align-middle inline-block ml-1 px-2 py-1 text-white text-xs bg-indigo-700 border border-indigo-400 rounded-full">
+              New
+            </span>
+          )}
+        </h3>
+        <p className="text-neutral-300 w-2/3 leading-7">{feature.description}</p>
+      </div>
+      <div className="group-even:-order-1">
+        <div className="bg-neutral-800 aspect-video" />
+      </div>
+    </article>
+  )
+}
+
+function FeaturesSection() {
+  return (
+    <section className="max-w-[56rem] m-auto px-3 pb-16">
+      {features.map((feature, id) => (
+        <Feature key={id} feature={feature} />
+      ))}
+    </section>
   )
 }
