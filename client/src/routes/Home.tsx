@@ -29,6 +29,7 @@ export default function Home() {
 function HeroSection() {
   useGSAP(() => {
     gsap.from(".char", { delay: 0.2, duration: 0.3, stagger: 0.05, ease: "power1.out", y: 10, opacity: 0, rotateY: 40 })
+    gsap.from(".rest", { delay: 1, duration: 1.5, ease: "power2.out", y: 50, opacity: 0 })
   })
 
   return (
@@ -36,14 +37,16 @@ function HeroSection() {
       <h1 className="text-4xl font-extrabold tracking-tight text-[6rem] text-center leading-none break-words whitespace-normal max-w-full">
         {splitText("The best chat app")}
       </h1>
-      <p className="text-neutral-300 text-xl text-center leading-8">
-        Open source real-time chat app
-        <br />
-        that runs on the web.
-      </p>
-      <Button>
-        <Link to="/login">Open app</Link>
-      </Button>
+      <div className="flex flex-col items-center gap-6 rest">
+        <p className="text-neutral-300 text-xl text-center leading-8">
+          Open source real-time chat app
+          <br />
+          that runs on the web.
+        </p>
+        <Button>
+          <Link to="/login">Open app</Link>
+        </Button>
+      </div>
     </section>
   )
 }
@@ -53,7 +56,7 @@ function PreviewSection() {
 
   useGSAP(() => {
     gsap.from(previewImage.current, {
-      delay: 0.3,
+      delay: 1.5,
       duration: 1,
       ease: "power1.out",
       y: 100,
@@ -64,8 +67,8 @@ function PreviewSection() {
   })
   return (
     <section className="max-w-[56rem] m-auto px-3 pb-16" style={{ perspective: "2000px" }}>
-      <div className="rounded-2xl shadow-lg overflow-hidden border border-neutral-800" ref={previewImage}>
-        <img src={preview} alt="" />
+      <div ref={previewImage}>
+        <img src={preview} className="block rounded-2xl outline outline-neutral-900" alt="" />
       </div>
     </section>
   )
@@ -103,21 +106,39 @@ interface FeatureProps {
 }
 
 function Feature({ feature }: FeatureProps) {
+  const elem = useRef(null)
+
+  useGSAP(
+    () => {
+      gsap.from(".box", {
+        scrollTrigger: ".box",
+        delay: 0.1,
+        duration: 2,
+        ease: "power4.out",
+        y: 75,
+        opacity: 0,
+      })
+    },
+    { scope: elem }
+  )
+
   return (
-    <article className="py-16 grid grid-cols-2 gap-12 items-center group">
-      <div>
-        <h3 className="text-3xl font-semibold tracking-tight mb-4">
-          {feature.heading}{" "}
-          {feature.isNew && (
-            <span className="align-middle inline-block ml-1 px-2 py-1 text-white text-xs bg-indigo-700 border border-indigo-400 rounded-full">
-              New
-            </span>
-          )}
-        </h3>
-        <p className="text-neutral-300 w-2/3 leading-7">{feature.description}</p>
-      </div>
-      <div className="group-even:-order-1">
-        <div className="bg-neutral-800 aspect-video" />
+    <article className="py-16 overflow-hidden group" ref={elem}>
+      <div className="box grid grid-cols-2 gap-12 items-center">
+        <div>
+          <h3 className="text-3xl font-semibold tracking-tight mb-4">
+            {feature.heading}{" "}
+            {feature.isNew && (
+              <span className="align-middle inline-block ml-1 px-2 py-1 text-white text-xs bg-indigo-700 border border-indigo-400 rounded-full">
+                New
+              </span>
+            )}
+          </h3>
+          <p className="text-neutral-300 w-2/3 leading-7">{feature.description}</p>
+        </div>
+        <div className="group-even:-order-1">
+          <div className="bg-neutral-800 aspect-video" />
+        </div>
       </div>
     </article>
   )
