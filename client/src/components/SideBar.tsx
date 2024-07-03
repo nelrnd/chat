@@ -25,7 +25,7 @@ export default function SideBar() {
         </Link>
       </header>
 
-      <div className="flex-1 relative overflow-y-auto">
+      <div className="flex-1 pt-[2px] relative overflow-y-auto z-10">
         <section className="px-6 pb-4">
           <UserSearch value={searchTerm} setValue={setSearchTerm} />
         </section>

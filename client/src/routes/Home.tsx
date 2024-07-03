@@ -43,7 +43,7 @@ function HeroSection() {
           <br />
           that runs on the web.
         </p>
-        <Button>
+        <Button asChild>
           <Link to="/login">Open app</Link>
         </Button>
       </div>
