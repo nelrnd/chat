@@ -74,25 +74,34 @@ function PreviewSection() {
   )
 }
 
+import feature1 from "../assets/feature-1.jpg"
+import feature2 from "../assets/feature-2.jpg"
+import feature3 from "../assets/feature-3.jpg"
+import feature4 from "../assets/feature-4.jpg"
+
 const features = [
   {
     heading: "Play a game",
     description: "Feeling bored? Play a game of TicTacToe with your friend.",
+    image: feature1,
     isNew: true,
   },
   {
     heading: "Share images",
     description: "An image is worth a thousand words. Share pictures of your latest trip or discovery.",
+    image: feature2,
     isNew: false,
   },
   {
     heading: "Group chats",
     description: "Create a unique place just for your group of friends.",
+    image: feature3,
     isNew: false,
   },
   {
     heading: "Status and feedback",
     description: "Know in real-time when someone is online or typing something.",
+    image: feature4,
     isNew: false,
   },
 ]
@@ -101,6 +110,7 @@ interface FeatureProps {
   feature: {
     heading: string
     description: string
+    image: string
     isNew: boolean
   }
 }
@@ -137,7 +147,11 @@ function Feature({ feature }: FeatureProps) {
           <p className="text-neutral-300 w-2/3 leading-7">{feature.description}</p>
         </div>
         <div className="group-even:-order-1">
-          <div className="bg-neutral-800 aspect-video" />
+          {feature.image ? (
+            <img src={feature.image} alt="" className="block" />
+          ) : (
+            <div className="bg-neutral-800 aspect-video" />
+          )}
         </div>
       </div>
     </article>

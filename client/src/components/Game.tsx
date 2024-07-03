@@ -118,9 +118,20 @@ const GameBoard = ({ game, myTurn }: GameBoardProps) => {
 function getMark(value: number | null) {
   switch (value) {
     case 0:
-      return "X"
+      return (
+        <svg width="100%" height="100%" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="59.5" cy="59.5" r="23.5" stroke="white" stroke-width="12" />
+        </svg>
+      )
+
     case 1:
-      return "0"
+      return (
+        <svg width="100%" height="100%" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="83" y="27" width="12" height="70" rx="6" transform="rotate(45 83 27)" fill="white" />
+          <rect x="92" y="76" width="12" height="70" rx="6" transform="rotate(135 92 76)" fill="white" />
+        </svg>
+      )
+
     default:
       return ""
   }
