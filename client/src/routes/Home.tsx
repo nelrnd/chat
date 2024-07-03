@@ -33,8 +33,8 @@ function HeroSection() {
   })
 
   return (
-    <section className="max-w-[56rem] min-h-[32rem] m-auto px-3 py-8 flex flex-col items-center gap-6 justify-center overflow-hidden">
-      <h1 className="text-4xl font-extrabold tracking-tight text-[6rem] text-center leading-none break-words whitespace-normal max-w-full">
+    <section className="max-w-[56rem] min-h-[24rem] sm:min-h-[32rem] m-auto px-3 py-8 flex flex-col items-center gap-6 justify-center overflow-hidden">
+      <h1 className="text-5xl sm:text-[6rem] font-extrabold tracking-tight text-center leading-none break-words whitespace-normal max-w-full">
         {splitText("The best chat app")}
       </h1>
       <div className="flex flex-col items-center gap-6 rest">
@@ -134,7 +134,7 @@ function Feature({ feature }: FeatureProps) {
 
   return (
     <article className="py-16 overflow-hidden group" ref={elem}>
-      <div className="box grid grid-cols-2 gap-12 items-center">
+      <div className="box grid sm:grid-cols-2 gap-4 sm:gap-12 items-center">
         <div>
           <h3 className="text-3xl font-semibold tracking-tight mb-4">
             {feature.heading}{" "}
@@ -146,7 +146,7 @@ function Feature({ feature }: FeatureProps) {
           </h3>
           <p className="text-neutral-300 w-2/3 leading-7">{feature.description}</p>
         </div>
-        <div className="group-even:-order-1">
+        <div className="-order-1 sm:order-1 sm:group-even:-order-1">
           {feature.image ? (
             <img src={feature.image} alt="" className="block" />
           ) : (
