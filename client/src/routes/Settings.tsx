@@ -98,7 +98,7 @@ export default function Settings() {
   }
 
   return (
-    <div>
+    <div className="pb-8">
       <header className="h-[6rem] p-3 md:p-6 flex items-center gap-4 border-b border-neutral-800">
         <Button variant="secondary" size="icon" className="md:hidden" asChild>
           <Link to="/chat">

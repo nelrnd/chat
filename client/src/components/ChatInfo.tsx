@@ -26,7 +26,6 @@ export default function ChatInfo({ chat }: ChatInfoProps) {
 
   const [open, setOpen] = useState(false)
   const otherMembers = chat.members.filter((user) => user._id !== authUser?._id)
-  const chatType = chat.members.length > 2 ? "group" : "chat"
 
   useEffect(() => {
     setOpen(false)
@@ -44,14 +43,14 @@ export default function ChatInfo({ chat }: ChatInfoProps) {
       <SheetContent className="border-l border-neutral-800 overflow-y-auto overflow-x-hidden pb-4">
         <header className="h-[6rem] p-6 flex justify-between items-center">
           <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight">
-            {chatType === "chat" ? "Chat info" : "Group info"}
+            {chat.type === "private" ? "Chat info" : "Group info"}
           </h2>
           <SheetClose asChild>
             <Button variant="secondary">Close</Button>
           </SheetClose>
         </header>
 
-        {chatType === "chat" ? (
+        {chat.type === "private" ? (
           <section className="p-6 pt-3 text-center space-y-3">
             <Avatar src={otherMembers[0].avatar} className="w-[8rem] m-auto" />
             <div>
@@ -63,11 +62,11 @@ export default function ChatInfo({ chat }: ChatInfoProps) {
         ) : (
           <section className="p-6 pt-3 text-center space-y-3">
             <GroupAvatar members={otherMembers} className="w-[8rem] m-auto" />
-            <h3 className="font-semibold">{getChatName(otherMembers)}</h3>
+            <h3 className="font-semibold">{chat.title || getChatName(otherMembers)}</h3>
           </section>
         )}
 
-        {chatType === "group" && (
+        {chat.type === "group" && (
           <section className="p-6 space-y-2">
             <div className="flex justify-between items-center">
               <h4 className="font-semibold">Members ({chat.members.length})</h4>

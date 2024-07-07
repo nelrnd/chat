@@ -51,7 +51,7 @@ export function GroupAvatar({ members, className }: GroupAvatarProps) {
                 textAnchor="middle"
                 dominantBaseline="middle"
               >
-                +{avatars.length - 2}
+                +{members.length - 2}
               </text>
             </svg>
             <div className="absolute inset-0 bg-black/50 z-10"></div>

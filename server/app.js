@@ -8,6 +8,7 @@ const io = new Server(server, { cors: { origin: process.env.CLIENT_BASE_URL } })
 const mongoose = require("mongoose")
 const cors = require("cors")
 const passport = require("passport")
+const { createGlobalChat } = require("./controllers/chat")
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
@@ -24,7 +25,9 @@ app.use("/media/images", express.static("media/images"))
 // connect to db
 const mongoDb = process.env.MONGODB_URL
 const main = async () => mongoose.connect(mongoDb)
-main().catch((err) => console.log(err))
+main()
+  .then(createGlobalChat)
+  .catch((err) => console.log(err))
 
 const handlers = require("./handlers")
 

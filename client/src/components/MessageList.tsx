@@ -64,7 +64,7 @@ export default function MessageList({ messages, chatType }: MessageListProps) {
 
 function Day({ messages, chatType }: MessageListProps) {
   return (
-    <div>
+    <div className="pt-4">
       <h3 className="sticky top-4 text-sm px-3 py-1.5 w-fit m-auto bg-neutral-900 rounded-full border border-neutral-800 mb-4">
         {formatDay(messages[0].timestamp)}
       </h3>

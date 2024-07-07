@@ -1,6 +1,7 @@
 const express = require("express")
 const router = express.Router()
 const userController = require("../controllers/user")
+const chatController = require("../controllers/chat")
 
 router.post("/register", userController.user_register, userController.user_login)
 

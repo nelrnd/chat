@@ -83,7 +83,7 @@ function ChatHeader({ chat }: ChatHeaderProps) {
           className="scroll-m-20 text-2xl md:text-3xl font-semibold tracking-tight first:mt-0 leading-none whitespace-normal"
           style={{ wordBreak: "break-word" }}
         >
-          {splitText(getChatName(otherMembers))}
+          {splitText(chat.title || getChatName(otherMembers))}
         </h1>
         {otherMembers.length === 1 && otherMembers[0].isOnline && <p className="text-sm text-neutral-400">Online</p>}
       </div>

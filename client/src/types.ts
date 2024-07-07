@@ -31,6 +31,8 @@ export type Media = {
 export type Chat = {
   _id: string
   type: "private" | "group"
+  title?: string
+  desc?: string
   members: User[]
   messages: Message[]
   images: Media[]

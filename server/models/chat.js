@@ -3,12 +3,20 @@ const Schema = mongoose.Schema
 const Message = require("./message")
 
 const chatSchema = new Schema({
-  members: { type: [{ type: mongoose.Types.ObjectId, ref: "User" }], required: true, length: { min: 2 } },
+  title: { type: String, length: { max: 50 } },
+  image: { type: String },
+  desc: { type: String },
+  members: { type: [{ type: mongoose.Types.ObjectId, ref: "User" }], required: true },
   lastViewed: { type: Schema.Types.Mixed, required: true },
+  admin: { type: mongoose.Types.ObjectId, ref: "User" },
 })
 
 chatSchema.methods.getUnreadCount = async function (userId) {
   return await Message.countDocuments({ timestamp: { $gt: this.lastViewed[userId] }, from: { $ne: userId } })
 }
+
+chatSchema.virtual("type").get(function () {
+  return this.members.length > 2 ? "group" : "private"
+})
 
 module.exports = mongoose.model("Chat", chatSchema)

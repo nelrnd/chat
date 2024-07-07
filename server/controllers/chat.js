@@ -1,9 +1,28 @@
 const Chat = require("../models/chat")
 const Message = require("../models/message")
+const User = require("../models/user")
 const Media = require("../models/media")
 const asyncHandler = require("express-async-handler")
 const he = require("he")
 const { findSocket } = require("../utils")
+
+const chatService = require("../services/chatService")
+
+const createChat = asyncHandler(async (req, res, next) => {
+  try {
+    const chat = await chatService.createChat({
+      members: req.body.members,
+      title: req.body.title,
+      bio: req.body.bio,
+      admin: req.user._id,
+      authUserId: req.user._id,
+      io: req.io,
+    })
+    return res.json(chat)
+  } catch (error) {
+    return res.status(error.status).json({ message: error.message })
+  }
+})
 
 exports.chat_create = asyncHandler(async (req, res, next) => {
   const members = Array.from(new Set(req.body.members))

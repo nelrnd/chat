@@ -1,16 +1,18 @@
 const passport = require("passport")
 const GoogleStrategy = require("passport-google-oauth20").Strategy
 const User = require("../models/user")
+const userService = require("../services/userService")
 
 const options = {
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   callbackURL: "http://localhost:3000/api/user/google/redirect",
   scope: ["email", "profile", "openid"],
+  passReqToCallback: true,
 }
 
 passport.use(
-  new GoogleStrategy(options, async (accessToken, refreshToken, profile, done) => {
+  new GoogleStrategy(options, async (req, accessToken, refreshToken, profile, done) => {
     try {
       let user = await User.findOne({ googleId: profile.id })
 
@@ -24,6 +26,9 @@ passport.use(
         })
 
         await user.save()
+
+        await userService.addUserToGlobalChat(user._id.toString(), req.io)
+        userService.greetUser(user._id.toString(), req.io)
       }
 
       done(null, user)

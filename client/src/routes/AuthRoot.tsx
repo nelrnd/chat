@@ -16,9 +16,9 @@ export default function AuthRoot() {
 
   return (
     <SocketConnector>
-      <div className="h-screen flex">
+      <div className="h-screen flex overflow-hidden">
         <SideBar />
-        <div className="flex-1 relative w-full">
+        <div className="flex-1 relative w-full overflow-y-auto">
           <Outlet />
         </div>
       </div>

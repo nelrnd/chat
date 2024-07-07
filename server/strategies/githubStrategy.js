@@ -1,16 +1,18 @@
 const passport = require("passport")
 const GitHubStrategy = require("passport-github2").Strategy
 const User = require("../models/user")
+const userService = require("../services/userService")
 
 const options = {
   clientID: process.env.GITHUB_CLIENT_ID,
   clientSecret: process.env.GITHUB_CLIENT_SECRET,
   callbackURL: "http://localhost:3000/api/user/github/redirect",
   scope: ["user:email"],
+  passReqToCallback: true,
 }
 
 passport.use(
-  new GitHubStrategy(options, async (accessToken, refreshToken, profile, done) => {
+  new GitHubStrategy(options, async (req, accessToken, refreshToken, profile, done) => {
     try {
       let user = await User.findOne({ githubId: profile.id })
 
@@ -24,6 +26,9 @@ passport.use(
         })
 
         await user.save()
+
+        await userService.addUserToGlobalChat(user._id.toString(), req.io)
+        userService.greetUser(user._id.toString(), req.io)
       }
 
       done(null, user)

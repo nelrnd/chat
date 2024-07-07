@@ -3,33 +3,17 @@ const asyncHandler = require("express-async-handler")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const { body, validationResult } = require("express-validator")
-const multer = require("multer")
+const { multerUpload } = require("../storage")
 const passport = require("passport")
+const Chat = require("../models/chat")
+const Message = require("../models/message")
+const { findSocket } = require("../utils")
+const userService = require("../services/userService")
 require("../strategies/jwtStrategy")
 require("../strategies/googleStrategy")
 require("../strategies/githubStrategy")
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "media/avatars/")
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9)
-    cb(null, uniqueSuffix + "-" + file.originalname)
-  },
-})
-
-const upload = multer({
-  storage,
-  limits: { fileSize: 2000000 },
-  fileFilter: (req, file, cb) => {
-    const mimeTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"]
-    if (!mimeTypes.includes(file.mimetype)) {
-      return cb(new Error("file is not allowed"))
-    }
-    cb(null, true)
-  },
-})
+const upload = multerUpload("media/avatars")
 
 exports.user_register = [
   body("name").trim().notEmpty().withMessage("Name is required").escape(),
@@ -69,6 +53,9 @@ exports.user_register = [
     })
 
     await user.save()
+
+    await userService.addUserToGlobalChat(user._id.toString(), req.io)
+    userService.greetUser(user._id, req.io)
 
     next()
   }),

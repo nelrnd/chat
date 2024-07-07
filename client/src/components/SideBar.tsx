@@ -17,7 +17,7 @@ export default function SideBar() {
     <nav
       className={`w-full ${
         hidden ? "hidden" : "flex"
-      } md:flex md:w-[20rem] lg:w-[24rem] h-screen  overflow-hidden border-r border-neutral-800 flex-col`}
+      } md:flex md:w-[20rem] lg:w-[24rem] h-screen overflow-hidden border-r border-neutral-800 flex-col`}
     >
       <header className="h-[6rem] px-6 py-8 flex items-center">
         <Link to="/chat" className="inline-block w-fit p-2 -m-2">

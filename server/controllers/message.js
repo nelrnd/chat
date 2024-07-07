@@ -3,30 +3,10 @@ const Chat = require("../models/chat")
 const Media = require("../models/media")
 const asyncHandler = require("express-async-handler")
 const he = require("he")
-const multer = require("multer")
+const { multerUpload } = require("../storage")
 const { findSocket } = require("../utils")
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "media/images")
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9)
-    cb(null, uniqueSuffix + "-" + file.originalname)
-  },
-})
-
-const upload = multer({
-  storage,
-  limits: { fileSize: 2000000 },
-  fileFilter: (req, file, cb) => {
-    const mimeTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"]
-    if (!mimeTypes.includes(file.mimetype)) {
-      return cb(new Error("file is not allowed"))
-    }
-    cb(null, true)
-  },
-})
+const upload = multerUpload("media/images")
 
 async function createImages(req) {
   if (req.files.length === 0) {
