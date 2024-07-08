@@ -37,7 +37,14 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     if (token) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`
       localStorage.setItem("token", token)
-      axios.get("/user/me").then((res) => setAuthUser(res.data))
+      axios
+        .get("/user/me")
+        .then((res) => setAuthUser(res.data))
+        .catch((error) => {
+          if (error.response.status === 401) {
+            setToken(null)
+          }
+        })
     } else {
       delete axios.defaults.headers.common["Authorization"]
       localStorage.removeItem("token")

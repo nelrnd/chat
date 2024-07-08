@@ -1,8 +1,9 @@
 const Chat = require("../models/chat")
 const User = require("../models/user")
+const Message = require("../models/message")
 const { findSocket } = require("../utils")
 
-async function createChat({ members, title, bio, admin, authUserId, io }) {
+async function createChat({ members, title, desc, admin, authUserId, io }) {
   members = Array.from(new Set(members))
 
   if (members.length < 2) {
@@ -15,7 +16,7 @@ async function createChat({ members, title, bio, admin, authUserId, io }) {
 
   const lastViewed = members.reduce((acc, curr) => ({ ...acc, [curr]: Date.now() }), {})
 
-  let chat = new Chat({ members, lastViewed, title, bio, admin })
+  let chat = new Chat({ members, lastViewed, title, desc, admin })
   await chat.save()
   await chat.populate({ path: "members", select: "-password" })
 
@@ -45,7 +46,7 @@ async function createGlobalChat(io) {
     const globalChat = await createChat({
       members: userIds,
       title: "Global chat",
-      bio: "Global chat of the app, have fun ;)",
+      desc: "Global chat of the app, have fun ;)",
       admin: CREATOR_USER_ID,
       authUserId: CREATOR_USER_ID,
       io,
@@ -53,7 +54,7 @@ async function createGlobalChat(io) {
 
     const firstMessage = new Message({
       type: "normal",
-      text: "First message of the chat",
+      text: "Welcome to the global chat!",
       from: CREATOR_USER_ID,
       chat: globalChat._id,
     })

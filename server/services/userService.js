@@ -52,7 +52,9 @@ function greetUser(userId, io) {
         await greetMessage.save()
       }
 
-      const sockets = chat.members.forEach((member) => findSocket(io, member))
+      const sockets = chat.members
+        .map((member) => findSocket(io, member.toString()))
+        .filter((socket) => socket !== undefined)
       sockets.forEach((socket) => socket.join(chat._id.toString()))
       io.to(chat._id.toString()).emit("new-message", { message: greetMessage })
     }
