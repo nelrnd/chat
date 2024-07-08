@@ -31,6 +31,9 @@ passport.use(
         userService.greetUser(user._id.toString(), req.io)
       }
 
+      user = user.toObject()
+      user = { ...user, _id: user._id.toString() }
+
       done(null, user)
     } catch (err) {
       console.log(err)

@@ -75,7 +75,6 @@ async function createMessage({ chatId, authUserId, text, files, game, io }) {
 }
 
 function emitNewMessage(message, authUserId, chatId, io) {
-  console.log(io.sockets.sockets[0].rooms)
   io.to(chatId).except(authUserId).emit("new-message", message)
 }
 

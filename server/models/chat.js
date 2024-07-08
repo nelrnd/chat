@@ -12,7 +12,11 @@ const chatSchema = new Schema({
 })
 
 chatSchema.methods.getUnreadCount = async function (userId) {
-  return await Message.countDocuments({ timestamp: { $gt: this.lastViewed[userId] }, from: { $ne: userId } })
+  return await Message.countDocuments({
+    chat: this._id,
+    timestamp: { $gt: this.lastViewed[userId] },
+    from: { $ne: userId },
+  })
 }
 
 chatSchema.virtual("type").get(function () {
