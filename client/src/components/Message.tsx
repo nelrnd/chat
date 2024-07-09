@@ -17,7 +17,7 @@ function linkify(text: string) {
           key={index}
           target="_blank"
           rel="noopener noreferrer"
-          className="font-semibold hover:underline inline-block"
+          className="font-semibold hover:underline inline-block break-all"
         >
           <span>{part}</span>
         </a>
@@ -68,7 +68,7 @@ interface MessageContentProps {
 function MessageContent({ text, fromMe }: MessageContentProps) {
   return (
     <div
-      className={`w-fit max-w-full px-4 py-3 break-all rounded-md ${
+      className={`w-fit max-w-full px-4 py-3 rounded-md ${
         fromMe ? "bg-indigo-600 rounded-br-none" : "bg-neutral-800 rounded-bl-none"
       }`}
     >

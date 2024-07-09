@@ -7,7 +7,7 @@ async function addUserToGlobalChat(userId, io) {
   const CREATOR_USER_ID = process.env.CREATOR_USER_ID
 
   if (CREATOR_USER_ID) {
-    let globalChat = await Chat.findOne({ title: "Global Chat", admin: CREATOR_USER_ID })
+    let globalChat = await Chat.findOne({ title: "Global chat", admin: CREATOR_USER_ID })
     if (globalChat) {
       await Chat.findByIdAndUpdate(globalChat._id, { $push: { members: userId } })
     } else {
@@ -58,7 +58,12 @@ function greetUser(userId, io) {
       sockets.forEach((socket) => socket.join(chat._id.toString()))
       io.to(chat._id.toString()).emit("new-message", { message: greetMessage })
     }
-  }, 5000)
+  }, 4000)
+}
+
+function handleUserRegister(userId, io) {
+  addUserToGlobalChat(userId, io)
+  greetUser(userId, io)
 }
 
 module.exports = {
