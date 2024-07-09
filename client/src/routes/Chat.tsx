@@ -110,7 +110,7 @@ function ChatMessages({ messages, chatType }: ChatMessages) {
   }, [chatId])
 
   return (
-    <section className="px-3 md:px-6 pb-0 flex-1 overflow-y-auto" ref={elem}>
+    <section className="px-3 md:px-6 pb-0 flex-1 overflow-y-auto" id="messages" ref={elem}>
       <MessageList messages={messages} chatType={chatType} />
     </section>
   )
@@ -118,7 +118,7 @@ function ChatMessages({ messages, chatType }: ChatMessages) {
 
 function ChatFooter() {
   return (
-    <footer className="p-3 md:p-6">
+    <footer className="p-3 md:p-6 md:pt-3">
       <ChatForm />
     </footer>
   )

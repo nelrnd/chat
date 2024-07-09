@@ -82,6 +82,9 @@ export default function ChatProvider({ children }: ChatProviderProps) {
   }
 
   const addMessage = ({ message, images, links }: { message: Message; images: Media[]; links: Media[] }) => {
+    const messages = document.getElementById("messages")
+    const scrolledToBottom = messages && messages.scrollHeight - messages.scrollTop - messages.clientHeight < 1
+
     setChats((chats) =>
       chats.map((chat) => {
         if (chat._id === message.chat) {
@@ -102,6 +105,12 @@ export default function ChatProvider({ children }: ChatProviderProps) {
         }
       })
     )
+
+    if (scrolledToBottom) {
+      setTimeout(() => {
+        messages.scrollTo(0, messages.scrollHeight)
+      }, 10)
+    }
   }
 
   const updateGameMessage = (chatId: string, gameId: string, message: string) => {
