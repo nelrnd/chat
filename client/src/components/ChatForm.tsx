@@ -1,4 +1,3 @@
-import { SubmitHandler, useForm } from "react-hook-form"
 import { useChat } from "../providers/ChatProvider"
 import { useParams } from "react-router-dom"
 import { useEffect, useRef, useState } from "react"
@@ -7,72 +6,54 @@ import { Button } from "./ui/button"
 import { BiImageAlt, BiJoystick, BiLoaderAlt, BiSend, BiX } from "react-icons/bi"
 import { useMediaQuery } from "react-responsive"
 
-interface Inputs {
-  text: string
-  images: FileList | File[]
-}
-
 export default function ChatForm() {
   const { chatId } = useParams()
-  const isSmall = useMediaQuery({ query: "(max-width: 768px)" })
   const { chat, createMessage, createGame } = useChat(chatId)
-  const { register, handleSubmit, reset, watch, setValue } = useForm<Inputs>()
+
+  const [text, setText] = useState("")
+  const [images, setImages] = useState([])
   const [loading, setLoading] = useState(false)
-  const [isTyping, setIsTyping] = useState<boolean | null>(null)
-  const [empty, setEmpty] = useState(true)
+  const empty = !text && images.length === 0
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const onKeyDown = (event) => {
-    if (event.target.value) {
-      setEmpty(false)
-    }
+  const [isTyping, setIsTyping] = useState<boolean | null>(null)
+
+  const isSmall = useMediaQuery({ query: "(max-width: 768px)" })
+
+  const handleTyping = () => {
     if (timeout.current) {
       clearTimeout(timeout.current)
     }
     setIsTyping(true)
-    timeout.current = setTimeout(() => {
-      setIsTyping(false)
-    }, 2000)
+    timeout.current = setTimeout(() => setIsTyping(false), 2000)
   }
 
-  const removeImage = (img: File) => {
-    setValue(
-      "images",
-      Array.from(images).filter((image) => image !== img)
-    )
+  const removeImage = (image: File) => {
+    setImages(Array.from(images).filter((img) => img !== image))
   }
 
-  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+  const handleSubmit = async (event) => {
+    event.preventDefault()
     if (loading || empty) return null
     setIsTyping(false)
     setLoading(true)
     const formData = new FormData()
-    formData.append("text", data.text)
+    formData.append("text", text)
     formData.append("chatId", chatId || "")
-    for (const image of data.images) {
-      formData.append("images", image)
-    }
+    images.forEach((image) => formData.append("images", image))
     await createMessage(formData)
     reset()
     setLoading(false)
   }
 
-  const handlePlay = async () => {
-    if (chat) {
-      createGame(chat._id)
-    }
+  const handlePlay = () => {
+    createGame(chatId)
   }
 
-  const text = watch("text")
-  const images = watch("images")
-
-  useEffect(() => {
-    if (text || (images && images.length)) {
-      setEmpty(false)
-    } else {
-      setEmpty(true)
-    }
-  }, [text, images])
+  const reset = () => {
+    setText("")
+    setImages([])
+  }
 
   useEffect(() => {
     if (isTyping) {
@@ -80,26 +61,33 @@ export default function ChatForm() {
     } else if (isTyping === false) {
       socket.emit("stop-typing", chatId)
     }
-  }, [isTyping, chatId])
+  }, [chatId, isTyping])
 
   return (
     <div className="w-full max-w-[40rem] m-auto bg-neutral-900 rounded-2xl">
-      {images && images.length > 0 && (
-        <div className="p-1 flex gap-4 overflow-x-auto w-fit">
-          {Array.from(images).map((img, id) => (
-            <FormImagePreview key={id} img={img} onClick={removeImage} />
+      {images.length > 0 && (
+        <div className="p-1 flex gap-4 overflow-x-auto w-full">
+          {images.map((images, id) => (
+            <FormImagePreview key={id} image={images} onClick={removeImage} />
           ))}
         </div>
       )}
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit}>
         <div className="h-[5rem] p-3 md:p-4 flex items-center gap-4">
           <input
             id="images"
             type="file"
             accept="image/png, image/jpeg, image/jpg, image/webp"
-            {...register("images")}
             multiple
             className="hidden"
+            onChange={(e) => {
+              setImages(Array.from(e.target.files))
+              e.target.value = ""
+              const messages = document.getElementById("messages")
+              setTimeout(() => {
+                messages?.scrollTo(0, messages.scrollHeight)
+              }, 10)
+            }}
           />
 
           <div className="flex items-center gap-1">
@@ -117,9 +105,10 @@ export default function ChatForm() {
 
           <input
             placeholder="Type something..."
-            {...register("text")}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
             spellCheck="false"
-            onKeyDown={onKeyDown}
+            onKeyDown={handleTyping}
             className="h-[4rem] w-full flex-1 bg-transparent placeholder-neutral-300 focus:outline-none"
           />
 
@@ -128,7 +117,7 @@ export default function ChatForm() {
               <BiLoaderAlt className="text-2xl animate-spin" />
             ) : (
               <>
-                <span className="hidden md:inline">Send</span>
+                <span className="sr-only md:not-sr-only inline">Send</span>
                 <BiSend className="text-lg" />
               </>
             )}
@@ -140,17 +129,17 @@ export default function ChatForm() {
 }
 
 interface FormImagePreviewProps {
-  img: File
-  onClick: (img: File) => void | void
+  image: File
+  onClick: (image: File) => void | void
 }
 
-function FormImagePreview({ img, onClick }: FormImagePreviewProps) {
-  const src = URL.createObjectURL(img)
+function FormImagePreview({ image, onClick }: FormImagePreviewProps) {
+  const src = URL.createObjectURL(image)
 
   return (
     <div className="overflow-hidden w-fit shrink-0 rounded-xl border border-neutral-800 relative">
       <Button
-        onClick={() => onClick(img)}
+        onClick={() => onClick(image)}
         variant="secondary"
         size="icon"
         className="absolute top-1 right-1"
