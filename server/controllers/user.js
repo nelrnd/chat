@@ -54,8 +54,7 @@ exports.user_register = [
 
     await user.save()
 
-    await userService.addUserToGlobalChat(user._id.toString(), req.io)
-    userService.greetUser(user._id, req.io)
+    await userService.handleUserRegister(user._id.toString(), req.io)
 
     next()
   }),

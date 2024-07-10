@@ -1,6 +1,7 @@
 const Chat = require("../models/chat")
 const User = require("../models/user")
 const Message = require("../models/message")
+const messageService = require("../services/messageService")
 const { findSocket } = require("../utils")
 
 async function createChat({ members, title, desc, admin, authUserId, io }) {
@@ -39,29 +40,29 @@ async function createChat({ members, title, desc, admin, authUserId, io }) {
 async function createGlobalChat(io) {
   const CREATOR_USER_ID = process.env.CREATOR_USER_ID
 
-  if (CREATOR_USER_ID) {
-    const users = await User.find({})
-    const userIds = users.map((user) => user._id.toString())
+  if (!CREATOR_USER_ID) return null
 
-    const globalChat = await createChat({
-      members: userIds,
-      title: "Global chat",
-      desc: "Global chat of the app, have fun ;)",
-      admin: CREATOR_USER_ID,
-      authUserId: CREATOR_USER_ID,
-      io,
-    })
+  const users = await User.find({})
+  const userIds = users.map((user) => user._id.toString())
 
-    const firstMessage = new Message({
-      type: "normal",
-      text: "Welcome to the global chat!",
-      from: CREATOR_USER_ID,
-      chat: globalChat._id,
-    })
-    await firstMessage.save()
+  const globalChat = await createChat({
+    members: userIds,
+    title: "Global chat",
+    desc: "Global chat of the app, have fun ;)",
+    admin: CREATOR_USER_ID,
+    authUserId: CREATOR_USER_ID,
+    io,
+  })
 
-    return globalChat
-  }
+  await messageService.createMessage({
+    chatId: globalChat._id.toString(),
+    authUserId: CREATOR_USER_ID,
+    text: "Welcome to the global chat!",
+    files: [],
+    io,
+  })
+
+  return globalChat
 }
 
 function emitNewChat(chat, authUserId, io) {
@@ -94,4 +95,54 @@ async function readChat(authUserId, chatId) {
   return chat
 }
 
-module.exports = { createChat, createGlobalChat, getChatList, readChat }
+async function addUserToChat(chatId, userId) {
+  const [chat, user] = await Promise.all([Chat.findById(chatId), User.findById(userId)])
+
+  if (!chat) {
+    throw new Error(`Chat with id ${chatId} not found`)
+  }
+
+  if (!user) {
+    throw new Error(`User with id ${userId} not found`)
+  }
+
+  if (chat.members.includes(user._id.toString())) {
+    throw new Error(`User is already a member of the chat`)
+  }
+
+  chat.members.push(user._id.toString())
+  chat.markModified("members")
+  chat.lastViewed[user._id.toString()] = new Date(0)
+  chat.markModified("lastViewed")
+
+  await chat.save()
+
+  return chat
+}
+
+async function removeUserFromChat(chatId, userId) {
+  const [chat, user] = await Promise.all([Chat.findById(chatId), User.findById(userId)])
+
+  if (!chat) {
+    // throw error
+    console.log("error")
+  }
+
+  if (!user) {
+    // throw error
+    console.log("error")
+  }
+
+  chat.members.splice(
+    chat.members.findIndex((member) => member._id === userId),
+    1
+  )
+  delete chat.lastViewed[user._id.toString()]
+  // mark lastViewed as changed probably
+
+  await chat.save()
+
+  return chat
+}
+
+module.exports = { createChat, createGlobalChat, getChatList, readChat, addUserToChat, removeUserFromChat }

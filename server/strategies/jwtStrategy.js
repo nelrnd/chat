@@ -12,12 +12,12 @@ passport.use(
   new JwtStrategy(options, async (payload, done) => {
     let user = await User.findById(payload.id).select("-password")
 
-    user = user.toObject()
-    user = { ...user, _id: user._id.toString() }
-
     if (user) {
+      user = user.toObject()
+      user = { ...user, _id: user._id.toString() }
       return done(null, user)
     }
+
     return done(null, false)
   })
 )

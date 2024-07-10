@@ -1,8 +1,10 @@
+const User = require("../models/user")
 const Chat = require("../models/chat")
 const Message = require("../models/message")
 const { findSocket } = require("../utils")
-const { createGlobalChat, createChat } = require("./chatService")
-
+const chatService = require("./chatService")
+const { createMessage } = require("./messageService")
+/*
 async function addUserToGlobalChat(userId, io) {
   const CREATOR_USER_ID = process.env.CREATOR_USER_ID
 
@@ -24,10 +26,30 @@ async function addUserToGlobalChat(userId, io) {
 
   return Promise.resolve()
 }
+*/
+async function addUserToGlobalChat(userId, io) {
+  const CREATOR_USER_ID = process.env.CREATOR_USER_ID
 
-function greetUser(userId, io) {
-  const messageText =
-    "Hi, I'm Nel! Thank's for trying out my chat app. You can check out my other projects at https://nel.dev 😁✌️💜"
+  if (!CREATOR_USER_ID) return null
+
+  let globalChat = await Chat.findOne({ title: "Global chat", admin: CREATOR_USER_ID })
+  if (!globalChat) {
+    globalChat = await chatService.createGlobalChat(io)
+  } else {
+    chatService.addUserToChat(globalChat._id.toString(), userId)
+  }
+
+  return Promise.resolve()
+}
+
+async function greetUser(userId, io) {
+  const user = await User.findById(userId)
+
+  if (!user) {
+    throw new Error("User not found")
+  }
+
+  const text = `Hi ${user.name}! Thank's for trying out my app. You can check my other projects at https://github.com/nelrnd 😁✌️`
 
   setTimeout(async () => {
     const CREATOR_USER_ID = process.env.CREATOR_USER_ID
@@ -36,37 +58,38 @@ function greetUser(userId, io) {
       const members = [CREATOR_USER_ID, userId]
 
       let chat = await Chat.findOne({ members: { $size: 2, $all: members } })
-      let greetMessage = chat && (await Message.findOne({ chat: chat._id, from: CREATOR_USER_ID, text: messageText }))
+      let greetMessage = chat && (await Message.findOne({ chat: chat._id, from: CREATOR_USER_ID, text: text }))
 
       if (!chat) {
-        chat = await createChat({ members, authUserId: CREATOR_USER_ID, io })
+        chat = await chatService.createChat({ members, authUserId: CREATOR_USER_ID, io })
       }
 
       if (!greetMessage) {
-        greetMessage = new Message({
-          type: "normal",
-          text: messageText,
-          from: CREATOR_USER_ID,
-          chat: chat._id,
+        greetMessage = await createMessage({
+          chatId: chat._id.toString(),
+          authUserId: CREATOR_USER_ID,
+          text,
+          files: [],
+          io,
         })
-        await greetMessage.save()
       }
 
+      /*
       const sockets = chat.members
         .map((member) => findSocket(io, member.toString()))
         .filter((socket) => socket !== undefined)
       sockets.forEach((socket) => socket.join(chat._id.toString()))
-      io.to(chat._id.toString()).emit("new-message", { message: greetMessage })
+      io.to(chat._id.toString()).emit("new-message", greetMessage)
+      */
     }
   }, 4000)
 }
 
-function handleUserRegister(userId, io) {
-  addUserToGlobalChat(userId, io)
+async function handleUserRegister(userId, io) {
+  await addUserToGlobalChat(userId, io)
   greetUser(userId, io)
 }
 
 module.exports = {
-  addUserToGlobalChat,
-  greetUser,
+  handleUserRegister,
 }

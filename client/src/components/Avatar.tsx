@@ -24,7 +24,14 @@ export default function Avatar({ src, className }: AvatarProps) {
 
   return (
     <div className={cn("w-[4rem] aspect-square rounded-full relative overflow-hidden", className)}>
-      <img src={url} alt="" className="w-full h-full object-cover select-none" />
+      <img
+        src={url}
+        alt=""
+        className="w-full h-full object-cover select-none"
+        referrerPolicy={
+          src?.includes("http://") || src?.includes("https://") ? "no-referrer" : "strict-origin-when-cross-origin"
+        }
+      />
     </div>
   )
 }

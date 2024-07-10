@@ -27,8 +27,7 @@ passport.use(
 
         await user.save()
 
-        await userService.addUserToGlobalChat(user._id.toString(), req.io)
-        userService.greetUser(user._id.toString(), req.io)
+        await userService.handleUserRegister(user._id.toString(), req.io)
       }
 
       user = user.toObject()
