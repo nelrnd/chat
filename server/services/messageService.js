@@ -85,8 +85,8 @@ async function createMessage({ chatId, authUserId, text, files, action, game, io
   return res
 }
 
-async function createActionMessage({ chatId, agentId, subjectId, actionType, io }) {
-  const action = new Action({ action: actionType, agent: agentId, subject: subjectId, chat: chatId })
+async function createActionMessage({ chatId, agentId, subjectId, actionType, value, io }) {
+  const action = new Action({ action: actionType, agent: agentId, subject: subjectId, value, chat: chatId })
   await action.save()
 
   const message = await createMessage({ chatId, action, io })
