@@ -42,7 +42,16 @@ interface GroupAvatarProps {
 }
 
 export function GroupAvatar({ members, className }: GroupAvatarProps) {
-  const avatars = members.slice(0, 4).map((user) => user.avatar)
+  const avatars = members
+    .sort((a, b) => {
+      const hasAvatarA = a.avatar ? 1 : 0
+      const hasAvatarB = b.avatar ? 1 : 0
+      return hasAvatarB - hasAvatarA
+    })
+    .slice(0, 4)
+    .map((user) => user.avatar)
+
+  console.log(members)
 
   return (
     <div className={cn("w-[4rem] aspect-square relative overflow-hidden", className)}>
