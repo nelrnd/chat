@@ -1,6 +1,6 @@
 import { BiInfoCircle } from "react-icons/bi"
 import { useAuth } from "../providers/AuthProvider"
-import { Chat, Media } from "../types"
+import { Chat, Media, User } from "../types"
 import { Button } from "./ui/button"
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "./ui/sheet"
 import Avatar, { GroupAvatar } from "./Avatar"
@@ -67,20 +67,7 @@ export default function ChatInfo({ chat }: ChatInfoProps) {
           </section>
         )}
 
-        {chat.type === "group" && (
-          <section className="p-6 space-y-2">
-            <div className="flex justify-between items-center">
-              <h4 className="font-semibold">Members ({chat.members.length})</h4>
-              <MembersModal members={[...otherMembers, authUser]} />
-            </div>
-            <ul className="-mx-2 space-y-2">
-              {[...otherMembers, authUser].slice(0, 3).map((user) => (
-                <UserTab key={user._id} user={user} />
-              ))}
-            </ul>
-          </section>
-        )}
-
+        {chat.type === "group" && <ChatMembersSection members={chat.members} admin={chat.admin} />}
         <ChatImagesSection images={chat.images} />
         <ChatLinksSection links={chat.links} />
       </SheetContent>
@@ -88,21 +75,38 @@ export default function ChatInfo({ chat }: ChatInfoProps) {
   )
 }
 
-function MembersModal({ members }) {
+interface ChatMembersSectionProps {
+  members: User[]
+  admin: string
+}
+
+function ChatMembersSection({ members, admin }: ChatMembersSectionProps) {
+  const { authUser } = useAuth()
+  const otherMembers = members.filter((user) => user._id !== authUser?._id)
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="link" className="p-0 h-auto">
-          view all
-        </Button>
-      </DialogTrigger>
+      <section className="p-6 space-y-2">
+        <div className="flex justify-between items-center">
+          <h4 className="font-semibold">Members ({members.length})</h4>
+          <DialogTrigger asChild>
+            <Button variant="link" className="p-0 h-auto">
+              view all
+            </Button>
+          </DialogTrigger>
+        </div>
+        <ul className="-mx-2 space-y-2">
+          {[...otherMembers, authUser].slice(0, 3).map((user) => (
+            <UserTab key={user._id} user={user} isAdmin={user._id === admin} />
+          ))}
+        </ul>
+      </section>
 
       <DialogContent>
         <DialogHeader>
           <DialogTitle>All members ({members.length})</DialogTitle>
           <ul className="-mx-2 space-y-2 max-h-[32rem] overflow-y-auto">
             {members.map((user) => (
-              <UserTab key={user._id} user={user} />
+              <UserTab key={user._id} user={user} isAdmin={user._id === admin} />
             ))}
           </ul>
         </DialogHeader>

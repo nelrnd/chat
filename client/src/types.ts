@@ -39,6 +39,7 @@ export type Chat = {
   links: Media[]
   typingUsers: string[]
   unreadCount: number
+  admin?: string
 }
 
 export type Game = {

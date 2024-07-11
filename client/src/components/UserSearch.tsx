@@ -66,9 +66,10 @@ export default function UserSearch({ value, setValue }) {
 interface UserTabProps {
   user: User
   onClick?: () => void
+  isAdmin?: boolean
 }
 
-export function UserTab({ user, onClick }: UserTabProps) {
+export function UserTab({ user, onClick, isAdmin }: UserTabProps) {
   const { authUser } = useAuth()
   const { findChat, createChat } = useChat()
   const navigate = useNavigate()
@@ -85,14 +86,18 @@ export function UserTab({ user, onClick }: UserTabProps) {
     }
   }
 
+  const isYou = user._id === authUser?._id
+  let subtext = ""
+  isAdmin && (subtext += "admin")
+  isAdmin && isYou && (subtext += " / ")
+  isYou && (subtext += "you")
+
   return (
     <li>
       <button
         onClick={handleClick}
-        className={`w-full p-2 rounded-lg ${
-          user._id !== authUser._id ? "hover:bg-neutral-900" : "cursor-default"
-        } transition-colors`}
-        disabled={user._id === authUser._id}
+        className={`w-full p-2 rounded-lg ${!isYou ? "hover:bg-neutral-900" : "cursor-default"} transition-colors`}
+        disabled={isYou}
       >
         <div className="text-left flex items-center gap-3">
           <Avatar src={user.avatar} className="w-[3rem] shrink-0" />
@@ -100,7 +105,7 @@ export function UserTab({ user, onClick }: UserTabProps) {
             <h3 className="font-semibold truncate">{user.name}</h3>
             <p className="text-neutral-400 text-sm truncate">{user.email}</p>
           </div>
-          {user._id === authUser._id && <p className="text-xs text-neutral-400">you</p>}
+          <p className="text-xs text-neutral-400">{subtext}</p>
         </div>
       </button>
     </li>
