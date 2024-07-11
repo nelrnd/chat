@@ -7,7 +7,8 @@ const messageSchema = new Schema({
   images: [{ type: mongoose.Types.ObjectId, ref: "Media" }],
   links: [{ type: mongoose.Types.ObjectId, ref: "Media" }],
   game: { type: mongoose.Types.ObjectId, ref: "Game" },
-  from: { type: mongoose.Types.ObjectId, ref: "User", required: true },
+  action: { type: mongoose.Types.ObjectId, ref: "Action" },
+  from: { type: mongoose.Types.ObjectId, ref: "User" },
   chat: { type: mongoose.Types.ObjectId, ref: "Chat", required: true },
   timestamp: { type: Date, default: Date.now },
 })

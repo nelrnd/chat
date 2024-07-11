@@ -1,4 +1,5 @@
 const Message = require("../models/message")
+const Action = require("../models/action")
 const Media = require("../models/media")
 const he = require("he")
 
@@ -40,10 +41,12 @@ async function createLinks(text, chatId, authUserId) {
   return links
 }
 
-async function createMessage({ chatId, authUserId, text, files, game, io }) {
+async function createMessage({ chatId, authUserId, text, files, action, game, io }) {
   let message, images, links
 
-  if (game) {
+  if (action) {
+    message = new Message({ type: "action", action, chat: chatId })
+  } else if (game) {
     message = new Message({ type: "game", game, from: authUserId, chat: chatId })
   } else {
     if (!text && !files.length) {
@@ -62,8 +65,16 @@ async function createMessage({ chatId, authUserId, text, files, game, io }) {
 
   await message.save()
   await message.populate({ path: "from", select: "-password" })
-  if (message.type === "game")
+  if (message.type === "action") {
+    await message.populate({
+      path: "action",
+      populate: { path: "agent", select: "-password" },
+      populate: { path: "subject", select: "-password" },
+    })
+  }
+  if (message.type === "game") {
     await message.populate({ path: "game", populate: { path: "players", select: "-password" } })
+  }
 
   decodedMessage = JSON.parse(he.decode(JSON.stringify(message)))
 
@@ -74,8 +85,21 @@ async function createMessage({ chatId, authUserId, text, files, game, io }) {
   return res
 }
 
+async function createActionMessage({ chatId, agentId, subjectId, actionType, io }) {
+  const action = new Action({ action: actionType, agent: agentId, subject: subjectId, chat: chatId })
+  await action.save()
+
+  const message = await createMessage({ chatId, action, io })
+  await message.populate({
+    path: "action",
+    populate: { path: "agent", select: "-password" },
+    populate: { path: "subject", select: "-password" },
+  })
+  return message
+}
+
 function emitNewMessage(message, authUserId, chatId, io) {
   io.to(chatId).except(authUserId).emit("new-message", message)
 }
 
-module.exports = { createMessage }
+module.exports = { createMessage, createActionMessage }
