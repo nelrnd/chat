@@ -32,9 +32,9 @@ const formSchema = z.object({
 })
 
 export default function Settings() {
-  const isSmall = useMediaQuery({ query: "(max-width: 768px)" })
   const { authUser, setAuthUser, setToken } = useAuth()
   const { toast } = useToast()
+  const isSmall = useMediaQuery({ query: "(max-width: 768px)" })
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -64,7 +64,7 @@ export default function Settings() {
     formData.append("bio", data.bio || "")
     formData.append("avatar", (data.avatar && data.avatar[0]) || (previewAvatar ? authUser?.avatar : ""))
     await axios
-      .put("/user", formData)
+      .put(`/user/${authUser?._id}`, formData)
       .then((res) => {
         setAuthUser(res.data)
         toast({ title: "Success", description: "User info updated successfully!" })
@@ -90,7 +90,7 @@ export default function Settings() {
   }
 
   const deleteAccount = () => {
-    axios.delete("/user").then(() => setToken(null))
+    axios.delete(`/user/${authUser?._id}`).then(() => setToken(null))
   }
 
   const logout = () => {

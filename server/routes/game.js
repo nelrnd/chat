@@ -4,10 +4,10 @@ const gameController = require("../controllers/game")
 const messageController = require("../controllers/message")
 const userController = require("../controllers/user")
 
-router.post("/", userController.user_check_auth, gameController.game_create, messageController.createMessage)
+router.post("/", userController.checkUserAuth, gameController.createGame, messageController.createMessage)
 
-router.post("/:gameId/start", userController.user_check_auth, gameController.game_start)
+router.post("/:gameId/start", userController.checkUserAuth, gameController.startGame)
 
-router.post("/:gameId/play", userController.user_check_auth, gameController.game_play)
+router.post("/:gameId/play", userController.checkUserAuth, gameController.playGame)
 
 module.exports = router

@@ -1,26 +1,16 @@
 const express = require("express")
 const router = express.Router()
 const userController = require("../controllers/user")
-const chatController = require("../controllers/chat")
 
-router.post("/register", userController.user_register, userController.user_login)
-
-router.post("/login", userController.user_login)
-
-router.get("/google/start", userController.user_google_start)
-
-router.get("/google/redirect", userController.user_google_redirect)
-
-router.get("/github/start", userController.user_github_start)
-
-router.get("/github/redirect", userController.user_github_redirect)
-
-router.get("/me", userController.user_check_auth, userController.user_get_me)
-
-router.get("/search", userController.user_check_auth, userController.user_search)
-
-router.put("/", userController.user_check_auth, userController.user_update)
-
-router.delete("/", userController.user_check_auth, userController.user_delete)
+router.post("/register", userController.registerUser, userController.loginUser)
+router.post("/login", userController.loginUser)
+router.get("/google/start", userController.startGoogleLogin)
+router.get("/google/login", userController.loginUserWithGoogle)
+router.get("/github/start", userController.startGithubLogin)
+router.get("/github/login", userController.loginUserWithGithub)
+router.get("/me", userController.checkUserAuth, userController.getMe)
+router.get("/search", userController.checkUserAuth, userController.searchUser)
+router.put("/:userId", userController.checkUserAuth, userController.updateUser)
+router.delete("/:userId", userController.checkUserAuth, userController.deleteUser)
 
 module.exports = router

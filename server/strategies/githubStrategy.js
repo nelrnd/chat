@@ -1,7 +1,7 @@
 const passport = require("passport")
 const GitHubStrategy = require("passport-github2").Strategy
 const User = require("../models/user")
-const userService = require("../services/userService")
+const userService = require("../services/user")
 
 const options = {
   clientID: process.env.GITHUB_CLIENT_ID,

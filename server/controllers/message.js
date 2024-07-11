@@ -1,4 +1,4 @@
-const messageService = require("../services/messageService")
+const messageService = require("../services/message")
 const asyncHandler = require("express-async-handler")
 const { multerUpload } = require("../storage")
 

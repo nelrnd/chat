@@ -47,5 +47,11 @@ app.use("/api/message", messageRouter)
 app.use("/api/chat", chatRouter)
 app.use("/api/game", gameRouter)
 
+// error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack)
+  res.status(err.status || 500).json({ message: err.message })
+})
+
 const PORT = process.env.PORT || 3000
 server.listen(PORT, () => console.log(`Server started at http://localhost:${PORT}`))

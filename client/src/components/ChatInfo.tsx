@@ -12,6 +12,7 @@ import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogT
 import { ImageWrapper } from "@/providers/ImageViewerProvider"
 import { cn } from "@/lib/utils"
 import { useMediaQuery } from "react-responsive"
+import ChatEditModal from "./ChatEditModal"
 
 const SERVER_BASE_URL = import.meta.env.VITE_SERVER_BASE_URL
 
@@ -26,6 +27,7 @@ export default function ChatInfo({ chat }: ChatInfoProps) {
 
   const [open, setOpen] = useState(false)
   const otherMembers = chat.members.filter((user) => user._id !== authUser?._id)
+  const isAdmin = authUser?._id === chat.admin
 
   useEffect(() => {
     setOpen(false)
@@ -64,6 +66,7 @@ export default function ChatInfo({ chat }: ChatInfoProps) {
             <GroupAvatar members={otherMembers} className="w-[8rem] m-auto" />
             <h3 className="font-semibold">{chat.title || getChatName(otherMembers)}</h3>
             {chat.desc && <p className="text-neutral-400">{chat.desc}</p>}
+            {isAdmin && <ChatEditModal chat={chat} />}
           </section>
         )}
 
@@ -83,6 +86,7 @@ interface ChatMembersSectionProps {
 function ChatMembersSection({ members, admin }: ChatMembersSectionProps) {
   const { authUser } = useAuth()
   const otherMembers = members.filter((user) => user._id !== authUser?._id)
+
   return (
     <Dialog>
       <section className="p-6 space-y-2">

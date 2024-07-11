@@ -41,7 +41,7 @@ async function createLinks(text, chatId, authUserId) {
   return links
 }
 
-async function createMessage({ chatId, authUserId, text, files, action, game, io }) {
+exports.createMessage = async ({ chatId, authUserId, text, files, action, game, io }) => {
   let message, images, links
 
   if (action) {
@@ -68,8 +68,10 @@ async function createMessage({ chatId, authUserId, text, files, action, game, io
   if (message.type === "action") {
     await message.populate({
       path: "action",
-      populate: { path: "agent", select: "-password" },
-      populate: { path: "subject", select: "-password" },
+      populate: [
+        { path: "agent", select: "-password" },
+        { path: "subject", select: "-password" },
+      ],
     })
   }
   if (message.type === "game") {
@@ -85,7 +87,7 @@ async function createMessage({ chatId, authUserId, text, files, action, game, io
   return res
 }
 
-async function createActionMessage({ chatId, agentId, subjectId, actionType, value, io }) {
+exports.createActionMessage = async ({ chatId, agentId, subjectId, actionType, value, io }) => {
   const action = new Action({ action: actionType, agent: agentId, subject: subjectId, value, chat: chatId })
   await action.save()
 
@@ -101,5 +103,3 @@ async function createActionMessage({ chatId, agentId, subjectId, actionType, val
 function emitNewMessage(message, authUserId, chatId, io) {
   io.to(chatId).except(authUserId).emit("new-message", message)
 }
-
-module.exports = { createMessage, createActionMessage }

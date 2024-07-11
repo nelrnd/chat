@@ -1,7 +1,7 @@
 const passport = require("passport")
 const GoogleStrategy = require("passport-google-oauth20").Strategy
 const User = require("../models/user")
-const userService = require("../services/userService")
+const userService = require("../services/user")
 
 const options = {
   clientID: process.env.GOOGLE_CLIENT_ID,

@@ -2,7 +2,7 @@ const Game = require("../models/game")
 const Chat = require("../models/chat")
 const asyncHandler = require("express-async-handler")
 
-exports.game_create = asyncHandler(async (req, res, next) => {
+exports.createGame = asyncHandler(async (req, res, next) => {
   const { io } = req
   const { chatId, from } = req.body
   const chat = await Chat.findById(chatId)
@@ -33,7 +33,7 @@ exports.game_create = asyncHandler(async (req, res, next) => {
   next()
 })
 
-exports.game_start = asyncHandler(async (req, res) => {
+exports.startGame = asyncHandler(async (req, res) => {
   const { io } = req
   const { gameId } = req.params
   const game = await Game.findById(gameId)
@@ -47,7 +47,7 @@ exports.game_start = asyncHandler(async (req, res) => {
   res.json({ game })
 })
 
-exports.game_play = asyncHandler(async (req, res) => {
+exports.playGame = asyncHandler(async (req, res) => {
   const { io } = req
   const { gameId } = req.params
   const { index } = req.body

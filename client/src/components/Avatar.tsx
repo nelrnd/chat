@@ -51,8 +51,6 @@ export function GroupAvatar({ members, className }: GroupAvatarProps) {
     .slice(0, 4)
     .map((user) => user.avatar)
 
-  console.log(members)
-
   return (
     <div className={cn("w-[4rem] aspect-square relative overflow-hidden", className)}>
       <Avatar src={avatars[0]} className="w-[56%]" />
