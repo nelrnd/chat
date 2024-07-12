@@ -71,8 +71,8 @@ exports.updateUser = [
   ...updateUserValidation,
   asyncHandler(async (req, res) => {
     const { userId } = req.params
-    const { name, bio, file, avatar } = req.body
-    const updatedUser = await userService.updateUser(req.user._id, userId, name, bio, file, avatar)
+    const { name, bio, avatar } = req.body
+    const updatedUser = await userService.updateUser(req.user._id, userId, name, bio, req.file, avatar)
     res.json(updatedUser)
   }),
 ]

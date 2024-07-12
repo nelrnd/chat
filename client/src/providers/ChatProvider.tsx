@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import { useAuth } from "./AuthProvider"
 import axios from "axios"
-import { Chat, Game, Media, Message } from "../types"
+import { Chat, Media, Message } from "../types"
 import { socket } from "../socket"
 
 type ContextContent = {
@@ -11,6 +11,7 @@ type ContextContent = {
   loading: boolean
   findChat: (userId: string) => Chat | undefined
   createChat: (userId: string) => Promise<Chat> | undefined
+  updateChat: (chatId: string, updatedData: object) => void
   updateGameMessage: (chatId: string, gameId: string, message: string) => void
 }
 
@@ -21,6 +22,7 @@ const ChatContext = createContext<ContextContent>({
   loading: true,
   findChat: () => undefined,
   createChat: () => undefined,
+  updateChat: () => undefined,
   updateGameMessage: () => undefined,
 })
 
@@ -77,8 +79,8 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     }
   }
 
-  const updateChat = (chatId, content) => {
-    setChats((chats) => chats.map((chat) => (chat._id === chatId ? { ...chat, ...content } : chat)))
+  const updateChat = (chatId: string, updatedData: object) => {
+    setChats((chats) => chats.map((chat) => (chat._id === chatId ? { ...chat, ...updatedData } : chat)))
   }
 
   const addMessage = ({ message, images, links }: { message: Message; images: Media[]; links: Media[] }) => {
@@ -157,6 +159,11 @@ export default function ChatProvider({ children }: ChatProviderProps) {
       addMessage(data)
     }
 
+    function onChatUpdate(chatId: string, updatedChat: object) {
+      console.log("updated!")
+      setChats((chats) => chats.map((chat) => (chat._id === chatId ? { ...chat, ...updatedChat } : chat)))
+    }
+
     function onStartTyping({ userId, chatId }: { userId: string; chatId: string }) {
       setChats((chats) =>
         chats.map((chat) => {
@@ -226,6 +233,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
 
     socket.on("new-chat", onNewChat)
     socket.on("new-message", onNewMessage)
+    socket.on("chat-update", onChatUpdate)
     socket.on("start-typing", onStartTyping)
     socket.on("stop-typing", onStopTyping)
     socket.on("user-connection", onUserConnection)
@@ -236,6 +244,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     return () => {
       socket.off("new-chat", onNewChat)
       socket.off("new-message", onNewMessage)
+      socket.off("chat-update", onChatUpdate)
       socket.off("start-typing", onStartTyping)
       socket.off("stop-typing", onStopTyping)
       socket.off("user-connection", onUserConnection)
@@ -268,6 +277,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     findChat,
     createChat,
     readMessages,
+    updateChat,
     updateGameMessage,
   }
 

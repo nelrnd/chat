@@ -11,6 +11,7 @@ import { BiLoaderAlt } from "react-icons/bi"
 import { useState } from "react"
 import axios from "axios"
 import { toast } from "./ui/use-toast"
+import { useChats } from "@/providers/ChatProvider"
 
 interface ChatEditModalProps {
   chat: Chat
@@ -31,21 +32,26 @@ export default function ChatEditModal({ chat }: ChatEditModalProps) {
     },
   })
 
+  const [open, setOpen] = useState(false)
+
+  const { updateChat } = useChats()
+
   const desc = form.watch("desc")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    console.log(data)
     setLoading(true)
     const formData = new FormData()
     formData.append("title", data.title || "")
     formData.append("desc", data.desc || "")
+    formData.append("image", (data.image && data.image[0]) || chat.image)
     await axios
       .put(`/chat/${chat._id}`, formData)
       .then((res) => {
+        updateChat(chat._id, res.data)
         toast({ title: "Success", description: "Chat info was updated successfully!" })
-        console.log(res.data)
+        setOpen(false)
       })
       .catch((err) => {
         toast({
@@ -63,7 +69,7 @@ export default function ChatEditModal({ chat }: ChatEditModalProps) {
   }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="secondary" size="sm" className="w-full">
           Edit

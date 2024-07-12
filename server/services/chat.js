@@ -80,17 +80,22 @@ const emitNewChat = (chat, authUserId, io) => {
   })
 }
 
-exports.updateChat = async (data, authUserId) => {
-  let chat = await Chat.findById(data.chatId)
+exports.updateChat = async (chatId, authUserId, title, desc, file, prevImage, io) => {
+  let chat = await Chat.findById(chatId)
   if (!chat) {
     throw new CustomError("Chat not found", 404)
   }
   if (chat.admin.toString() !== authUserId) {
     throw new CustomError("Forbidden, cannot update chat", 403)
   }
-  const { title, desc, image } = data
-  chat = await Chat.findByIdAndUpdate(data.chatId, { title, desc, image }, { new: true })
+  const image = (file && file.path) || prevImage
+  chat = await Chat.findByIdAndUpdate(chatId, { title, desc, image }, { new: true }).select("title desc image")
+  emitUpdatedChat(chat, chatId, authUserId, io)
   return chat
+}
+
+const emitUpdatedChat = (updatedChat, chatId, authUserId, io) => {
+  io.to(chatId).except(authUserId).emit("chat-update", chatId, updatedChat)
 }
 
 exports.getChatList = async (authUserId) => {

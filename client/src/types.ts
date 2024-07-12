@@ -33,6 +33,7 @@ export type Chat = {
   type: "private" | "group"
   title?: string
   desc?: string
+  image?: string
   members: User[]
   messages: Message[]
   images: Media[]
