@@ -1,17 +1,20 @@
 import { Chat } from "@/types"
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog"
-import { Button } from "./ui/button"
+import { Button, buttonVariants } from "./ui/button"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "./ui/form"
 import { Input } from "./ui/input"
 import { Textarea } from "./ui/textarea"
-import { BiLoaderAlt } from "react-icons/bi"
-import { useState } from "react"
+import { BiCamera, BiImageAlt, BiLoaderAlt, BiX } from "react-icons/bi"
+import { useEffect, useState } from "react"
 import axios from "axios"
 import { toast } from "./ui/use-toast"
 import { useChats } from "@/providers/ChatProvider"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
+import { GroupAvatar } from "./Avatar"
+import { useMediaQuery } from "react-responsive"
 
 interface ChatEditModalProps {
   chat: Chat
@@ -33,19 +36,28 @@ export default function ChatEditModal({ chat }: ChatEditModalProps) {
   })
 
   const [open, setOpen] = useState(false)
+  const isSmall = useMediaQuery({ query: "(max-width: 768px)" })
 
   const { updateChat } = useChats()
 
   const desc = form.watch("desc")
+  const image = form.watch("image")
+  const [previewImage, setPreviewImage] = useState(chat?.image)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+
+  useEffect(() => {
+    if (image && image.length) {
+      setPreviewImage(URL.createObjectURL(image[0]))
+    }
+  }, [image])
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     setLoading(true)
     const formData = new FormData()
     formData.append("title", data.title || "")
     formData.append("desc", data.desc || "")
-    formData.append("image", (data.image && data.image[0]) || chat.image)
+    formData.append("image", (data.image && data.image[0]) || previewImage)
     await axios
       .put(`/chat/${chat._id}`, formData)
       .then((res) => {
@@ -68,6 +80,11 @@ export default function ChatEditModal({ chat }: ChatEditModalProps) {
     setLoading(false)
   }
 
+  const removeImage = () => {
+    form.setValue("image", undefined)
+    setPreviewImage("")
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -82,6 +99,54 @@ export default function ChatEditModal({ chat }: ChatEditModalProps) {
             <DialogHeader>
               <DialogTitle>Edit chat info</DialogTitle>
             </DialogHeader>
+
+            <FormField
+              control={form.control}
+              name="image"
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              render={({ field: { value, onChange, ...fieldProps } }) => (
+                <FormItem>
+                  <div className="w-fit m-auto">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger>
+                        <div className="relative rounded-[15%] overflow-hidden">
+                          <div className="absolute z-50 bg-black/30 hover:bg-black/50 w-full h-full grid place-content-center transition-colors">
+                            <BiCamera className="text-3xl" />
+                          </div>
+                          <GroupAvatar image={previewImage} className="w-[8rem]" />
+                        </div>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent side={isSmall ? "bottom" : "right"} className="bg-neutral-950">
+                        <DropdownMenuItem className="cursor-pointer" asChild>
+                          <FormLabel className={buttonVariants({ variant: "ghost", size: "sm" })}>
+                            <BiImageAlt />
+                            Upload image
+                          </FormLabel>
+                        </DropdownMenuItem>
+                        {previewImage && (
+                          <DropdownMenuItem className="cursor-pointer" asChild>
+                            <Button onClick={removeImage} variant="ghost" size="sm" className="w-full">
+                              <BiX />
+                              Remove image
+                            </Button>
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                  <FormControl>
+                    <Input
+                      {...fieldProps}
+                      type="file"
+                      accept="image/png, image/jpeg, image/jpg, image/webp"
+                      multiple
+                      onChange={(e) => onChange(e.target.files)}
+                      className="hidden"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}

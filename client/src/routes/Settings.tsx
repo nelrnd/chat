@@ -62,7 +62,7 @@ export default function Settings() {
     const formData = new FormData()
     formData.append("name", data.name)
     formData.append("bio", data.bio || "")
-    formData.append("avatar", (data.avatar && data.avatar[0]) || (previewAvatar ? authUser?.avatar : ""))
+    formData.append("avatar", (data.avatar && data.avatar[0]) || previewAvatar)
     await axios
       .put(`/user/${authUser?._id}`, formData)
       .then((res) => {

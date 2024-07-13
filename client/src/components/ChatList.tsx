@@ -171,7 +171,11 @@ function ChatAvatar({ chat }: ChatAvatarProps) {
 
   return (
     <div className="relative">
-      {chat.type === "private" ? <Avatar src={otherMembers[0].avatar} /> : <GroupAvatar members={otherMembers} />}
+      {chat.type === "private" ? (
+        <Avatar src={otherMembers[0].avatar} />
+      ) : (
+        <GroupAvatar image={chat.image} members={otherMembers} />
+      )}
       {chat.type === "private" && otherMembers[0].isOnline && <OnlineBadge selected={selected} />}
     </div>
   )

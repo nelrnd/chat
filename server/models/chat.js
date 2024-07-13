@@ -4,8 +4,8 @@ const Message = require("./message")
 
 const chatSchema = new Schema({
   title: { type: String, length: { max: 50 } },
-  image: { type: String },
-  desc: { type: String },
+  image: { type: String, default: "" },
+  desc: { type: String, default: "" },
   members: { type: [{ type: mongoose.Types.ObjectId, ref: "User" }], required: true },
   lastViewed: { type: Schema.Types.Mixed, required: true },
   admin: { type: mongoose.Types.ObjectId, ref: "User" },

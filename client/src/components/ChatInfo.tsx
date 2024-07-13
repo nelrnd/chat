@@ -63,7 +63,7 @@ export default function ChatInfo({ chat }: ChatInfoProps) {
           </section>
         ) : (
           <section className="p-6 pt-3 text-center space-y-3">
-            <GroupAvatar members={otherMembers} className="w-[8rem] m-auto" />
+            <GroupAvatar image={chat.image} members={otherMembers} className="w-[8rem] m-auto" />
             <h3 className="font-semibold">{chat.title || getChatName(otherMembers)}</h3>
             {chat.desc && <p className="text-neutral-400">{chat.desc}</p>}
             {isAdmin && <ChatEditModal chat={chat} />}

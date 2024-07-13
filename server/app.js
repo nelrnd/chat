@@ -21,6 +21,7 @@ app.use((req, res, next) => {
 
 app.use("/media/avatars", express.static("media/avatars"))
 app.use("/media/images", express.static("media/images"))
+app.use("/media/groups", express.static("media/groups"))
 
 // connect to db
 const mongoDb = process.env.MONGODB_URL
