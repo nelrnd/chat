@@ -10,7 +10,7 @@ type ContextContent = {
   createGame: (chatId: string) => Promise<void>
   loading: boolean
   findChat: (userId: string) => Chat | undefined
-  createChat: (userId: string) => Promise<Chat> | undefined
+  createChat: (members: string[]) => Promise<Chat> | undefined
   updateChat: (chatId: string, updatedData: object) => void
   updateGameMessage: (chatId: string, gameId: string, message: string) => void
 }

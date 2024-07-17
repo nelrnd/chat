@@ -13,6 +13,7 @@ import { ImageWrapper } from "@/providers/ImageViewerProvider"
 import { cn } from "@/lib/utils"
 import { useMediaQuery } from "react-responsive"
 import ChatEditModal from "./ChatEditModal"
+import ChatMembersManager from "./ChatMembersManager"
 
 const SERVER_BASE_URL = import.meta.env.VITE_SERVER_BASE_URL
 
@@ -70,7 +71,7 @@ export default function ChatInfo({ chat }: ChatInfoProps) {
           </section>
         )}
 
-        {chat.type === "group" && <ChatMembersSection members={chat.members} admin={chat.admin} />}
+        {chat.type === "group" && <ChatMembersSection chat={chat} admin={chat.admin} />}
         <ChatImagesSection images={chat.images} />
         <ChatLinksSection links={chat.links} />
       </SheetContent>
@@ -83,15 +84,16 @@ interface ChatMembersSectionProps {
   admin: string
 }
 
-function ChatMembersSection({ members, admin }: ChatMembersSectionProps) {
+function ChatMembersSection({ chat, admin }: ChatMembersSectionProps) {
   const { authUser } = useAuth()
-  const otherMembers = members.filter((user) => user._id !== authUser?._id)
+  const otherMembers = chat.members.filter((user) => user._id !== authUser?._id)
+  const isAdmin = authUser?._id === admin
 
   return (
     <Dialog>
       <section className="p-6 space-y-2">
         <div className="flex justify-between items-center">
-          <h4 className="font-semibold">Members ({members.length})</h4>
+          <h4 className="font-semibold">Members ({chat.members.length})</h4>
           <DialogTrigger asChild>
             <Button variant="link" className="p-0 h-auto">
               view all
@@ -103,13 +105,14 @@ function ChatMembersSection({ members, admin }: ChatMembersSectionProps) {
             <UserTab key={user._id} user={user} isAdmin={user._id === admin} />
           ))}
         </ul>
+        {isAdmin && <ChatMembersManager chat={chat} />}
       </section>
 
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>All members ({members.length})</DialogTitle>
+          <DialogTitle>All members ({chat.members.length})</DialogTitle>
           <ul className="-mx-2 space-y-2 max-h-[32rem] overflow-y-auto">
-            {members.map((user) => (
+            {[...otherMembers, authUser].map((user) => (
               <UserTab key={user._id} user={user} isAdmin={user._id === admin} />
             ))}
           </ul>

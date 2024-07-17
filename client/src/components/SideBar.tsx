@@ -5,7 +5,7 @@ import ChatList from "./ChatList"
 import { useState } from "react"
 import UserSearch from "./UserSearch"
 import { BiCog } from "react-icons/bi"
-import NewChatModal from "./NewChatModal"
+import NewChatManager from "./NewChatManager"
 
 export default function SideBar() {
   const location = useLocation()
@@ -44,7 +44,7 @@ export default function SideBar() {
             Settings
           </Link>
         </Button>
-        <NewChatModal />
+        <NewChatManager />
       </footer>
     </nav>
   )

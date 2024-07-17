@@ -21,8 +21,8 @@ exports.updateChat = [
   upload.single("image"),
   asyncHandler(async (req, res) => {
     const { chatId } = req.params
-    const { title, desc, image } = req.body
-    const chat = await chatService.updateChat(chatId, req.user._id, title, desc, req.file, image, req.io)
+    const { title, desc, members, image } = req.body
+    const chat = await chatService.updateChat(chatId, req.user._id, title, desc, members, req.file, image, req.io)
     res.json(chat)
   }),
 ]

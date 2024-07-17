@@ -28,6 +28,7 @@ const mongoDb = process.env.MONGODB_URL
 const main = async () => mongoose.connect(mongoDb)
 main()
   .then(createGlobalChat)
+  .then(() => console.log("db connected"))
   .catch((err) => console.log(err))
 
 const handlers = require("./handlers")

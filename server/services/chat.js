@@ -80,7 +80,7 @@ const emitNewChat = (chat, authUserId, io) => {
   })
 }
 
-exports.updateChat = async (chatId, authUserId, title, desc, file, prevImage, io) => {
+exports.updateChat = async (chatId, authUserId, title, desc, members, file, prevImage, io) => {
   let chat = await Chat.findById(chatId)
   if (!chat) {
     throw new CustomError("Chat not found", 404)
@@ -89,7 +89,12 @@ exports.updateChat = async (chatId, authUserId, title, desc, file, prevImage, io
     throw new CustomError("Forbidden, cannot update chat", 403)
   }
   const image = (file && file.path) || prevImage
-  chat = await Chat.findByIdAndUpdate(chatId, { title, desc, image }, { new: true }).select("title desc image")
+  chat = await Chat.findByIdAndUpdate(chatId, { title, desc, members, image }, { new: true }).select(
+    `title desc image ${members ? "members" : ""}`
+  )
+  if (members) {
+    await chat.populate({ path: "members", select: "-password" })
+  }
   emitUpdatedChat(chat, chatId, authUserId, io)
   return chat
 }

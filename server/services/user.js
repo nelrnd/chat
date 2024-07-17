@@ -3,6 +3,7 @@ const Chat = require("../models/chat")
 const Message = require("../models/message")
 const chatService = require("./chat")
 const jwt = require("jsonwebtoken")
+const mongoose = require("mongoose")
 
 const bcrypt = require("bcryptjs")
 const CustomError = require("../customError")
@@ -50,7 +51,7 @@ exports.deleteUser = async (authUserId, userId) => {
   return deletedUser
 }
 
-exports.searchUser = async (term) => {
+exports.searchUser = async (term, authUserId) => {
   if (!term) {
     return []
   }
@@ -71,7 +72,7 @@ exports.searchUser = async (term) => {
           },
           {
             // remove authUser from search results
-            _id: { $ne: req.user._id },
+            _id: { $ne: new mongoose.Types.ObjectId(authUserId) },
           },
         ],
       },

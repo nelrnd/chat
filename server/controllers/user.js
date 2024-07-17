@@ -116,6 +116,6 @@ exports.getMe = asyncHandler(async (req, res) => {
 })
 
 exports.searchUser = asyncHandler(async (req, res) => {
-  const results = await userService.searchUser(req.query.term)
+  const results = await userService.searchUser(req.query.term, req.user._id)
   res.json(results)
 })
