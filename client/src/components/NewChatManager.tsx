@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useChats } from "../providers/ChatProvider"
 import { useAuth } from "../providers/AuthProvider"
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog"
@@ -42,6 +42,12 @@ export default function NewChatManager() {
     setOpen(false)
     navigate(`/chat/${chat?._id}`)
   }
+
+  useEffect(() => {
+    if (!open) {
+      setMembers([])
+    }
+  }, [open])
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
