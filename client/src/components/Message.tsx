@@ -70,49 +70,39 @@ function formatSubjects(subjects: User[]) {
   )
 }
 
-function ActionMessage({ message }) {
-  const { action } = message
-  let text
+export function getActionText(action) {
   switch (action.type) {
     case "create":
-      text = action.agent.name + " created the chat"
-      break
+      return action.agent.name + " created the chat"
     case "add":
-      text = action.agent.name + " added " + formatSubjects(action.subjects)
-      break
+      return action.agent.name + " added " + formatSubjects(action.subjects)
     case "remove":
-      text = action.agent.name + " removed " + formatSubjects(action.subjects)
-      break
+      return action.agent.name + " removed " + formatSubjects(action.subjects)
     case "join":
-      text = action.agent.name + " joined the chat"
-      break
+      return action.agent.name + " joined the chat"
     case "leave":
-      text = action.agent.name + " left the chat"
-      break
+      return action.agent.name + " left the chat"
     case "update-title":
-      text = action.agent.name + " updated the chat title to " + '"' + action.value + '"'
-      break
+      return action.agent.name + " updated the chat title to " + '"' + action.value + '"'
     case "remove-title":
-      text = action.agent.name + " removed chat title"
-      break
+      return action.agent.name + " removed chat title"
     case "update-desc":
-      text = action.agent.name + " updated the chat description"
-      break
+      return action.agent.name + " updated the chat description"
     case "remove-desc":
-      text = action.agent.name + " removed the chat description"
-      break
+      return action.agent.name + " removed the chat description"
     case "update-image":
-      text = action.agent.name + " updated the chat image"
-      break
+      return action.agent.name + " updated the chat image"
     case "remove-image":
-      text = action.agent.name + " removed the chat image"
-      break
+      return action.agent.name + " removed the chat image"
     default:
-      break
+      return ""
   }
+}
+
+function ActionMessage({ message }) {
   return (
     <p className="w-full text-neutral-400 text-center text-sm">
-      {text} - {moment(message.timestamp).format("LT")}
+      {getActionText(message.action)} - {moment(message.timestamp).format("LT")}
     </p>
   )
 }

@@ -26,16 +26,20 @@ exports.createChat = async ({ type, title, desc, members, admin, authUserId, io 
   await chat.populate({ path: "members", select: "-password" })
 
   const unreadCount = await chat.getUnreadCount(authUserId)
-  const firstMessage = await messageService.createActionMessage({
-    chatId: chat._id.toString(),
-    type: "create",
-    agentId: authUserId,
-    io,
-  })
+  let firstMessage
+  if (type === "group") {
+    const actionMessage = await messageService.createActionMessage({
+      chatId: chat._id.toString(),
+      type: "create",
+      agentId: authUserId,
+      io,
+    })
+    firstMessage = actionMessage.message
+  }
 
   chat = chat.toObject()
   chat.unreadCount = unreadCount
-  chat.messages = [firstMessage.message]
+  chat.messages = firstMessage ? [firstMessage] : []
   chat.images = []
   chat.links = []
   chat.typingUsers = []

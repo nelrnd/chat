@@ -8,6 +8,7 @@ import { BiImageAlt, BiJoystick } from "react-icons/bi"
 import Loader from "./Loader"
 import { getChatName, sortChats } from "@/utils"
 import { formatIsTyping } from "@/utils"
+import { getActionText } from "./Message"
 
 export default function ChatList() {
   const { chatId } = useParams()
@@ -122,6 +123,9 @@ function ChatTab({ chat }: ChatTabProps) {
                         {lastMessage.text}
                       </div>
                     </>
+                  )}
+                  {lastMessage.type === "action" && (
+                    <p className="flex-1 min-w-0 truncate">{getActionText(lastMessage.action)}</p>
                   )}
                 </div>
               ) : null}
