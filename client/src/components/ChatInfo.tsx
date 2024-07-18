@@ -1,4 +1,4 @@
-import { BiInfoCircle } from "react-icons/bi"
+import { BiInfoCircle, BiLoaderAlt } from "react-icons/bi"
 import { useAuth } from "../providers/AuthProvider"
 import { Chat, Media } from "../types"
 import { Button } from "./ui/button"
@@ -7,13 +7,23 @@ import Avatar, { GroupAvatar } from "./Avatar"
 import { getChatName } from "@/utils"
 import { UserTab } from "./UserSearch"
 import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog"
+import { useNavigate, useParams } from "react-router-dom"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog"
 import { ImageWrapper } from "@/providers/ImageViewerProvider"
 import { cn } from "@/lib/utils"
 import { useMediaQuery } from "react-responsive"
 import ChatEditModal from "./ChatEditModal"
 import ChatMembersManager from "./ChatMembersManager"
+import axios from "axios"
 
 const SERVER_BASE_URL = import.meta.env.VITE_SERVER_BASE_URL
 
@@ -43,37 +53,40 @@ export default function ChatInfo({ chat }: ChatInfoProps) {
         </Button>
       </SheetTrigger>
 
-      <SheetContent className="border-l border-neutral-800 overflow-y-auto overflow-x-hidden pb-4">
-        <header className="h-[6rem] p-6 flex justify-between items-center">
-          <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight">
-            {chat.type === "private" ? "Chat info" : "Group info"}
-          </h2>
-          <SheetClose asChild>
-            <Button variant="secondary">Close</Button>
-          </SheetClose>
-        </header>
+      <SheetContent className="border-l border-neutral-800 overflow-y-auto overflow-x-hidden pb-4 flex flex-col">
+        <div className="flex-1">
+          <header className="h-[6rem] p-6 flex justify-between items-center">
+            <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+              {chat.type === "private" ? "Chat info" : "Group info"}
+            </h2>
+            <SheetClose asChild>
+              <Button variant="secondary">Close</Button>
+            </SheetClose>
+          </header>
 
-        {chat.type === "private" ? (
-          <section className="p-6 pt-3 text-center space-y-3">
-            <Avatar src={otherMembers[0].avatar} className="w-[8rem] m-auto" />
-            <div>
-              <h3 className="font-semibold">{otherMembers[0].name}</h3>
-              <p>{otherMembers[0].email}</p>
-            </div>
-            <p className="text-neutral-400">{otherMembers[0].bio}</p>
-          </section>
-        ) : (
-          <section className="p-6 pt-3 text-center space-y-3">
-            <GroupAvatar image={chat.image} members={otherMembers} className="w-[8rem] m-auto" />
-            <h3 className="font-semibold">{chat.title || getChatName(otherMembers)}</h3>
-            {chat.desc && <p className="text-neutral-400">{chat.desc}</p>}
-            {isAdmin && <ChatEditModal chat={chat} />}
-          </section>
-        )}
+          {chat.type === "private" ? (
+            <section className="p-6 pt-3 text-center space-y-3">
+              <Avatar src={otherMembers[0].avatar} className="w-[8rem] m-auto" />
+              <div>
+                <h3 className="font-semibold">{otherMembers[0].name}</h3>
+                <p>{otherMembers[0].email}</p>
+              </div>
+              <p className="text-neutral-400">{otherMembers[0].bio}</p>
+            </section>
+          ) : (
+            <section className="p-6 pt-3 text-center space-y-3">
+              <GroupAvatar image={chat.image} members={otherMembers} className="w-[8rem] m-auto" />
+              <h3 className="font-semibold">{chat.title || getChatName(otherMembers)}</h3>
+              {chat.desc && <p className="text-neutral-400">{chat.desc}</p>}
+              {isAdmin && <ChatEditModal chat={chat} />}
+            </section>
+          )}
 
-        {chat.type === "group" && <ChatMembersSection chat={chat} admin={chat.admin} />}
-        <ChatImagesSection images={chat.images} />
-        <ChatLinksSection links={chat.links} />
+          {chat.type === "group" && <ChatMembersSection chat={chat} admin={chat.admin} />}
+          <ChatImagesSection images={chat.images} />
+          <ChatLinksSection links={chat.links} />
+        </div>
+        {chat.type === "group" && <ChatQuitSection chatId={chat._id} isAdmin={isAdmin} />}
       </SheetContent>
     </Sheet>
   )
@@ -278,5 +291,115 @@ function LinkPreview({ url, short = false }: LinkPreviewProps) {
     >
       {url}
     </a>
+  )
+}
+
+interface ChatQuitSectionProps {
+  chatId: string
+  isAdmin: boolean
+}
+
+function ChatQuitSection({ chatId, isAdmin }: ChatQuitSectionProps) {
+  return (
+    <section className="p-6 space-y-2">
+      {isAdmin ? <DeleteChat chatId={chatId} /> : <LeaveChat chatId={chatId} />}
+    </section>
+  )
+}
+
+interface DeleteChatProps {
+  chatId: string
+}
+
+function DeleteChat({ chatId }: DeleteChatProps) {
+  const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
+
+  const deleteChat = () => {
+    if (loading) return null
+    setLoading(true)
+    axios
+      .delete(`/chat/${chatId}`)
+      .then(() => {
+        setOpen(false)
+        setLoading(false)
+        navigate("/chat")
+      })
+      .catch((err) => console.error(err))
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="secondary" className="w-full">
+          Delete chat
+        </Button>
+      </DialogTrigger>
+
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Delete chat</DialogTitle>
+          <DialogDescription>Do you really want to delete this chat? </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="secondary">Cancel</Button>
+          </DialogClose>
+          <Button onClick={deleteChat} disabled={loading}>
+            {loading ? <BiLoaderAlt className="text-2xl animate-spin" /> : "Delete"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+interface LeaveChatProps {
+  chatId: string
+}
+
+function LeaveChat({ chatId }: LeaveChatProps) {
+  const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const { authUser } = useAuth()
+  const navigate = useNavigate()
+
+  const leaveChat = () => {
+    if (!authUser || loading) return null
+    setLoading(true)
+    axios
+      .delete(`/chat/${chatId}/members/${authUser._id}`)
+      .then(() => {
+        setOpen(false)
+        setLoading(false)
+        navigate("/chat")
+      })
+      .catch((err) => console.error(err))
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="secondary" className="w-full">
+          Leave chat
+        </Button>
+      </DialogTrigger>
+
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Leave chat</DialogTitle>
+          <DialogDescription>Do you really want to leave this chat? </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="secondary">Cancel</Button>
+          </DialogClose>
+          <Button onClick={leaveChat} disabled={loading}>
+            {loading ? <BiLoaderAlt className="text-2xl animate-spin" /> : "Leave"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

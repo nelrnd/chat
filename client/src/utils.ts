@@ -1,7 +1,7 @@
 import { Chat } from "./types"
 
-export function getChatName(members) {
-  if (members.length === 1) {
+export function getChatName(members, type) {
+  if (type === "private") {
     return members[0].name
   } else {
     return members.reduce((acc, curr, id) => acc + (id > 0 ? ", " : "") + curr.name, "") + " and you"

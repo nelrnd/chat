@@ -101,7 +101,21 @@ exports.updateChat = async (chatId, authUserId, title, desc, members, file, prev
   }
   const image = (file && file.path) || prevImage
 
-  exports.createActionMessagesFromChatUpdate(chatId, authUserId, title, desc, image, members, io)
+  await exports.createActionMessagesFromChatUpdate(chatId, authUserId, title, desc, image, members, io)
+
+  if (members?.length) {
+    const removedUsers = chat.members.filter((user) => !members.map((user) => user._id).includes(user._id.toString()))
+    if (removedUsers?.length) {
+      removedUsers.forEach((user) => {
+        const userId = user._id.toString()
+        io.to(userId).emit("chat-delete", chatId)
+        const socket = findSocket(io, userId)
+        if (socket) {
+          socket.leave(chat._id.toString())
+        }
+      })
+    }
+  }
 
   chat = await Chat.findByIdAndUpdate(chatId, { title, desc, members, image }, { new: true })
     .select(`title desc image ${members ? "members" : ""}`)
@@ -249,43 +263,68 @@ exports.addUserToChat = async (chatId, userId) => {
   if (!chat) {
     throw new CustomError("Chat not found", 404)
   }
-
   if (!user) {
     throw new CustomError("User not found", 404)
   }
-
   if (chat.members.includes(user._id.toString())) {
     throw new CustomError("User is already a member of the chat", 400)
   }
 
   chat.members.push(user._id.toString())
-  chat.markModified("members")
   chat.lastViewed[user._id.toString()] = new Date(0)
+  chat.markModified("members")
   chat.markModified("lastViewed")
   await chat.save()
   return chat
 }
 
-exports.removeUserFromChat = async (chatId, userId) => {
-  const [chat, user] = await Promise.all([Chat.findById(chatId), User.findById(userId)])
+exports.deleteChat = async (chatId, authUserId, io) => {
+  const chat = await Chat.findById(chatId)
+  if (!chat) {
+    throw new CustomError("Chat not found", 404)
+  }
+  if (chat.admin.toString() !== authUserId) {
+    throw new CustomError("Cannot delete chat, permission denied", 403)
+  }
+  io.to(chatId).emit("chat-delete", chatId)
+  const deletedChat = await Chat.findByIdAndDelete(chatId)
+  return deletedChat
+}
+
+exports.removeUserFromChat = async (chatId, userId, authUserId, io) => {
+  const [chat, user] = await Promise.all([
+    Chat.findById(chatId).populate({ path: "members", select: "-password" }),
+    User.findById(userId),
+  ])
 
   if (!chat) {
     throw new CustomError("Chat not found", 404)
   }
-
   if (!user) {
     throw new CustomError("User not found", 404)
   }
-
-  if (chat.members.includes(user._id.toString()) === false) {
-    throw new CustomError("User is not a member of the chat", 400)
+  if (!chat.members.map((user) => user._id.toString()).includes(userId)) {
+    throw new CustomError("User is not present in chat", 400)
+  }
+  if (userId !== authUserId && userId !== chat.admin.toString()) {
+    throw new CustomError("Cannot remove user, permission denied", 403)
   }
 
-  const memberIndex = chat.members.findIndex((member) => member._id === userId)
-  chat.members.splice(memberIndex, 1)
+  const index = chat.members.findIndex((member) => member._id.toString() === userId)
+  chat.members.splice(index, 1)
+  delete chat.lastViewed[userId]
   chat.markModified("members")
-  delete chat.lastViewed[user._id.toString()]
   chat.markModified("lastViewed")
   await chat.save()
+
+  if (authUserId !== userId) {
+    await messageService.createActionMessage({ chatId, type: "remove", agentId: authUserId, subjectIds: [userId], io })
+  } else {
+    await messageService.createActionMessage({ chatId, type: "leave", agentId: userId, io })
+  }
+
+  io.to(userId).emit("chat-delete", chatId)
+  io.to(chatId).except(userId).emit("chat-update", chatId, { members: chat.members })
+
   return chat
 }

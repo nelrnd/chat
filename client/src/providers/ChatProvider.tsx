@@ -160,7 +160,13 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     }
 
     function onChatUpdate(chatId: string, updatedChat: object) {
+      console.log("updated")
+      console.log(updatedChat)
       setChats((chats) => chats.map((chat) => (chat._id === chatId ? { ...chat, ...updatedChat } : chat)))
+    }
+
+    function onChatDelete(chatId: string) {
+      setChats((chats) => chats.filter((chat) => chat._id !== chatId))
     }
 
     function onStartTyping({ userId, chatId }: { userId: string; chatId: string }) {
@@ -233,6 +239,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     socket.on("new-chat", onNewChat)
     socket.on("new-message", onNewMessage)
     socket.on("chat-update", onChatUpdate)
+    socket.on("chat-delete", onChatDelete)
     socket.on("start-typing", onStartTyping)
     socket.on("stop-typing", onStopTyping)
     socket.on("user-connection", onUserConnection)
@@ -244,6 +251,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
       socket.off("new-chat", onNewChat)
       socket.off("new-message", onNewMessage)
       socket.off("chat-update", onChatUpdate)
+      socket.off("chat-delete", onChatDelete)
       socket.off("start-typing", onStartTyping)
       socket.off("stop-typing", onStopTyping)
       socket.off("user-connection", onUserConnection)

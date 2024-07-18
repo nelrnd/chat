@@ -98,7 +98,7 @@ function ChatTab({ chat }: ChatTabProps) {
           <ChatAvatar chat={chat} />
 
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold truncate">{chat.title || getChatName(otherMembers)}</h3>
+            <h3 className="font-semibold truncate">{chat.title || getChatName(otherMembers, chat.type)}</h3>
             <div className={`${chat.unreadCount ? "text-white font-medium" : "text-neutral-400"} `}>
               {isTyping.length ? (
                 formatIsTyping(chat, isTyping, "short")

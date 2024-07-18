@@ -37,3 +37,15 @@ exports.readChat = asyncHandler(async (req, res) => {
   await chatService.readChat(req.user._id, chatId)
   res.json({ message: "Chat read successfully" })
 })
+
+exports.deleteChat = asyncHandler(async (req, res) => {
+  const { chatId } = req.params
+  const chat = await chatService.deleteChat(chatId, req.user._id, req.io)
+  res.json({ message: "Chat deleted with success", chat })
+})
+
+exports.removeUserFromChat = asyncHandler(async (req, res) => {
+  const { chatId, userId } = req.params
+  await chatService.removeUserFromChat(chatId, userId, req.user._id, req.io)
+  res.json({ message: "User removed with success" })
+})
