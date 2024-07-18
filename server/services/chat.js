@@ -20,7 +20,7 @@ exports.createChat = async ({ type, title, desc, members, admin, authUserId, io 
 
   const lastViewed = members.reduce((acc, curr) => ({ ...acc, [curr]: Date.now() }), {})
 
-  type = type || members.length === 2 ? "private" : "group"
+  type = type || (members.length === 2 ? "private" : "group")
   let chat = new Chat({ type, members, lastViewed, title, desc, admin })
   await chat.save()
   await chat.populate({ path: "members", select: "-password" })

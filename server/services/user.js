@@ -4,15 +4,15 @@ const Message = require("../models/message")
 const chatService = require("./chat")
 const jwt = require("jsonwebtoken")
 const mongoose = require("mongoose")
-
 const bcrypt = require("bcryptjs")
 const CustomError = require("../customError")
+const messageService = require("./message")
 
 exports.registerUser = async (name, email, password, io) => {
   const hashedPassword = bcrypt.hashSync(password, 12)
   const user = new User({ name, email, password: hashedPassword })
   await user.save()
-  await handleUserRegister(user._id.toString(), io)
+  await exports.handleUserRegister(user._id.toString(), io)
 }
 
 exports.loginUser = async (email, password) => {
@@ -96,6 +96,8 @@ const addUserToGlobalChat = async (userId, io) => {
     chatService.addUserToChat(globalChat._id.toString(), userId)
   }
 
+  await messageService.createActionMessage({ chatId: globalChat._id.toString(), type: "join", agentId: userId, io })
+
   return Promise.resolve()
 }
 
@@ -122,7 +124,7 @@ const greetUser = async (userId, io) => {
       }
 
       if (!greetMessage) {
-        greetMessage = await chatService.createMessage({
+        greetMessage = await messageService.createMessage({
           chatId: chat._id.toString(),
           authUserId: CREATOR_USER_ID,
           text,

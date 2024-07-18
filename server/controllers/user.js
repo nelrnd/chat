@@ -39,7 +39,7 @@ const registerUserValidation = [
 exports.registerUser = [
   ...registerUserValidation,
   asyncHandler(async (req, res, next) => {
-    handleFormValidation(req)
+    handleFormValidation(req, res)
     const { name, email, password } = req.body
     await userService.registerUser(name, email, password, req.io)
     next()
@@ -54,7 +54,7 @@ const loginUserValidation = [
 exports.loginUser = [
   ...loginUserValidation,
   asyncHandler(async (req, res) => {
-    handleFormValidation(req)
+    handleFormValidation(req, res)
     const { email, password } = req.body
     const token = await userService.loginUser(email, password)
     res.json({ message: "User logged in successfully", token })
