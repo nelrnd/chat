@@ -26,10 +26,16 @@ exports.createChat = async ({ type, title, desc, members, admin, authUserId, io 
   await chat.populate({ path: "members", select: "-password" })
 
   const unreadCount = await chat.getUnreadCount(authUserId)
+  const firstMessage = await messageService.createActionMessage({
+    chatId: chat._id.toString(),
+    type: "create",
+    agentId: authUserId,
+    io,
+  })
 
   chat = chat.toObject()
   chat.unreadCount = unreadCount
-  chat.messages = []
+  chat.messages = [firstMessage.message]
   chat.images = []
   chat.links = []
   chat.typingUsers = []
@@ -70,11 +76,12 @@ exports.createGlobalChat = async (io) => {
 
 const emitNewChat = (chat, authUserId, io) => {
   chat.members.forEach((member) => {
-    const socket = findSocket(io, member._id.toString())
+    const userId = member._id.toString()
+    const socket = findSocket(io, userId)
     if (socket) {
       socket.join(chat._id.toString())
-      if (member._id.toString() !== authUserId) {
-        io.to(member._id.toString()).emit("new-chat", chat)
+      if (userId !== authUserId) {
+        io.to(userId).emit("new-chat", chat)
       }
     }
   })
