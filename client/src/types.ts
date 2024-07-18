@@ -9,7 +9,7 @@ export type User = {
 
 export type Message = {
   _id: string
-  type: "game" | "normal"
+  type: "game" | "normal" | "action"
   text: string
   game?: Game
   images: Media[]

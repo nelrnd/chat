@@ -7,7 +7,7 @@ const he = require("he")
 const { findSocket } = require("../utils")
 const CustomError = require("../customError")
 
-exports.createChat = async ({ title, desc, members, admin, authUserId, io }) => {
+exports.createChat = async ({ type, title, desc, members, admin, authUserId, io }) => {
   members = Array.from(new Set(members))
 
   if (members.length < 2) {
@@ -20,16 +20,15 @@ exports.createChat = async ({ title, desc, members, admin, authUserId, io }) => 
 
   const lastViewed = members.reduce((acc, curr) => ({ ...acc, [curr]: Date.now() }), {})
 
-  let chat = new Chat({ members, lastViewed, title, desc, admin })
+  type = type || members.length === 2 ? "private" : "group"
+  let chat = new Chat({ type, members, lastViewed, title, desc, admin })
   await chat.save()
   await chat.populate({ path: "members", select: "-password" })
 
   const unreadCount = await chat.getUnreadCount(authUserId)
-  const type = chat.type
 
   chat = chat.toObject()
   chat.unreadCount = unreadCount
-  chat.type = type
   chat.messages = []
   chat.images = []
   chat.links = []
@@ -49,6 +48,7 @@ exports.createGlobalChat = async (io) => {
   const userIds = users.map((user) => user._id.toString())
 
   const globalChat = await exports.createChat({
+    type: "group",
     members: userIds,
     title: "Global chat",
     desc: "Global chat of the app, have fun ;)",
@@ -89,14 +89,74 @@ exports.updateChat = async (chatId, authUserId, title, desc, members, file, prev
     throw new CustomError("Forbidden, cannot update chat", 403)
   }
   const image = (file && file.path) || prevImage
-  chat = await Chat.findByIdAndUpdate(chatId, { title, desc, members, image }, { new: true }).select(
-    `title desc image ${members ? "members" : ""}`
-  )
-  if (members) {
-    await chat.populate({ path: "members", select: "-password" })
-  }
+
+  exports.createActionMessagesFromChatUpdate(chatId, authUserId, title, desc, image, members, io)
+
+  chat = await Chat.findByIdAndUpdate(chatId, { title, desc, members, image }, { new: true })
+    .select(`title desc image ${members ? "members" : ""}`)
+    .populate({ path: "members", select: "-password" })
+
   emitUpdatedChat(chat, chatId, authUserId, io)
   return chat
+}
+
+exports.createActionMessagesFromChatUpdate = async (chatId, authUserId, title, desc, image, members, io) => {
+  let chat = await Chat.findById(chatId).populate({ path: "members", select: "-password" })
+  if (!chat) {
+    throw new CustomError("Chat not found", 404)
+  }
+  if (chat.admin.toString() !== authUserId) {
+    throw new CustomError("Forbidden, cannot update chat", 403)
+  }
+
+  if (title && title !== chat.title) {
+    await messageService.createActionMessage({ chatId, type: "update-title", agentId: authUserId, value: title, io })
+  }
+
+  if (title === "" && chat.title) {
+    await messageService.createActionMessage({ chatId, type: "remove-title", agentId: authUserId, io })
+  }
+
+  if (desc && desc !== chat.desc) {
+    await messageService.createActionMessage({ chatId, type: "update-desc", agentId: authUserId, io })
+  }
+
+  if (desc === "" && chat.desc) {
+    await messageService.createActionMessage({ chatId, type: "remove-desc", agentId: authUserId, io })
+  }
+
+  if (image && image !== chat.title) {
+    await messageService.createActionMessage({ chatId, type: "update-image", agentId: authUserId, io })
+  }
+
+  if (image === "" && chat.image) {
+    await messageService.createActionMessage({ chatId, type: "remove-image", agentId: authUserId, io })
+  }
+
+  if (members && members.length) {
+    const addedUsers = members.filter((user) => !chat.members.map((user) => user._id.toString()).includes(user._id))
+    const removedUsers = chat.members.filter((user) => !members.map((user) => user._id).includes(user._id.toString()))
+
+    if (addedUsers.length) {
+      await messageService.createActionMessage({
+        chatId,
+        type: "add",
+        agentId: authUserId,
+        subjectIds: addedUsers,
+        io,
+      })
+    }
+
+    if (removedUsers.length) {
+      await messageService.createActionMessage({
+        chatId,
+        type: "remove",
+        agentId: authUserId,
+        subjectIds: removedUsers,
+        io,
+      })
+    }
+  }
 }
 
 const emitUpdatedChat = (updatedChat, chatId, authUserId, io) => {
@@ -116,7 +176,7 @@ exports.getChatList = async (authUserId) => {
         path: "action",
         populate: [
           { path: "agent", select: "-password" },
-          { path: "subject", select: "-password" },
+          { path: "subjects", select: "-password" },
         ],
       })
       .populate({ path: "game", populate: { path: "players", select: "-password" } })
@@ -150,7 +210,6 @@ exports.getChatList = async (authUserId) => {
 
   chats = chats.map((chat) => ({
     ...chat,
-    type: chat.members.length === 2 ? "private" : "group",
     messages: messagesMap[chat._id.toString()] || [],
     images: imagesMap[chat._id.toString()] || [],
     links: linksMap[chat._id.toString()] || [],

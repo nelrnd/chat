@@ -1,6 +1,6 @@
 import { BiInfoCircle } from "react-icons/bi"
 import { useAuth } from "../providers/AuthProvider"
-import { Chat, Media, User } from "../types"
+import { Chat, Media } from "../types"
 import { Button } from "./ui/button"
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "./ui/sheet"
 import Avatar, { GroupAvatar } from "./Avatar"
@@ -80,7 +80,7 @@ export default function ChatInfo({ chat }: ChatInfoProps) {
 }
 
 interface ChatMembersSectionProps {
-  members: User[]
+  chat: Chat
   admin: string
 }
 

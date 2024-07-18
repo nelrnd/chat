@@ -35,7 +35,8 @@ function formatDay(timestamp: string): string {
 function checkFollowed(currMessage: MessageType, nextMessage: MessageType | undefined): boolean {
   if (
     !nextMessage ||
-    currMessage.from._id !== nextMessage.from._id ||
+    currMessage.type === "action" ||
+    currMessage.from?._id !== nextMessage.from?._id ||
     Math.floor(new Date(currMessage.timestamp).getTime() / 1000 / 60) !==
       Math.floor(new Date(nextMessage.timestamp).getTime() / 1000 / 60)
   ) {

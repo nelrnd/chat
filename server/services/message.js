@@ -70,7 +70,7 @@ exports.createMessage = async ({ chatId, authUserId, text, files, action, game, 
       path: "action",
       populate: [
         { path: "agent", select: "-password" },
-        { path: "subject", select: "-password" },
+        { path: "subjects", select: "-password" },
       ],
     })
   }
@@ -87,16 +87,11 @@ exports.createMessage = async ({ chatId, authUserId, text, files, action, game, 
   return res
 }
 
-exports.createActionMessage = async ({ chatId, agentId, subjectId, actionType, value, io }) => {
-  const action = new Action({ action: actionType, agent: agentId, subject: subjectId, value, chat: chatId })
+exports.createActionMessage = async ({ chatId, type, agentId, subjectIds, value, io }) => {
+  const action = new Action({ type, agent: agentId, subjects: subjectIds, value, chat: chatId })
   await action.save()
 
-  const message = await createMessage({ chatId, action, io })
-  await message.populate({
-    path: "action",
-    populate: { path: "agent", select: "-password" },
-    populate: { path: "subject", select: "-password" },
-  })
+  const message = await exports.createMessage({ chatId, action, io })
   return message
 }
 
