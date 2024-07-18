@@ -160,8 +160,6 @@ export default function ChatProvider({ children }: ChatProviderProps) {
     }
 
     function onChatUpdate(chatId: string, updatedChat: object) {
-      console.log("updated")
-      console.log(updatedChat)
       setChats((chats) => chats.map((chat) => (chat._id === chatId ? { ...chat, ...updatedChat } : chat)))
     }
 

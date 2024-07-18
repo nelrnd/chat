@@ -92,7 +92,7 @@ const emitNewChat = (chat, authUserId, io) => {
 }
 
 exports.updateChat = async (chatId, authUserId, title, desc, members, file, prevImage, io) => {
-  let chat = await Chat.findById(chatId)
+  let chat = await Chat.findById(chatId).populate({ path: "members", select: "-password" })
   if (!chat) {
     throw new CustomError("Chat not found", 404)
   }
@@ -104,6 +104,11 @@ exports.updateChat = async (chatId, authUserId, title, desc, members, file, prev
   await exports.createActionMessagesFromChatUpdate(chatId, authUserId, title, desc, image, members, io)
 
   if (members?.length) {
+    const addedUsers = members.filter((user) => !chat.members.map((user) => user._id.toString()).includes(user._id))
+    if (addedUsers?.length) {
+      emitChatJoin(chatId, addedUsers, io)
+    }
+
     const removedUsers = chat.members.filter((user) => !members.map((user) => user._id).includes(user._id.toString()))
     if (removedUsers?.length) {
       removedUsers.forEach((user) => {
@@ -186,6 +191,49 @@ exports.createActionMessagesFromChatUpdate = async (chatId, authUserId, title, d
 
 const emitUpdatedChat = (updatedChat, chatId, authUserId, io) => {
   io.to(chatId).except(authUserId).emit("chat-update", chatId, updatedChat)
+}
+
+const emitChatJoin = async (chatId, newMembers, io) => {
+  let [chat, messages, images, links] = await Promise.all([
+    Chat.findById(chatId).populate({ path: "members", select: "-password" }),
+    Message.find({ chat: chatId })
+      .populate({ path: "images", populate: { path: "from", select: "-password" } })
+      .populate({ path: "from", select: "-password" })
+      .populate({
+        path: "action",
+        populate: [
+          { path: "agent", select: "-password" },
+          { path: "subjects", select: "-password" },
+        ],
+      })
+      .populate({ path: "game", populate: { path: "players", select: "-password" } })
+      .lean(),
+    Media.find({ type: "image", chat: chatId }).populate({ path: "from", select: "-password" }).lean(),
+    Media.find({ type: "link", chat: chatId }).populate({ path: "from", select: "-password" }).lean(),
+  ])
+
+  if (newMembers.length) {
+    await Promise.all(
+      newMembers.map(async (user) => {
+        const userId = user._id.toString()
+        const unreadCount = await chat.getUnreadCount(userId)
+        const socket = findSocket(io, userId)
+        if (socket) {
+          socket.join(chatId)
+          let formattedChat = JSON.parse(he.decode(JSON.stringify(chat)))
+          formattedChat = {
+            ...formattedChat,
+            messages,
+            images,
+            links,
+            typingUsers: [],
+            unreadCount,
+          }
+          io.to(userId).emit("new-chat", formattedChat)
+        }
+      })
+    )
+  }
 }
 
 exports.getChatList = async (authUserId) => {
