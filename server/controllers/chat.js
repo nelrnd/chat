@@ -1,25 +1,44 @@
 const chatService = require("../services/chat")
 const asyncHandler = require("express-async-handler")
 const { multerUpload } = require("../storage")
+const { body } = require("express-validator")
+const { handleFormValidation } = require("../utils")
 
 const upload = multerUpload("media/groups")
 
-exports.createChat = asyncHandler(async (req, res) => {
-  const { title, desc, members } = req.body
-  const chat = await chatService.createChat({
-    title,
-    desc,
-    members,
-    admin: req.user._id,
-    authUserId: req.user._id,
-    io: req.io,
-  })
-  res.json(chat)
-})
+const createChatValidation = [
+  body("title").trim().isLength({ max: 50 }).withMessage("Chat title cannot exceed 50 characters").optional().escape(),
+  body("desc")
+    .trim()
+    .isLength({ max: 300 })
+    .withMessage("Chat description cannot exceed 50 characters")
+    .optional()
+    .escape(),
+  body("members").isArray({ min: 2 }).withMessage("Chat members must be an array of at least 2 users").optional(),
+]
+
+exports.createChat = [
+  ...createChatValidation,
+  asyncHandler(async (req, res) => {
+    handleFormValidation(req, res)
+    const { title, desc, members } = req.body
+    const chat = await chatService.createChat({
+      title,
+      desc,
+      members,
+      admin: req.user._id,
+      authUserId: req.user._id,
+      io: req.io,
+    })
+    res.json(chat)
+  }),
+]
 
 exports.updateChat = [
   upload.single("image"),
+  ...createChatValidation,
   asyncHandler(async (req, res) => {
+    handleFormValidation(req, res)
     const { chatId } = req.params
     const { title, desc, members, image } = req.body
     const chat = await chatService.updateChat(chatId, req.user._id, title, desc, members, req.file, image, req.io)
