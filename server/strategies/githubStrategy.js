@@ -6,7 +6,7 @@ const userService = require("../services/user")
 const options = {
   clientID: process.env.GITHUB_CLIENT_ID,
   clientSecret: process.env.GITHUB_CLIENT_SECRET,
-  callbackURL: "http://localhost:3000/api/user/github/redirect",
+  callbackURL: "http://localhost:3000/api/user/github/login",
   scope: ["user:email"],
   passReqToCallback: true,
 }
