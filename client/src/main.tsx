@@ -6,7 +6,7 @@ import axios from "axios"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
-axios.defaults.baseURL = "http://localhost:3000/api"
+axios.defaults.baseURL = import.meta.env.VITE_SERVER_BASE_URL + "/api"
 gsap.registerPlugin(ScrollTrigger)
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

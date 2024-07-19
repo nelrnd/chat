@@ -6,7 +6,7 @@ const userService = require("../services/user")
 const options = {
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "http://localhost:3000/api/user/google/login",
+  callbackURL: process.env.SERVER_BASE_URL + "/api/user/google/login",
   scope: ["email", "profile", "openid"],
   passReqToCallback: true,
 }
