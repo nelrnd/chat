@@ -1,7 +1,6 @@
 import axios from "axios"
 import { createContext, useContext, useEffect, useMemo, useState } from "react"
 import { User } from "../types"
-import Cookie from "js-cookie"
 
 type ContextContent = {
   token: string | null
@@ -51,15 +50,6 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       setAuthUser(null)
     }
   }, [token])
-
-  useEffect(() => {
-    // when redirect after social login
-    const token = Cookie.get("token")
-    if (token) {
-      setToken(token)
-      Cookie.remove("token")
-    }
-  }, [])
 
   const contextValue = useMemo(
     () => ({
