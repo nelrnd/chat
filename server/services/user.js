@@ -116,7 +116,7 @@ const greetUser = async (userId, io) => {
     if (CREATOR_USER_ID) {
       const members = [CREATOR_USER_ID, userId]
 
-      let chat = await Chat.findOne({ members: { $size: 2, $all: members } })
+      let chat = await Chat.findOne({ members: { $all: members }, type: "private" })
       let greetMessage = chat && (await Message.findOne({ chat: chat._id, from: CREATOR_USER_ID, text: text }))
 
       if (!chat) {
