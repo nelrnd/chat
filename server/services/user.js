@@ -18,11 +18,11 @@ exports.registerUser = async (name, email, password, io) => {
 exports.loginUser = async (email, password) => {
   const user = await User.findOne({ email })
   if (!user) {
-    throw CustomError("Invalid email or password", 400)
+    throw new CustomError("Invalid email or password", 400)
   }
   const passwordMatch = bcrypt.compareSync(password, user.password)
   if (!passwordMatch) {
-    throw CustomError("Invalid email or password", 400)
+    throw new CustomError("Invalid email or password", 400)
   }
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET)
   return token
@@ -30,23 +30,23 @@ exports.loginUser = async (email, password) => {
 
 exports.updateUser = async (authUserId, userId, name, bio, file, prevAvatar) => {
   if (authUserId !== userId) {
-    throw CustomError("Action forbidden, you cannot update this user", 403)
+    throw new CustomError("Action forbidden, you cannot update this user", 403)
   }
   const avatar = (file && file.path) || prevAvatar
   const updatedUser = await User.findByIdAndUpdate(userId, { name, bio, avatar }, { new: true }).select("-password")
   if (!updatedUser) {
-    throw CustomError("User not found", 404)
+    throw new CustomError("User not found", 404)
   }
   return updatedUser
 }
 
 exports.deleteUser = async (authUserId, userId) => {
   if (authUserId !== userId) {
-    throw CustomError("Action forbidden, you cannot delete this user", 403)
+    throw new CustomError("Action forbidden, you cannot delete this user", 403)
   }
   const deletedUser = await User.findByIdAndDelete(userId).select("-password")
   if (!deletedUser) {
-    throw CustomError("User not found", 404)
+    throw new CustomError("User not found", 404)
   }
   return deletedUser
 }

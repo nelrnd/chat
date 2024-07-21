@@ -3,7 +3,7 @@ import { Button } from "./ui/button"
 import logo from "../assets/logo.svg"
 import ChatList from "./ChatList"
 import { useState } from "react"
-import UserSearch from "./UserSearch"
+import { UserSearchWithResults } from "./User"
 import { BiCog } from "react-icons/bi"
 import NewChatManager from "./NewChatManager"
 
@@ -27,7 +27,7 @@ export default function SideBar() {
 
       <div className="flex-1 pt-[2px] relative overflow-y-auto z-10">
         <section className="px-6 pb-4">
-          <UserSearch value={searchTerm} setValue={setSearchTerm} />
+          <UserSearchWithResults term={searchTerm} setTerm={setSearchTerm} />
         </section>
 
         {searchTerm === "" && (

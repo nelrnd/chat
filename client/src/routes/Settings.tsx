@@ -62,7 +62,7 @@ export default function Settings() {
     const formData = new FormData()
     formData.append("name", data.name)
     formData.append("bio", data.bio || "")
-    formData.append("avatar", (data.avatar && data.avatar[0]) || previewAvatar)
+    formData.append("avatar", (data.avatar && data.avatar[0]) || previewAvatar || "")
     await axios
       .put(`/user/${authUser?._id}`, formData)
       .then((res) => {
@@ -190,7 +190,7 @@ export default function Settings() {
                       <Textarea {...field} spellCheck="false" />
                     </FormControl>
                     <FormDescription className={`ml-auto w-fit ${bio && bio.length > 300 && "text-red-500"}`}>
-                      {bio.length || "0"}/300 characters
+                      {(bio && bio.length) || "0"}/300 characters
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -199,7 +199,7 @@ export default function Settings() {
 
               {error && <p className="font-medium text-red-500">{error}</p>}
 
-              <Button variant="secondary" disabled={loading || bio.length > 300} className="block ml-auto">
+              <Button variant="secondary" disabled={loading || !bio || bio.length > 300} className="block ml-auto">
                 {loading ? <BiLoaderAlt className="text-2xl animate-spin" /> : "Save changes"}
               </Button>
             </form>

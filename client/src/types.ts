@@ -17,6 +17,7 @@ export type Message = {
   from: User
   chat: string
   timestamp: string
+  action?: Action
 }
 
 export type Media = {
@@ -54,4 +55,14 @@ export type Game = {
   chat: string
   scores: Record<string, number>
   message?: string
+  win?: { playerId: string }
+  draw?: boolean
+}
+
+export type Action = {
+  _id: string
+  type: string
+  agent: User
+  subjects?: User[]
+  value?: string
 }

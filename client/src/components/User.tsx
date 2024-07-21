@@ -40,6 +40,42 @@ export function UserSearch({ term, setTerm, setResults, setLoading }: UserSearch
   )
 }
 
+interface UserSearchWithResultsProps {
+  term: string
+  setTerm: React.Dispatch<React.SetStateAction<string>>
+}
+
+export function UserSearchWithResults({ term, setTerm }: UserSearchWithResultsProps) {
+  const [results, setResults] = useState<User[]>([])
+  const [loading, setLoading] = useState(false)
+
+  return (
+    <div>
+      <UserSearch term={term} setTerm={setTerm} setResults={setResults} setLoading={setLoading} />
+      {term && (
+        <div className="mt-4">
+          {loading && results.length === 0 && (
+            <p className="text-center text-neutral-400">
+              <BiLoaderAlt className="text-2xl animate-spin m-auto" />
+              <span className="sr-only">Loading</span>
+            </p>
+          )}
+          {!loading && results.length === 0 && <p className="text-center text-neutral-400">No user found</p>}
+          {results.length > 0 && (
+            <ul className="-mx-2 space-y-2">
+              {results.map((user) => (
+                <li key={user._id}>
+                  <UserTab user={user} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 interface UserManagerProps {
   baseUsers: User[]
   users: User[]
@@ -127,7 +163,7 @@ export function UserTab({ user, isAdmin, onClick }: UserTabProps) {
     <button
       onClick={handleClick}
       disabled={isAuthUser}
-      className="w-full text-left rounded-lg hover:bg-neutral-900 disabled:hover:bg-transparent transition-colors flex items-center gap-3"
+      className="w-full p-2 text-left rounded-lg hover:bg-neutral-900 disabled:hover:bg-transparent transition-colors flex items-center gap-3"
     >
       <Avatar src={user.avatar} className="w-[3rem] shrink-0" />
       <div className="flex-1 min-w-0">

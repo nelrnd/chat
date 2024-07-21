@@ -1,5 +1,5 @@
 import moment from "moment"
-import { Media, Message as MessageType, User } from "../types"
+import { Action, Media, Message as MessageType, User } from "../types"
 import { useAuth } from "../providers/AuthProvider"
 import Avatar from "./Avatar"
 import { ImageWrapper } from "@/providers/ImageViewerProvider"
@@ -43,7 +43,7 @@ export default function Message({ message, chatType, followed }: MessageProps) {
         <div className="w-[2.625rem]">{!followed && <Avatar src={message.from.avatar} className="w-full" />}</div>
       )}
       {message.type === "action" && <ActionMessage message={message} />}
-      {message.type === "game" && (
+      {message.game && (
         <div className="w-full space-y-2 flex flex-col justify-end items-end">
           <Game game={message.game} />
           <MessageMeta message={message} chatType={chatType} fromMe={fromMe} />
@@ -62,7 +62,8 @@ export default function Message({ message, chatType, followed }: MessageProps) {
   )
 }
 
-function formatSubjects(subjects: User[]) {
+function formatSubjects(subjects?: User[]) {
+  if (!subjects || !subjects.length) return null
   if (subjects.length === 1) return subjects[0].name
   return subjects.reduce(
     (acc, curr, id, arr) => acc + (id === arr.length - 1 ? " and " : acc ? ", " : "") + curr.name,
@@ -70,36 +71,42 @@ function formatSubjects(subjects: User[]) {
   )
 }
 
-export function getActionText(action) {
+export function getActionText(action: Action) {
   switch (action.type) {
     case "create":
-      return action.agent.name + " created the chat"
+      return (action.agent?.name || "someone") + " created the chat"
     case "add":
-      return action.agent.name + " added " + formatSubjects(action.subjects)
+      return (action.agent?.name || "someone") + " added " + formatSubjects(action.subjects)
     case "remove":
-      return action.agent.name + " removed " + formatSubjects(action.subjects)
+      return (action.agent?.name || "someone") + " removed " + formatSubjects(action.subjects)
     case "join":
-      return action.agent.name + " joined the chat"
+      return (action.agent?.name || "someone") + " joined the chat"
     case "leave":
-      return action.agent.name + " left the chat"
+      return (action.agent?.name || "someone") + " left the chat"
     case "update-title":
-      return action.agent.name + " updated the chat title to " + '"' + action.value + '"'
+      return (action.agent?.name || "someone") + " updated the chat title to " + '"' + action.value + '"'
     case "remove-title":
-      return action.agent.name + " removed chat title"
+      return (action.agent?.name || "someone") + " removed chat title"
     case "update-desc":
-      return action.agent.name + " updated the chat description"
+      return (action.agent?.name || "someone") + " updated the chat description"
     case "remove-desc":
-      return action.agent.name + " removed the chat description"
+      return (action.agent?.name || "someone") + " removed the chat description"
     case "update-image":
-      return action.agent.name + " updated the chat image"
+      return (action.agent?.name || "someone") + " updated the chat image"
     case "remove-image":
-      return action.agent.name + " removed the chat image"
+      return (action.agent?.name || "someone") + " removed the chat image"
     default:
       return ""
   }
 }
 
-function ActionMessage({ message }) {
+interface ActionMessageProps {
+  message: MessageType
+}
+
+function ActionMessage({ message }: ActionMessageProps) {
+  if (!message.action) return null
+
   return (
     <p className="w-full text-neutral-400 text-center text-sm">
       {getActionText(message.action)} - {moment(message.timestamp).format("LT")}

@@ -57,7 +57,7 @@ export default function ChatEditModal({ chat }: ChatEditModalProps) {
     const formData = new FormData()
     formData.append("title", data.title || "")
     formData.append("desc", data.desc || "")
-    formData.append("image", (data.image && data.image[0]) || previewImage)
+    formData.append("image", (data.image && data.image[0]) || previewImage || "")
     await axios
       .put(`/chat/${chat._id}`, formData)
       .then((res) => {

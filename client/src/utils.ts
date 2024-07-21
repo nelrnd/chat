@@ -1,6 +1,6 @@
-import { Chat } from "./types"
+import { Chat, User } from "./types"
 
-export function getChatName(members, type) {
+export function getChatName(members: User[], type: "private" | "group") {
   if (type === "private") {
     return members[0].name
   } else {
@@ -8,7 +8,7 @@ export function getChatName(members, type) {
   }
 }
 
-export function formatIsTyping(chat, arr: string[], type = "long") {
+export function formatIsTyping(chat: Chat, arr: string[], type = "long") {
   if (chat.type === "private" && arr.length && type === "short") {
     return "is typing..."
   }

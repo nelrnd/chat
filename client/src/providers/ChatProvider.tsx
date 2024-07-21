@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import { useAuth } from "./AuthProvider"
 import axios from "axios"
-import { Chat, Media, Message } from "../types"
+import { Chat, Game, Media, Message } from "../types"
 import { socket } from "../socket"
 
 type ContextContent = {
@@ -41,7 +41,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
   }
 
   const findChat = (userId: string) => {
-    return chats.find((chat) => chat.members.length === 2 && chat.members.find((user) => user._id === userId))
+    return chats.find((chat) => chat.type === "private" && chat.members.find((user) => user._id === userId))
   }
 
   const createChat = async (members: string[]) => {
@@ -209,7 +209,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
       )
     }
 
-    function onNewGame(game) {
+    function onNewGame(game: Game) {
       setChats((chats) =>
         chats.map((chat) =>
           chat._id === game.chat ? { ...chat, messages: [...chat.messages, { ...game, type: "game" }] } : chat
@@ -217,7 +217,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
       )
     }
 
-    function onGameUpdate(game) {
+    function onGameUpdate(game: Game) {
       setChats((chats) =>
         chats.map((chat) =>
           chat._id === game.chat

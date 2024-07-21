@@ -24,7 +24,7 @@ export default Game
 const GameWait = ({ game }: GameProps) => {
   const { authUser } = useAuth()
 
-  const otherPlayerName = game.players.find((player) => player._id !== authUser?._id).name
+  const otherPlayerName = game.players.find((player) => player._id !== authUser?._id)?.name
 
   function handlePlay() {
     axios.post(`/game/${game._id}/start`)
@@ -80,7 +80,7 @@ const GameRunning = ({ game }: GameProps) => {
 }
 
 interface GameMessageProps {
-  message: string
+  message?: string
 }
 
 const GameMessage = ({ message }: GameMessageProps) => {
@@ -146,7 +146,7 @@ const GameScore = ({ scores, players }: GameScoreProps) => {
   const { authUser } = useAuth()
   const otherPlayer = players.find((player) => player._id !== authUser?._id)
 
-  if (!authUser) return null
+  if (!authUser || !otherPlayer) return null
 
   return (
     <table className="text-center w-full">
@@ -173,9 +173,6 @@ interface GameOverProps {
 }
 
 const GameOver = ({ game }: GameOverProps) => {
-  const { authUser } = useAuth()
-  const otherPlayerName = game.players.find((player) => player._id !== authUser?._id).name
-
   return (
     <div className="space-y-4">
       <p className="text-center">You played a game of TicTacToe</p>

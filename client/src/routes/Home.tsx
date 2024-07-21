@@ -121,7 +121,10 @@ function Feature({ feature }: FeatureProps) {
   useGSAP(
     () => {
       gsap.from(".box", {
-        scrollTrigger: ".box",
+        scrollTrigger: {
+          trigger: ".box",
+          start: "top bottom",
+        },
         delay: 0.1,
         duration: 2,
         ease: "power4.out",

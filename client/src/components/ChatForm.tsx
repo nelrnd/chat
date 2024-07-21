@@ -32,7 +32,7 @@ export default function ChatForm() {
     setImages(Array.from(images).filter((img) => img !== image))
   }
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (loading || empty) return null
     setIsTyping(false)
@@ -47,7 +47,9 @@ export default function ChatForm() {
   }
 
   const handlePlay = () => {
-    createGame(chatId)
+    if (chatId) {
+      createGame(chatId)
+    }
   }
 
   const reset = () => {

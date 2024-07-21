@@ -5,7 +5,7 @@ import { Button } from "./ui/button"
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "./ui/sheet"
 import Avatar, { GroupAvatar } from "./Avatar"
 import { getChatName } from "@/utils"
-import { UserTab } from "./UserSearch"
+import { UserTab } from "./User"
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import {
@@ -76,7 +76,7 @@ export default function ChatInfo({ chat }: ChatInfoProps) {
           ) : (
             <section className="p-6 pt-3 text-center space-y-3">
               <GroupAvatar image={chat.image} members={otherMembers} className="w-[8rem] m-auto" />
-              <h3 className="font-semibold">{chat.title || getChatName(otherMembers)}</h3>
+              <h3 className="font-semibold">{chat.title || getChatName(otherMembers, "group")}</h3>
               {chat.desc && <p className="text-neutral-400">{chat.desc}</p>}
               {isAdmin && <ChatEditModal chat={chat} />}
             </section>
@@ -94,13 +94,15 @@ export default function ChatInfo({ chat }: ChatInfoProps) {
 
 interface ChatMembersSectionProps {
   chat: Chat
-  admin: string
+  admin?: string
 }
 
 function ChatMembersSection({ chat, admin }: ChatMembersSectionProps) {
   const { authUser } = useAuth()
   const otherMembers = chat.members.filter((user) => user._id !== authUser?._id)
   const isAdmin = authUser?._id === admin
+
+  if (!authUser) return null
 
   return (
     <Dialog>
