@@ -93,6 +93,8 @@ exports.loginUserWithGoogle = [
     res.header("Content-Type", "application/json;charset=UTF-8")
     res.header("Access-Control-Allow-Credentials", true)
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+    res.header("Access-Control-Express-Headers", "set-cookie")
+    res.header("Access-Control-Allow-Origin", process.env.CLIENT_BASE_URL)
     next()
   },
   (req, res) => {
@@ -110,6 +112,8 @@ exports.loginUserWithGithub = [
     res.header("Content-Type", "application/json;charset=UTF-8")
     res.header("Access-Control-Allow-Credentials", true)
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+    res.header("Access-Control-Express-Headers", "set-cookie")
+    res.header("Access-Control-Allow-Origin", process.env.CLIENT_BASE_URL)
     next()
   },
   (req, res) => {
