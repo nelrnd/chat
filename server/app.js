@@ -14,12 +14,18 @@ const RateLimit = require("express-rate-limit")
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
-app.enable("trust proxy")
 app.use(compression())
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }))
 const limiter = RateLimit({ windowMs: 1 * 60 * 1000, max: 300 })
 app.use(limiter)
-app.use(cors({ origin: process.env.CLIENT_BASE_URL, methods: "GET,POST,PUT,DELETE", credentials: true }))
+app.use(
+  cors({
+    origin: process.env.CLIENT_BASE_URL,
+    methods: "GET,POST,PUT,DELETE",
+    credentials: true,
+    optionsSuccessStatus: 200,
+  })
+)
 app.use(passport.initialize())
 app.use((req, res, next) => {
   req.io = io
