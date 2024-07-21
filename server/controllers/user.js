@@ -89,18 +89,9 @@ exports.startGoogleLogin = passport.authenticate("google", { session: false })
 
 exports.loginUserWithGoogle = [
   passport.authenticate("google", { session: false, failureRedirect: process.env.CLIENT_BASE_URL + "/login" }),
-  (req, res, next) => {
-    res.header("Content-Type", "application/json;charset=UTF-8")
-    res.header("Access-Control-Allow-Credentials", true)
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
-    res.header("Access-Control-Express-Headers", "set-cookie")
-    res.header("Access-Control-Allow-Origin", process.env.CLIENT_BASE_URL)
-    next()
-  },
   (req, res) => {
     const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET)
-    res.cookie("token", token)
-    res.redirect(process.env.CLIENT_BASE_URL)
+    res.redirect(process.env.CLIENT_BASE_URL + "?token=" + token)
   },
 ]
 
@@ -108,18 +99,9 @@ exports.startGithubLogin = passport.authenticate("github", { session: false })
 
 exports.loginUserWithGithub = [
   passport.authenticate("github", { session: false, failureRedirect: process.env.CLIENT_BASE_URL + "/login" }),
-  (req, res, next) => {
-    res.header("Content-Type", "application/json;charset=UTF-8")
-    res.header("Access-Control-Allow-Credentials", true)
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
-    res.header("Access-Control-Express-Headers", "set-cookie")
-    res.header("Access-Control-Allow-Origin", process.env.CLIENT_BASE_URL)
-    next()
-  },
   (req, res) => {
     const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET)
-    res.cookie("token", token)
-    res.redirect(process.env.CLIENT_BASE_URL)
+    res.redirect(process.env.CLIENT_BASE_URL + "?token=" + token)
   },
 ]
 
