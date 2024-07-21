@@ -6,6 +6,7 @@ import axios from "axios"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
+axios.defaults.withCredentials = true
 axios.defaults.baseURL = import.meta.env.VITE_SERVER_BASE_URL + "/api"
 gsap.registerPlugin(ScrollTrigger)
 
