@@ -19,7 +19,7 @@ app.use(compression())
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }))
 const limiter = RateLimit({ windowMs: 1 * 60 * 1000, max: 300 })
 app.use(limiter)
-app.use(cors({ origin: process.env.CLIENT_BASE_URL, methods: "GET,POST,PUT,DELETE" }))
+app.use(cors({ origin: process.env.CLIENT_BASE_URL, methods: "GET,POST,PUT,DELETE", credentials: true }))
 app.use(passport.initialize())
 app.use((req, res, next) => {
   req.io = io
