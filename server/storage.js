@@ -1,6 +1,6 @@
 const multer = require("multer")
 
-const types = ["image/png", "image/jpeg", "image/jpg", "image/webp"]
+const types = ["image/png", "image/jpeg", "image/jpg", "image/webp", "image/gif"]
 
 function storage(path) {
   return multer.diskStorage({
@@ -17,7 +17,7 @@ function storage(path) {
 exports.multerUpload = function upload(path) {
   return multer({
     storage: storage(path),
-    limits: { fileSize: 2000000 },
+    limits: { fileSize: 2500000 },
     fileFilter: (req, file, cb) => {
       if (!types.includes(file.mimetype)) {
         return cb(new Error("File type is not allowed"))

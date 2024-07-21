@@ -79,7 +79,7 @@ export default function ChatForm() {
           <input
             id="images"
             type="file"
-            accept="image/png, image/jpeg, image/jpg, image/webp"
+            accept="image/png, image/jpeg, image/jpg, image/webp, image/gif"
             multiple
             className="hidden"
             onChange={(e) => {
