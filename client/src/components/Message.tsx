@@ -39,7 +39,7 @@ export default function Message({ message, chatType, followed }: MessageProps) {
 
   return (
     <li className={`w-full flex gap-3 items-end ${followed ? "mb-2" : "mb-4"}`}>
-      {chatType === "group" && message.type === "normal" && !fromMe && (
+      {chatType === "group" && message.type === "normal" && message.from && !fromMe && (
         <div className="w-[2.625rem]">{!followed && <Avatar src={message.from.avatar} className="w-full" />}</div>
       )}
       {message.type === "action" && <ActionMessage message={message} />}
@@ -74,27 +74,27 @@ function formatSubjects(subjects?: User[]) {
 export function getActionText(action: Action) {
   switch (action.type) {
     case "create":
-      return (action.agent?.name || "someone") + " created the chat"
+      return (action.agent?.name || "Deleted user") + " created the chat"
     case "add":
-      return (action.agent?.name || "someone") + " added " + formatSubjects(action.subjects)
+      return (action.agent?.name || "Deleted user") + " added " + formatSubjects(action.subjects)
     case "remove":
-      return (action.agent?.name || "someone") + " removed " + formatSubjects(action.subjects)
+      return (action.agent?.name || "Deleted user") + " removed " + formatSubjects(action.subjects)
     case "join":
-      return (action.agent?.name || "someone") + " joined the chat"
+      return (action.agent?.name || "Deleted user") + " joined the chat"
     case "leave":
-      return (action.agent?.name || "someone") + " left the chat"
+      return (action.agent?.name || "Deleted user") + " left the chat"
     case "update-title":
-      return (action.agent?.name || "someone") + " updated the chat title to " + '"' + action.value + '"'
+      return (action.agent?.name || "Deleted user") + " updated the chat title to " + '"' + action.value + '"'
     case "remove-title":
-      return (action.agent?.name || "someone") + " removed chat title"
+      return (action.agent?.name || "Deleted user") + " removed chat title"
     case "update-desc":
-      return (action.agent?.name || "someone") + " updated the chat description"
+      return (action.agent?.name || "Deleted user") + " updated the chat description"
     case "remove-desc":
-      return (action.agent?.name || "someone") + " removed the chat description"
+      return (action.agent?.name || "Deleted user") + " removed the chat description"
     case "update-image":
-      return (action.agent?.name || "someone") + " updated the chat image"
+      return (action.agent?.name || "Deleted user") + " updated the chat image"
     case "remove-image":
-      return (action.agent?.name || "someone") + " removed the chat image"
+      return (action.agent?.name || "Deleted user") + " removed the chat image"
     default:
       return ""
   }
@@ -154,7 +154,8 @@ interface MessageMetaProps {
 function MessageMeta({ message, chatType, fromMe }: MessageMetaProps) {
   return (
     <div className={`w-fit text-xs text-neutral-400`}>
-      {chatType === "group" && !fromMe && message.from.name + " • "} {moment(message.timestamp).format("LT")}
+      {chatType === "group" && !fromMe && (message.from?.name || "Deleted user") + " • "}{" "}
+      {moment(message.timestamp).format("LT")}
     </div>
   )
 }

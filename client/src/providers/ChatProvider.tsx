@@ -91,7 +91,7 @@ export default function ChatProvider({ children }: ChatProviderProps) {
       chats.map((chat) => {
         if (chat._id === message.chat) {
           let unreadCount = chat?.unreadCount || 0
-          if (!message.from || message.from._id !== authUser?._id) {
+          if (!message.from || message.from?._id !== authUser?._id) {
             unreadCount++
           }
           const [messageImages, messageLinks] = [images, links]

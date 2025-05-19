@@ -113,7 +113,9 @@ function ChatTab({ chat }: ChatTabProps) {
                   {lastMessage.type === "normal" && (
                     <>
                       {chat.type === "group" && (
-                        <span>{lastMessage.from._id === authUser?._id ? "You" : lastMessage.from.name}: </span>
+                        <span>
+                          {lastMessage.from?._id === authUser?._id ? "You" : lastMessage.from?.name || "Deleted user"}:{" "}
+                        </span>
                       )}
                       {lastMessage.images.length > 0 && <BiImageAlt />}
                       <div className="flex-1 min-w-0 truncate">

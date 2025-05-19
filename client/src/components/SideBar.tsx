@@ -21,7 +21,7 @@ export default function SideBar() {
     >
       <header className="h-[6rem] px-6 py-8 flex items-center">
         <Link to="/chat" className="inline-block w-fit p-2 -m-2">
-          <img src={logo} alt="MiChat" />
+          <img src={logo} alt="BooChat" />
         </Link>
       </header>
 

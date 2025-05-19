@@ -15,7 +15,7 @@ export function formatIsTyping(chat: Chat, arr: string[], type = "long") {
 
   return (
     arr
-      .map((user) => chat.members.find((member) => member._id === user)?.name || "someone")
+      .map((user) => chat.members.find((member) => member._id === user)?.name || "Deleted user")
       .reduce((acc, curr, id) => acc + (id == arr.length - 1 ? " and " : ", ") + curr) +
     (arr.length > 1 ? " are typing..." : " is typing...")
   )

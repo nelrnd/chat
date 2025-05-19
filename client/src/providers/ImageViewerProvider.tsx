@@ -44,33 +44,36 @@ export default function ImageViewerProvider({ children }: ImageViewerProvider) {
 
   return (
     <ImageViewerContext.Provider value={contextValue}>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="min-w-full min-h-full p-0 rounded-none flex flex-col gap-0">
-          <header className="p-6 flex justify-between">
-            <div className="flex gap-3 items-center">
-              <Avatar src={image?.from.avatar} className="w-[2.625rem]" />
-              <div>
-                <p className="font-semibold">By {image?.from.name}</p>
-                <p className="text-sm text-neutral-400">
-                  {moment(image?.timestamp).format("l")}, {moment(image?.timestamp).format("LT")}
-                </p>
+      {image && image.from && (
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent className="min-w-full min-h-full p-0 rounded-none flex flex-col gap-0">
+            <header className="p-6 flex justify-between">
+              <div className="flex gap-3 items-center">
+                <Avatar src={image?.from.avatar} className="w-[2.625rem]" />
+                <div>
+                  <p className="font-semibold">By {image?.from.name}</p>
+                  <p className="text-sm text-neutral-400">
+                    {moment(image?.timestamp).format("l")}, {moment(image?.timestamp).format("LT")}
+                  </p>
+                </div>
               </div>
-            </div>
-            <DialogClose asChild>
-              <Button variant="secondary" size="icon" aria-label="Close">
-                <BiX />
-              </Button>
-            </DialogClose>
-          </header>
-          <main className="p-12 pt-0 flex-1 relative">
-            <img
-              src={SERVER_BASE_URL + "/" + image?.url}
-              alt=""
-              className="block absolute w-[95%] h-[95%] left-1/2 top-0 -translate-x-1/2 inset-0 aspect-square object-contain"
-            />
-          </main>
-        </DialogContent>
-      </Dialog>
+              <DialogClose asChild>
+                <Button variant="secondary" size="icon" aria-label="Close">
+                  <BiX />
+                </Button>
+              </DialogClose>
+            </header>
+            <main className="p-12 pt-0 flex-1 relative">
+              <img
+                src={SERVER_BASE_URL + "/" + image?.url}
+                alt=""
+                className="block absolute w-[95%] h-[95%] left-1/2 top-0 -translate-x-1/2 inset-0 aspect-square object-contain"
+              />
+            </main>
+          </DialogContent>
+        </Dialog>
+      )}
+
       {children}
     </ImageViewerContext.Provider>
   )
